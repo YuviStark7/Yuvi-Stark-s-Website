@@ -83,14 +83,11 @@
     /* ── Landing ── */
     #landing { display: flex; align-items: center; justify-content: center; }
     #portrait-placeholder {
-      width: 260px; height: 360px; border-radius: 4px; background: #f0ede8;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; box-shadow: 0 12px 48px rgba(0,0,0,0.06); position: relative; z-index: 2;
-      transition: opacity 0.15s linear;
+      width: 260px; height: 360px; border-radius: 4px;
+      object-fit: cover; object-position: center top;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.06); position: relative; z-index: 2;
+      transition: opacity 0.15s linear; display: block;
     }
-    .portrait-circle { width: 72px; height: 72px; border-radius: 50%; background: #d4cdc4; }
-    .portrait-line   { width: 90px; height: 1px; background: #c8bfb0; }
-    .portrait-label  { font-size: 9px; color: #bbb; letter-spacing: 0.18em; }
 
     #video-artist, #video-director {
       position: absolute; inset: 0; width: 100%; height: 100%;
@@ -230,11 +227,7 @@
     <span id="landing-label">PORTFOLIO</span>
     <video id="video-director" src="ART DIRECTOR.mp4" muted playsinline preload="auto"></video>
     <video id="video-artist"   src="ARTIST.mp4"       muted playsinline preload="auto"></video>
-    <div id="portrait-placeholder">
-      <div class="portrait-circle"></div>
-      <div class="portrait-line"></div>
-      <span class="portrait-label">YUVI STARK</span>
-    </div>
+    <img id="portrait-placeholder" src="portrait.jpg" alt="Yuvi Stark" />
     <div id="bloom"></div>
     <div id="scroll-hint">
       <div class="hint-row">
