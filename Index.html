@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>YUVI STARK</title>
+<style>
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #fff;
+    font-family: 'Helvetica Neue', Arial, sans-serif; cursor: none; }
+  ::-webkit-scrollbar { display: none; }
+
+  /* ── Cursor ── */
+  #cursor-dot  { position: fixed; top: 0; left: 0; width: 6px; height: 6px;
+    border-radius: 50%; background: #0a0a0a; pointer-events: none; z-index: 9999;
+    will-change: transform; }
+  #cursor-ring { position: fixed; top: 0; left: 0; width: 32px; height: 32px;
+    border-radius: 50%; border: 1px solid rgba(0,0,0,0.22); pointer-events: none;
+    z-index: 9998; will-change: transform; }
+
+  /* ── Stage ── */
+  #stage { position: fixed; inset: 0; display: flex; width: 300vw;
+    transform: translateX(-100vw); will-change: transform; }
+  .panel { width: 100vw; height: 100vh; flex-shrink: 0; position: relative; overflow: hidden; background: #fff; }
+
+  /* ── Dynamic Island ── */
+  #island-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 500; }
+  #island { background: #0a0a0a; border-radius: 100px; height: 34px;
+    width: 132px; display: flex; align-items: center; justify-content: center;
+    padding: 0 20px; overflow: hidden; cursor: pointer; position: relative;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.18);
+    transition: width 0.55s cubic-bezier(0.16,1,0.3,1); }
+  #island-collapsed, #island-expanded { position: absolute; display: flex;
+    align-items: center; gap: 10px; white-space: nowrap; transition:
+      opacity 0.18s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1); }
+  #island-collapsed { opacity: 1; transform: scale(1); }
+  #island-expanded  { opacity: 0; transform: scale(0.9); gap: 18px; }
+  #island.open #island-collapsed { opacity: 0; transform: scale(0.88); pointer-events: none; }
+  #island.open #island-expanded  { opacity: 1; transform: scale(1); }
+  .island-name { color: #fff; font-size: 10.5px; letter-spacing: 0.2em; font-weight: 500; }
+  .nav-item { color: rgba(255,255,255,0.45); font-size: 9.5px; letter-spacing: 0.14em;
+    font-weight: 500; cursor: pointer; transition: color 0.15s ease; }
+  .nav-item:hover { color: #fff; }
+  .island-divider { width: 1px; height: 12px; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+  #cart-badge-c, #cart-badge-e { background: #fff; color: #0a0a0a; border-radius: 100px;
+    font-size: 8.5px; font-weight: 700; padding: 1px 5px; line-height: 14px;
+    display: none; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  #cart-icon { color: rgba(255,255,255,0.7); font-size: 11px; display: none; }
+  .bag-label { color: rgba(255,255,255,0.6); font-size: 9.5px; letter-spacing: 0.1em; display: none; }
+
+  /* ── Progress bar ── */
+  #progress-track { position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
+    background: #f0f0f0; z-index: 100; }
+  #progress-fill  { height: 100%; background: #0a0a0a; width: 50%; transition: width 0.05s linear; }
+  .prog-label { position: absolute; bottom: 8px; font-size: 8px;
+    letter-spacing: 0.2em; color: #ccc; }
+  .prog-left   { left: 24px; }
+  .prog-center { left: 50%; transform: translateX(-50%); }
+  .prog-right  { right: 24px; }
+
+  /* ── Toast ── */
+  #toast-container { position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%);
+    z-index: 600; display: flex; flex-direction: column; gap: 8px; align-items: center;
+    pointer-events: none; }
+  .toast { background: #0a0a0a; color: #fff; padding: 10px 18px; border-radius: 100px;
+    font-size: 10px; letter-spacing: 0.12em; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18); white-space: nowrap;
+    animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .toast-icon { opacity: 0.5; }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; } to { opacity: 0; transform: scale(0.95); }
+  }
+
+  /* ── Landing ── */
+  #landing { display: flex; align-items: center; justify-content: center; }
+  #portrait-box { width: 260px; height: 360px; border-radius: 4px; background: #f0ede8;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; position: relative; z-index: 2; box-shadow: 0 12px 48px rgba(0,0,0,0.06);
+    transition: opacity 0.2s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .portrait-avatar { width: 72px; height: 72px; border-radius: 50%; background: #d4cdc4; }
+  .portrait-line   { width: 90px; height: 1px; background: #c8bfb0; }
+  .portrait-label  { font-size: 9px; color: #bbb; letter-spacing: 0.18em; }
+  #video-artist, #video-director { position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  #bloom { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 3; }
+  #scroll-hint { position: absolute; bottom: 60px; display: flex; flex-direction: column;
+    align-items: center; gap: 12px; transition: opacity 0.4s ease; }
+  .hint-row { display: flex; gap: 48px; }
+  .hint-text { font-size: 8.5px; letter-spacing: 0.25em; color: #bbb; }
+  .hint-line { width: 1px; height: 32px; background: linear-gradient(to bottom, transparent, #ccc); }
+  #landing-label { position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+    font-size: 8.5px; letter-spacing: 0.3em; color: #ccc; }
+
+  /* ── Art Direction ── */
+  #ad-panel { padding: 80px 80px 80px 100px; display: flex; align-items: center; }
+  #ad-label { position: absolute; top: 80px; left: 100px; font-size: 8.5px;
+    letter-spacing: 0.32em; color: #bbb; opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+  #ad-label.visible { opacity: 1; transform: translateY(0); }
+  #ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 40px; width: 100%; padding-top: 32px; }
+  .ad-card { border-top: 1px solid #ebebeb; padding-top: 20px; cursor: pointer;
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+  .ad-card.visible { opacity: 1; transform: translateY(0); }
+  .ad-thumb { height: 180px; border-radius: 3px; margin-bottom: 14px; background: #f8f7f5;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden; transition: background 0.3s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .ad-card:hover .ad-thumb { background: #f2eeea; transform: scale(0.985); }
+  .ad-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+  .ad-card:hover .ad-bar { transform: scaleX(1); }
+  .ad-lines { display: flex; flex-direction: column; gap: 6px; align-items: center; opacity: 0.12; }
+  .ad-line  { height: 1px; background: #000; }
+  .ad-year  { font-size: 8.5px; letter-spacing: 0.2em; color: #bbb; display: block; margin-bottom: 5px; }
+  .ad-client{ font-size: 13.5px; font-weight: 500; letter-spacing: 0.06em; color: #0a0a0a;
+    margin-bottom: 3px; }
+  .ad-role  { font-size: 10px; color: #aaa; letter-spacing: 0.1em; }
+
+  /* ── Art Shop ── */
+  #art-panel { padding: 80px 100px 80px 80px; overflow-y: auto; }
+  #art-label { position: absolute; top: 80px; right: 100px; font-size: 8.5px;
+    letter-spacing: 0.32em; color: #bbb; opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); text-align: right; }
+  #art-label.visible { opacity: 1; transform: translateY(0); }
+  #art-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding-top: 40px; }
+  .art-card { opacity: 0; transform: translateY(28px);
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+  .art-card.visible { opacity: 1; transform: translateY(0); }
+  .art-thumb { height: 200px; border-radius: 3px; margin-bottom: 12px; position: relative;
+    overflow: hidden; cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .art-card:hover .art-thumb { transform: scale(0.975); }
+  .art-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .art-placeholder-inner { width: 55%; height: 55%; border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.15); opacity: 0.4; }
+  .art-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.22);
+    opacity: 0; transition: opacity 0.2s ease;
+    display: flex; align-items: center; justify-content: center; }
+  .art-card:hover .art-overlay { opacity: 1; }
+  .art-btn { background: #fff; color: #0a0a0a; border: none; padding: 9px 18px;
+    font-size: 9px; letter-spacing: 0.14em; font-weight: 600; border-radius: 100px;
+    cursor: pointer; transform: translateY(10px); outline: none;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), background 0.2s ease, color 0.2s ease; }
+  .art-card:hover .art-btn { transform: translateY(0); }
+  .art-btn.in-cart { background: #0a0a0a; color: #fff; }
+  .art-btn:active { transform: scale(0.97) !important; }
+  .art-meta { display: flex; justify-content: space-between; align-items: flex-start; }
+  .art-title  { font-size: 12.5px; font-weight: 450; letter-spacing: 0.04em; color: #0a0a0a; margin-bottom: 3px; }
+  .art-medium { font-size: 9.5px; color: #bbb; letter-spacing: 0.1em; }
+  .art-price  { font-size: 11.5px; color: #888; }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Dynamic Island -->
+<div id="island-wrap">
+  <div id="island">
+    <div id="island-collapsed">
+      <span class="island-name">YUVI STARK</span>
+      <span class="island-divider" id="divider-c" style="display:none"></span>
+      <span id="cart-icon">◎</span>
+      <span id="cart-badge-c">0</span>
+    </div>
+    <div id="island-expanded">
+      <span class="nav-item">ABOUT</span>
+      <span class="nav-item">SHOP</span>
+      <span class="nav-item">GALLERY</span>
+      <span class="nav-item">CONTACT</span>
+      <span class="island-divider" id="divider-e" style="display:none"></span>
+      <span class="bag-label" id="bag-label">BAG</span>
+      <span id="cart-badge-e">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Progress -->
+<div id="progress-track">
+  <div id="progress-fill"></div>
+  <span class="prog-label prog-left">ART DIRECTION</span>
+  <span class="prog-label prog-center">YUVI STARK</span>
+  <span class="prog-label prog-right">ART &amp; SHOP</span>
+</div>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<!-- Stage -->
+<div id="stage">
+
+  <!-- LEFT: Art Direction -->
+  <div class="panel" id="ad-panel">
+    <span id="ad-label">ART DIRECTION</span>
+    <div id="ad-grid">
+      <!-- cards injected by JS -->
+    </div>
+  </div>
+
+  <!-- CENTER: Landing -->
+  <div class="panel" id="landing">
+    <video id="video-director" src="ART DIRECTOR.mp4" muted playsinline preload="auto"></video>
+    <video id="video-artist"   src="ARTIST.mp4"       muted playsinline preload="auto"></video>
+    <div id="bloom"></div>
+    <div id="portrait-box">
+      <div class="portrait-avatar"></div>
+      <div class="portrait-line"></div>
+      <span class="portrait-label">YOUR PORTRAIT</span>
+    </div>
+    <div id="scroll-hint">
+      <div class="hint-row">
+        <span class="hint-text">↑ ART DIRECTION</span>
+        <span class="hint-text">ART ↓</span>
+      </div>
+      <div class="hint-line"></div>
+    </div>
+    <span id="landing-label">PORTFOLIO</span>
+  </div>
+
+  <!-- RIGHT: Art Shop -->
+  <div class="panel" id="art-panel">
+    <span id="art-label">ART &amp; SHOP</span>
+    <div id="art-grid">
+      <!-- cards injected by JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const ARTWORKS = [
+  { id:1, title:"Void Study I",    medium:"Oil on Canvas", price:1200, bg:"#1c1917" },
+  { id:2, title:"Chromatic Drift", medium:"Digital Print", price:450,  bg:"#c8b8a2" },
+  { id:3, title:"Form & Silence",  medium:"Acrylic",       price:850,  bg:"#8b9db0" },
+  { id:4, title:"Negative Space",  medium:"Photography",   price:320,  bg:"#d4cdc4" },
+  { id:5, title:"Echo Chamber",    medium:"Mixed Media",   price:1800, bg:"#2d3a2e" },
+  { id:6, title:"Residue",         medium:"Watercolor",    price:580,  bg:"#b8a898" },
+];
+
+const AD_PROJECTS = [
+  { client:"MAISON NORD",      role:"Brand Identity",    year:2024, color:"#0a0a0a" },
+  { client:"FORM STUDIO",      role:"Visual System",     year:2024, color:"#1a2535" },
+  { client:"EPOCH",            role:"Campaign Direction", year:2023, color:"#2a1a0f" },
+  { client:"BLANC COLLECTIVE", role:"Art Direction",     year:2023, color:"#0f1a1a" },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let cart = [];
+let scrollPos = 0, currentPos = 0, targetPos = 0;
+
+// ── Cursor ────────────────────────────────────────────────────────────────────
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = -100, my = -100, rx = -100, ry = -100;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function cursorTick() {
+  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+  dot.style.transform  = `translate(${mx-3}px,${my-3}px)`;
+  ring.style.transform = `translate(${rx-16}px,${ry-16}px)`;
+  requestAnimationFrame(cursorTick);
+})();
+
+// ── Dynamic Island ────────────────────────────────────────────────────────────
+const island    = document.getElementById('island');
+const badgeC    = document.getElementById('cart-badge-c');
+const badgeE    = document.getElementById('cart-badge-e');
+const cartIcon  = document.getElementById('cart-icon');
+const dividerC  = document.getElementById('divider-c');
+const dividerE  = document.getElementById('divider-e');
+const bagLabel  = document.getElementById('bag-label');
+
+island.addEventListener('mouseenter', () => {
+  island.classList.add('open');
+  island.style.width = (cart.length > 0 ? '350px' : '310px');
+});
+island.addEventListener('mouseleave', () => {
+  island.classList.remove('open');
+  island.style.width = (cart.length > 0 ? '168px' : '132px');
+});
+
+function updateIsland() {
+  const n = cart.length;
+  badgeC.textContent = badgeE.textContent = n;
+  const show = n > 0;
+  badgeC.style.display  = show ? 'inline-block' : 'none';
+  badgeE.style.display  = show ? 'inline-block' : 'none';
+  cartIcon.style.display = show ? 'inline' : 'none';
+  dividerC.style.display = show ? 'block' : 'none';
+  dividerE.style.display = show ? 'block' : 'none';
+  bagLabel.style.display = show ? 'inline' : 'none';
+  island.style.width = island.classList.contains('open')
+    ? (show ? '350px' : '310px')
+    : (show ? '168px' : '132px');
+  // Pulse badge
+  [badgeC, badgeE].forEach(b => {
+    b.style.transform = 'scale(1.4)';
+    setTimeout(() => b.style.transform = 'scale(1)', 400);
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastIdCounter = 0;
+function showToast(msg) {
+  const tc = document.getElementById('toast-container');
+  const t  = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-icon">◎</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => {
+    t.style.animation = `fadeOut 0.3s ease forwards`;
+    setTimeout(() => t.remove(), 300);
+  }, 2600);
+}
+
+// ── Build AD Cards ────────────────────────────────────────────────────────────
+const adGrid = document.getElementById('ad-grid');
+AD_PROJECTS.forEach((p, i) => {
+  adGrid.innerHTML += `
+  <div class="ad-card" style="transition-delay:${i*0.07}s" data-i="${i}">
+    <div class="ad-thumb">
+      <div class="ad-bar" style="background:${p.color}"></div>
+      <div class="ad-lines">
+        <div class="ad-line" style="width:40px"></div>
+        <div class="ad-line" style="width:24px"></div>
+      </div>
+    </div>
+    <span class="ad-year">${p.year}</span>
+    <div class="ad-client">${p.client}</div>
+    <div class="ad-role">${p.role}</div>
+  </div>`;
+});
+
+// ── Build Art Cards ───────────────────────────────────────────────────────────
+const artGrid = document.getElementById('art-grid');
+ARTWORKS.forEach((aw, i) => {
+  artGrid.innerHTML += `
+  <div class="art-card" style="transition-delay:${i*0.06}s" data-id="${aw.id}">
+    <div class="art-thumb" style="background:${aw.bg}">
+      <div class="art-placeholder"><div class="art-placeholder-inner"></div></div>
+      <div class="art-overlay">
+        <button class="art-btn" data-id="${aw.id}">ADD TO BAG</button>
+      </div>
+    </div>
+    <div class="art-meta">
+      <div>
+        <div class="art-title">${aw.title}</div>
+        <div class="art-medium">${aw.medium}</div>
+      </div>
+      <span class="art-price">$${aw.price.toLocaleString()}</span>
+    </div>
+  </div>`;
+});
+
+// Cart button clicks
+artGrid.addEventListener('click', e => {
+  const btn = e.target.closest('.art-btn');
+  if (!btn) return;
+  const id  = parseInt(btn.dataset.id);
+  const aw  = ARTWORKS.find(a => a.id === id);
+  if (!aw || cart.find(c => c.id === id)) return;
+  cart.push(aw);
+  btn.textContent = 'IN BAG ✓';
+  btn.classList.add('in-cart');
+  showToast(`"${aw.title}" added to bag`);
+  updateIsland();
+});
+
+// ── Videos ───────────────────────────────────────────────────────────────────
+const vArtist   = document.getElementById('video-artist');
+const vDirector = document.getElementById('video-director');
+[vArtist, vDirector].forEach(v => v.load());
+
+function scrubVideo(video, progress) {
+  if (!video.duration) return;
+  video.currentTime = Math.max(0, Math.min(1, progress)) * video.duration;
+}
+
+// ── Scroll → horizontal ───────────────────────────────────────────────────────
+window.addEventListener('wheel', e => {
+  e.preventDefault();
+  targetPos = Math.max(-1, Math.min(1, targetPos + e.deltaY * 0.00085));
+}, { passive: false });
+
+// Touch support
+let touchStartY = 0;
+window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchmove', e => {
+  const dy = touchStartY - e.touches[0].clientY;
+  touchStartY = e.touches[0].clientY;
+  targetPos = Math.max(-1, Math.min(1, targetPos + dy * 0.003));
+}, { passive: true });
+
+// ── Main loop ─────────────────────────────────────────────────────────────────
+const stage      = document.getElementById('stage');
+const progFill   = document.getElementById('progress-fill');
+const portrait   = document.getElementById('portrait-box');
+const bloom      = document.getElementById('bloom');
+const scrollHint = document.getElementById('scroll-hint');
+const adLabel    = document.getElementById('ad-label');
+const artLabel   = document.getElementById('art-label');
+const adCards    = document.querySelectorAll('.ad-card');
+const artCards   = document.querySelectorAll('.art-card');
+
+(function tick() {
+  currentPos += (targetPos - currentPos) * 0.09;
+  const v = currentPos;
+  scrollPos = v;
+
+  // Move stage
+  stage.style.transform = `translateX(${(-1 - v) * 100}vw)`;
+
+  // Progress bar
+  progFill.style.width = `${((v + 1) / 2) * 100}%`;
+
+  // Video scrubbing
+  const artistP   = Math.max(0, v);
+  const directorP = Math.max(0, -v);
+
+  vArtist.style.opacity   = Math.min(1, artistP * 3);
+  vDirector.style.opacity = Math.min(1, directorP * 3);
+  scrubVideo(vArtist,   artistP);
+  scrubVideo(vDirector, directorP);
+
+  // Portrait fade
+  const absV = Math.abs(v);
+  portrait.style.opacity = Math.max(0, 1 - absV * 6);
+
+  // White bloom at end of each video
+  const bloomVal = Math.max(
+    Math.max(0, artistP - 0.85) / 0.15,
+    Math.max(0, directorP - 0.85) / 0.15
+  );
+  bloom.style.opacity = bloomVal;
+
+  // Scroll hint
+  scrollHint.style.opacity = absV < 0.04 ? '1' : '0';
+
+  // AD panel visibility
+  const adProgress = Math.max(0, (-v - 0.05) / 0.95);
+  const adVisible  = adProgress > 0.08;
+  adLabel.classList.toggle('visible', adVisible);
+  adCards.forEach((c, i) => {
+    setTimeout(() => c.classList.toggle('visible', adVisible), 0);
+  });
+
+  // Art panel visibility
+  const artProgress = Math.max(0, (v - 0.05) / 0.95);
+  const artVisible  = artProgress > 0.08;
+  artLabel.classList.toggle('visible', artVisible);
+  artCards.forEach(c => c.classList.toggle('visible', artVisible));
+
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
