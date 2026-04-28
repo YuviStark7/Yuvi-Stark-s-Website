@@ -10,184 +10,154 @@
       font-family: 'Helvetica Neue', Arial, sans-serif; cursor: none; }
     ::-webkit-scrollbar { display: none; }
 
-    /* ── Stage ── */
     #stage {
-      position: fixed; inset: 0;
-      display: flex; width: 300vw;
-      transform: translateX(-100vw);
-      will-change: transform;
+      position: fixed; inset: 0; display: flex; width: 300vw;
+      transform: translateX(-100vw); will-change: transform;
     }
     .panel { width: 100vw; height: 100vh; flex-shrink: 0; position: relative; overflow: hidden; background: #fff; }
 
-    /* ── Cursor ── */
-    #cur-dot  { position: fixed; top: 0; left: 0; width: 6px; height: 6px; border-radius: 50%;
-                background: #0a0a0a; z-index: 9999; pointer-events: none; will-change: transform; }
-    #cur-ring { position: fixed; top: 0; left: 0; width: 32px; height: 32px; border-radius: 50%;
-                border: 1px solid rgba(0,0,0,0.22); z-index: 9998; pointer-events: none; will-change: transform; }
+    #cur-dot  { position: fixed; top:0; left:0; width:6px; height:6px; border-radius:50%;
+                background:#0a0a0a; z-index:9999; pointer-events:none; will-change:transform; }
+    #cur-ring { position: fixed; top:0; left:0; width:32px; height:32px; border-radius:50%;
+                border:1px solid rgba(0,0,0,0.22); z-index:9998; pointer-events:none; will-change:transform; }
 
-    /* ── Dynamic Island ── */
     #island {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      z-index: 500; background: #0a0a0a; border-radius: 100px; height: 34px;
-      width: 132px; overflow: hidden; cursor: pointer;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.18);
-      transition: width 0.55s cubic-bezier(0.16,1,0.3,1);
-      display: flex; align-items: center; justify-content: center;
+      position:fixed; top:20px; left:50%; transform:translateX(-50%);
+      z-index:500; background:#0a0a0a; border-radius:100px; height:34px; width:132px;
+      overflow:hidden; cursor:pointer; box-shadow:0 2px 20px rgba(0,0,0,0.18);
+      transition:width 0.55s cubic-bezier(0.16,1,0.3,1);
+      display:flex; align-items:center; justify-content:center;
     }
-    #island.cart { width: 168px; }
-    #island.open { width: 310px; }
-    #island.open.cart { width: 350px; }
-
+    #island.cart { width:168px; }
+    #island.open { width:310px; }
+    #island.open.cart { width:350px; }
     #island-collapsed, #island-expanded {
-      position: absolute; display: flex; align-items: center; gap: 10px;
-      white-space: nowrap; transition: opacity 0.18s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
+      position:absolute; display:flex; align-items:center; gap:10px;
+      white-space:nowrap; transition:opacity 0.18s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
     }
-    #island-collapsed { opacity: 1; transform: scale(1); }
-    #island-expanded  { opacity: 0; transform: scale(0.9); gap: 18px; }
-    #island.open #island-collapsed { opacity: 0; transform: scale(0.88); pointer-events: none; }
-    #island.open #island-expanded  { opacity: 1; transform: scale(1); transition-delay: 0.1s; }
+    #island-collapsed { opacity:1; transform:scale(1); }
+    #island-expanded  { opacity:0; transform:scale(0.9); gap:18px; }
+    #island.open #island-collapsed { opacity:0; transform:scale(0.88); pointer-events:none; }
+    #island.open #island-expanded  { opacity:1; transform:scale(1); transition-delay:0.1s; }
+    .island-name  { color:#fff; font-size:10.5px; letter-spacing:0.2em; font-weight:500; }
+    .island-sep   { width:1px; height:12px; background:rgba(255,255,255,0.2); }
+    .island-badge { background:#fff; color:#0a0a0a; border-radius:100px; font-size:8.5px;
+                    font-weight:700; padding:1px 5px; line-height:14px; display:inline-block;
+                    transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .island-badge.pulse { transform:scale(1.4); }
+    .nav-item { color:rgba(255,255,255,0.45); font-size:9.5px; letter-spacing:0.14em;
+                font-weight:500; cursor:pointer; transition:color 0.15s ease; }
+    .nav-item:hover { color:#fff; }
 
-    .island-name { color: #fff; font-size: 10.5px; letter-spacing: 0.2em; font-weight: 500; }
-    .island-sep  { width: 1px; height: 12px; background: rgba(255,255,255,0.2); }
-    .island-cart-icon { color: rgba(255,255,255,0.7); font-size: 11px; }
-    .island-badge {
-      background: #fff; color: #0a0a0a; border-radius: 100px;
-      font-size: 8.5px; font-weight: 700; padding: 1px 5px; line-height: 14px;
-      display: inline-block; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    #toast-wrap { position:fixed; bottom:48px; left:50%; transform:translateX(-50%);
+                  z-index:600; display:flex; flex-direction:column; gap:8px; align-items:center; }
+    .toast { background:#0a0a0a; color:#fff; padding:10px 18px; border-radius:100px;
+             font-size:10px; letter-spacing:0.12em; display:flex; align-items:center; gap:10px;
+             box-shadow:0 4px 24px rgba(0,0,0,0.18); white-space:nowrap;
+             animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    #progress-wrap { position:fixed; bottom:0; left:0; right:0; height:1px;
+                     background:#f0f0f0; z-index:100; }
+    #progress-bar  { height:100%; background:#0a0a0a; width:50%; transition:width 0.05s linear; }
+    #progress-wrap .pl { position:absolute; bottom:8px; font-size:8px; letter-spacing:0.2em; color:#ccc; }
+    .pl.left   { left:24px; }
+    .pl.center { left:50%; transform:translateX(-50%); }
+    .pl.right  { right:24px; }
+
+    /* Landing */
+    #landing { display:flex; align-items:center; justify-content:center; }
+    #portrait-img {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center center;
+      z-index:2; transition:opacity 0.15s linear;
     }
-    .island-badge.pulse { transform: scale(1.4); }
-    .nav-item { color: rgba(255,255,255,0.45); font-size: 9.5px; letter-spacing: 0.14em;
-                font-weight: 500; cursor: pointer; transition: color 0.15s ease; }
-    .nav-item:hover { color: #fff; }
-
-    /* ── Toast ── */
-    #toast-wrap { position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%);
-                  z-index: 600; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-    .toast {
-      background: #0a0a0a; color: #fff; padding: 10px 18px; border-radius: 100px;
-      font-size: 10px; letter-spacing: 0.12em; display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.18); white-space: nowrap;
-      animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-    .toast span:first-child { opacity: 0.5; }
-
-    /* ── Progress bar ── */
-    #progress-wrap { position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
-                     background: #f0f0f0; z-index: 100; }
-    #progress-bar  { height: 100%; background: #0a0a0a; width: 50%; transition: width 0.05s linear; }
-    #progress-wrap .pl { position: absolute; bottom: 8px; font-size: 8px; letter-spacing: 0.2em; color: #ccc; }
-    #progress-wrap .pl.left   { left: 24px; }
-    #progress-wrap .pl.center { left: 50%; transform: translateX(-50%); }
-    #progress-wrap .pl.right  { right: 24px; }
-
-    /* ── Landing ── */
-    #landing { display: flex; align-items: center; justify-content: center; }
-    #portrait-placeholder {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; object-position: center center;
-      z-index: 2; transition: opacity 0.15s linear; display: block;
-    }
-
     #video-artist, #video-director {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; opacity: 0; transition: opacity 0.15s linear;
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:0;
     }
-    #bloom { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 3; }
+    #bloom { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:3; }
+    #scroll-hint { position:absolute; bottom:60px; display:flex; flex-direction:column;
+                   align-items:center; gap:12px; z-index:4; transition:opacity 0.4s ease; }
+    .hint-row { display:flex; gap:48px; }
+    .hint-text { font-size:8.5px; letter-spacing:0.25em; color:#bbb; }
+    .hint-line { width:1px; height:32px; background:linear-gradient(to bottom, transparent, #ccc); }
+    #landing-label { position:absolute; top:80px; left:50%; transform:translateX(-50%);
+                     font-size:8.5px; letter-spacing:0.3em; color:#ccc; z-index:4; }
 
-    #scroll-hint {
-      position: absolute; bottom: 60px; display: flex; flex-direction: column;
-      align-items: center; gap: 12px; transition: opacity 0.4s ease; z-index: 4;
-    }
-    .hint-row { display: flex; gap: 48px; }
-    .hint-text { font-size: 8.5px; letter-spacing: 0.25em; color: #bbb; }
-    .hint-line { width: 1px; height: 32px; background: linear-gradient(to bottom, transparent, #ccc); }
-    #landing-label { position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-                     font-size: 8.5px; letter-spacing: 0.3em; color: #ccc; z-index: 4; }
+    /* AD Panel */
+    #ad-panel { padding:80px 80px 80px 100px; display:flex; align-items:center; }
+    #ad-label { position:absolute; top:80px; left:100px; font-size:8.5px; letter-spacing:0.32em;
+                color:#bbb; opacity:0; transform:translateY(16px);
+                transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    #ad-label.vis { opacity:1; transform:translateY(0); }
+    #ad-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px 40px; width:100%; padding-top:32px; }
+    .ad-card { border-top:1px solid #ebebeb; padding-top:20px; cursor:pointer;
+               opacity:0; transform:translateY(28px);
+               transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .ad-card.vis { opacity:1; transform:translateY(0); }
+    .ad-thumb { height:180px; border-radius:3px; margin-bottom:14px; background:#f8f7f5;
+                transition:background 0.3s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+                display:flex; align-items:center; justify-content:center;
+                position:relative; overflow:hidden; }
+    .ad-card:hover .ad-thumb { background:#f2eeea; transform:scale(0.985); }
+    .ad-thumb-bar { position:absolute; bottom:0; left:0; right:0; height:2px;
+                    transform:scaleX(0); transform-origin:left;
+                    transition:transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .ad-card:hover .ad-thumb-bar { transform:scaleX(1); }
+    .ad-lines { display:flex; flex-direction:column; gap:6px; align-items:center; opacity:0.12; }
+    .ad-line1 { width:40px; height:1px; background:#000; }
+    .ad-line2 { width:24px; height:1px; background:#000; }
+    .ad-year   { font-size:8.5px; letter-spacing:0.2em; color:#bbb; display:block; margin-bottom:5px; }
+    .ad-client { font-size:13.5px; font-weight:500; letter-spacing:0.06em; color:#0a0a0a; margin-bottom:3px; }
+    .ad-role   { font-size:10px; color:#aaa; letter-spacing:0.1em; }
 
-    /* ── Art Direction ── */
-    #ad-panel { padding: 80px 80px 80px 100px; display: flex; align-items: center; }
-    #ad-label { position: absolute; top: 80px; left: 100px; font-size: 8.5px;
-                letter-spacing: 0.32em; color: #bbb; opacity: 0;
-                transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    #ad-label.vis { opacity: 1; transform: translateY(0); }
-    #ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 40px; width: 100%; padding-top: 32px; }
+    /* Shop Panel */
+    #shop-panel { padding:80px 100px 80px 80px; overflow-y:auto; }
+    #shop-label { position:absolute; top:80px; right:100px; font-size:8.5px; letter-spacing:0.32em;
+                  color:#bbb; opacity:0; text-align:right; transform:translateY(16px);
+                  transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    #shop-label.vis { opacity:1; transform:translateY(0); }
+    #shop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; padding-top:40px; }
+    .art-card { opacity:0; transform:translateY(28px);
+                transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .art-card.vis { opacity:1; transform:translateY(0); }
+    .art-thumb { height:200px; border-radius:3px; margin-bottom:12px; position:relative;
+                 overflow:hidden; cursor:pointer;
+                 transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .art-card:hover .art-thumb { transform:scale(0.975); }
+    .art-thumb-inner { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .art-thumb-sq { width:55%; height:55%; border-radius:2px; opacity:0.25; border:1px solid rgba(255,255,255,0.3); }
+    .art-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.22); opacity:0;
+                   transition:opacity 0.2s ease; display:flex; align-items:center; justify-content:center; }
+    .art-card:hover .art-overlay { opacity:1; }
+    .add-btn { background:#fff; color:#0a0a0a; border:none; padding:9px 18px; font-size:9px;
+               letter-spacing:0.14em; font-weight:600; border-radius:100px; cursor:pointer;
+               transform:translateY(10px); outline:none;
+               transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), background 0.2s ease, color 0.2s ease; }
+    .art-card:hover .add-btn { transform:translateY(0); }
+    .add-btn:active { transform:scale(0.97) !important; }
+    .add-btn.in-cart { background:#0a0a0a; color:#fff; }
+    .art-info   { display:flex; justify-content:space-between; align-items:flex-start; }
+    .art-title  { font-size:12.5px; font-weight:450; letter-spacing:0.04em; color:#0a0a0a; margin-bottom:3px; }
+    .art-medium { font-size:9.5px; color:#bbb; letter-spacing:0.1em; }
+    .art-price  { font-size:11.5px; color:#888; }
 
-    .ad-card { border-top: 1px solid #ebebeb; padding-top: 20px; cursor: pointer;
-               opacity: 0; transform: translateY(28px);
-               transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
-    .ad-card.vis { opacity: 1; transform: translateY(0); }
-    .ad-thumb { height: 180px; border-radius: 3px; margin-bottom: 14px; background: #f8f7f5;
-                transition: background 0.3s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
-                display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .ad-card:hover .ad-thumb { background: #f2eeea; transform: scale(0.985); }
-    .ad-thumb-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-                    transform: scaleX(0); transform-origin: left;
-                    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    .ad-card:hover .ad-thumb-bar { transform: scaleX(1); }
-    .ad-lines { display: flex; flex-direction: column; gap: 6px; align-items: center; opacity: 0.12; }
-    .ad-line1 { width: 40px; height: 1px; background: #000; }
-    .ad-line2 { width: 24px; height: 1px; background: #000; }
-    .ad-year  { font-size: 8.5px; letter-spacing: 0.2em; color: #bbb; display: block; margin-bottom: 5px; }
-    .ad-client { font-size: 13.5px; font-weight: 500; letter-spacing: 0.06em; color: #0a0a0a; margin-bottom: 3px; }
-    .ad-role   { font-size: 10px; color: #aaa; letter-spacing: 0.1em; }
-
-    /* ── Art Shop ── */
-    #shop-panel { padding: 80px 100px 80px 80px; overflow-y: auto; }
-    #shop-label { position: absolute; top: 80px; right: 100px; font-size: 8.5px;
-                  letter-spacing: 0.32em; color: #bbb; opacity: 0; text-align: right;
-                  transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    #shop-label.vis { opacity: 1; transform: translateY(0); }
-    #shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding-top: 40px; }
-
-    .art-card { opacity: 0; transform: translateY(28px);
-                transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
-    .art-card.vis { opacity: 1; transform: translateY(0); }
-    .art-thumb { height: 200px; border-radius: 3px; margin-bottom: 12px; position: relative;
-                 overflow: hidden; cursor: pointer;
-                 transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
-    .art-card:hover .art-thumb { transform: scale(0.975); }
-    .art-thumb-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-    .art-thumb-sq { width: 55%; height: 55%; border-radius: 2px; opacity: 0.25; border: 1px solid rgba(255,255,255,0.3); }
-    .art-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.22); opacity: 0;
-                   transition: opacity 0.2s ease; display: flex; align-items: center; justify-content: center; }
-    .art-card:hover .art-overlay { opacity: 1; }
-    .add-btn {
-      background: #fff; color: #0a0a0a; border: none; padding: 9px 18px;
-      font-size: 9px; letter-spacing: 0.14em; font-weight: 600; border-radius: 100px;
-      cursor: pointer; transform: translateY(10px);
-      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), background 0.2s ease, color 0.2s ease;
-      outline: none;
-    }
-    .art-card:hover .add-btn { transform: translateY(0); }
-    .add-btn:active { transform: scale(0.97) !important; }
-    .add-btn.in-cart { background: #0a0a0a; color: #fff; }
-    .art-info { display: flex; justify-content: space-between; align-items: flex-start; }
-    .art-title  { font-size: 12.5px; font-weight: 450; letter-spacing: 0.04em; color: #0a0a0a; margin-bottom: 3px; }
-    .art-medium { font-size: 9.5px; color: #bbb; letter-spacing: 0.1em; }
-    .art-price  { font-size: 11.5px; color: #888; }
-
-    /* ── Animations ── */
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes vidPulse {
-      0%,100% { opacity: 0.4; } 50% { opacity: 1; }
+      from { opacity:0; transform:translateY(12px) scale(0.96); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
     }
   </style>
 </head>
 <body>
 
-<!-- Cursor -->
 <div id="cur-dot"></div>
 <div id="cur-ring"></div>
 
-<!-- Dynamic Island -->
 <div id="island">
   <div id="island-collapsed">
     <span class="island-name">YUVI STARK</span>
-    <span class="island-sep" id="cart-sep" style="display:none"></span>
-    <span class="island-cart-icon" id="cart-icon" style="display:none">◎</span>
+    <span class="island-sep"  id="cart-sep"     style="display:none"></span>
+    <span style="color:rgba(255,255,255,0.7);font-size:11px;display:none" id="cart-icon">◎</span>
     <span class="island-badge" id="cart-badge-c" style="display:none">0</span>
   </div>
   <div id="island-expanded">
@@ -195,16 +165,14 @@
     <span class="nav-item">SHOP</span>
     <span class="nav-item">GALLERY</span>
     <span class="nav-item">CONTACT</span>
-    <span class="island-sep" id="exp-sep" style="display:none"></span>
+    <span class="island-sep"  id="exp-sep"  style="display:none"></span>
     <span style="color:rgba(255,255,255,0.6);font-size:9.5px;letter-spacing:0.1em;display:none" id="exp-bag">BAG</span>
     <span class="island-badge" id="cart-badge-e" style="display:none">0</span>
   </div>
 </div>
 
-<!-- Toast container -->
 <div id="toast-wrap"></div>
 
-<!-- Progress bar -->
 <div id="progress-wrap">
   <div id="progress-bar"></div>
   <span class="pl left">ART DIRECTION</span>
@@ -212,9 +180,7 @@
   <span class="pl right">ART & SHOP</span>
 </div>
 
-<!-- Stage -->
 <div id="stage">
-
   <!-- Panel 0: Art Direction -->
   <div class="panel" id="ad-panel">
     <span id="ad-label">ART DIRECTION</span>
@@ -226,9 +192,9 @@
     <span id="landing-label">PORTFOLIO</span>
     <video id="video-director" src="ART DIRECTOR.mp4" muted playsinline preload="auto"></video>
     <video id="video-artist"   src="ARTIST.mp4"       muted playsinline preload="auto"></video>
-    <img id="portrait-placeholder" src="portrait.jpg" alt="Yuvi Stark" />
-    <div id="bloom"></div>
-    <div id="scroll-hint">
+    <img   id="portrait-img"   src="portrait.jpg" alt="Yuvi Stark" />
+    <div   id="bloom"></div>
+    <div   id="scroll-hint">
       <div class="hint-row">
         <span class="hint-text">↑ ART DIRECTION</span>
         <span class="hint-text">ART ↓</span>
@@ -242,11 +208,9 @@
     <span id="shop-label">ART & SHOP</span>
     <div id="shop-grid"></div>
   </div>
-
 </div>
 
 <script>
-// ─── Data ────────────────────────────────────────────────────────────────────
 const ARTWORKS = [
   { id:1, title:"Void Study I",    medium:"Oil on Canvas", price:1200, bg:"#1c1917" },
   { id:2, title:"Chromatic Drift", medium:"Digital Print", price:450,  bg:"#c8b8a2" },
@@ -255,7 +219,6 @@ const ARTWORKS = [
   { id:5, title:"Echo Chamber",    medium:"Mixed Media",   price:1800, bg:"#2d3a2e" },
   { id:6, title:"Residue",         medium:"Watercolor",    price:580,  bg:"#b8a898" },
 ];
-
 const AD_PROJECTS = [
   { id:1, client:"MAISON NORD",      role:"Brand Identity",    year:2024, color:"#0a0a0a" },
   { id:2, client:"FORM STUDIO",      role:"Visual System",     year:2024, color:"#1a2535" },
@@ -263,178 +226,166 @@ const AD_PROJECTS = [
   { id:4, client:"BLANC COLLECTIVE", role:"Art Direction",      year:2023, color:"#0f1a1a" },
 ];
 
-// ─── State ───────────────────────────────────────────────────────────────────
-let scrollPos  = 0, current = 0, target = 0;
-let cart       = [];
-let toastCount = 0;
+// scroll range: -2 (full AD) to +2 (full Art)
+// VIDEO plays:  0→1 over the full -2 to +2 range
+// STAGE moves:  only in the LAST 25% of travel (1.5→2 or -1.5→-2)
+let target = 0, current = 0, scrollPos = 0;
+let cart = [];
 
-// ─── Elements ────────────────────────────────────────────────────────────────
-const stage      = document.getElementById('stage');
-const island     = document.getElementById('island');
-const progressBar= document.getElementById('progress-bar');
-const portrait   = document.getElementById('portrait-placeholder');
-const bloom      = document.getElementById('bloom');
-const scrollHint = document.getElementById('scroll-hint');
-const vidArtist  = document.getElementById('video-artist');
-const vidDir     = document.getElementById('video-director');
-const adLabel    = document.getElementById('ad-label');
-const shopLabel  = document.getElementById('shop-label');
-const toastWrap  = document.getElementById('toast-wrap');
-
-// ─── Cursor ──────────────────────────────────────────────────────────────────
-const dot  = document.getElementById('cur-dot');
+// ── Cursor ──────────────────────────────────────────────────────────────────
+const dot = document.getElementById('cur-dot');
 const ring = document.getElementById('cur-ring');
-let mx = -100, my = -100, rx = -100, ry = -100;
-
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-(function cursorTick() {
-  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+let mx=-100,my=-100,rx=-100,ry=-100;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+(function curTick(){
+  rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
   dot.style.transform  = `translate(${mx-3}px,${my-3}px)`;
   ring.style.transform = `translate(${rx-16}px,${ry-16}px)`;
-  requestAnimationFrame(cursorTick);
+  requestAnimationFrame(curTick);
 })();
 
-// ─── Dynamic Island ──────────────────────────────────────────────────────────
-island.addEventListener('mouseenter', () => island.classList.add('open'));
-island.addEventListener('mouseleave', () => island.classList.remove('open'));
+// ── Island ───────────────────────────────────────────────────────────────────
+const island = document.getElementById('island');
+island.addEventListener('mouseenter', ()=>island.classList.add('open'));
+island.addEventListener('mouseleave', ()=>island.classList.remove('open'));
 
-function updateIsland() {
-  const n = cart.length;
-  const hasCols = ['cart-sep','cart-icon','cart-badge-c','exp-sep','exp-bag','cart-badge-e'];
-  hasCols.forEach(id => {
-    document.getElementById(id).style.display = n > 0 ? (id.includes('sep')||id.includes('bag')||id.includes('icon') ? 'inline-block' : 'inline-block') : 'none';
-  });
+function updateIsland(){
+  const n = cart.length, show = n > 0;
+  ['cart-sep','cart-icon','cart-badge-c','exp-sep','exp-bag','cart-badge-e']
+    .forEach(id => document.getElementById(id).style.display = show ? 'inline-block' : 'none');
   document.getElementById('cart-badge-c').textContent = n;
   document.getElementById('cart-badge-e').textContent = n;
-  island.classList.toggle('cart', n > 0);
+  island.classList.toggle('cart', show);
 }
-
-function pulseIsland() {
-  ['cart-badge-c','cart-badge-e'].forEach(id => {
-    const el = document.getElementById(id);
+function pulseIsland(){
+  ['cart-badge-c','cart-badge-e'].forEach(id=>{
+    const el=document.getElementById(id);
     el.classList.add('pulse');
-    setTimeout(() => el.classList.remove('pulse'), 600);
+    setTimeout(()=>el.classList.remove('pulse'),600);
   });
 }
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerHTML = `<span>◎</span><span>${msg}</span>`;
+// ── Toast ────────────────────────────────────────────────────────────────────
+const toastWrap = document.getElementById('toast-wrap');
+function showToast(msg){
+  const t=document.createElement('div'); t.className='toast';
+  t.innerHTML=`<span style="opacity:.5">◎</span><span>${msg}</span>`;
   toastWrap.appendChild(t);
-  setTimeout(() => t.remove(), 2800);
+  setTimeout(()=>t.remove(),2800);
 }
 
-// ─── Cart ────────────────────────────────────────────────────────────────────
-function addToCart(artwork) {
-  if (cart.find(c => c.id === artwork.id)) return;
+// ── Cart ─────────────────────────────────────────────────────────────────────
+function addToCart(artwork){
+  if(cart.find(c=>c.id===artwork.id)) return;
   cart.push(artwork);
-  updateIsland();
-  pulseIsland();
+  updateIsland(); pulseIsland();
   showToast(`"${artwork.title}" added to bag`);
-  // Update button
-  const btn = document.querySelector(`[data-id="${artwork.id}"]`);
-  if (btn) { btn.textContent = 'IN BAG ✓'; btn.classList.add('in-cart'); }
+  const btn=document.querySelector(`[data-id="${artwork.id}"]`);
+  if(btn){ btn.textContent='IN BAG ✓'; btn.classList.add('in-cart'); }
 }
 
-// ─── Build AD Grid ────────────────────────────────────────────────────────────
-const adGrid = document.getElementById('ad-grid');
-AD_PROJECTS.forEach((p, i) => {
-  adGrid.innerHTML += `
-    <div class="ad-card" data-delay="${i * 70}">
-      <div class="ad-thumb">
-        <div class="ad-thumb-bar" style="background:${p.color}"></div>
-        <div class="ad-lines"><div class="ad-line1"></div><div class="ad-line2"></div></div>
-      </div>
-      <span class="ad-year">${p.year}</span>
-      <div class="ad-client">${p.client}</div>
-      <div class="ad-role">${p.role}</div>
-    </div>`;
-});
+// ── Build grids ───────────────────────────────────────────────────────────────
+document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map((p,i)=>`
+  <div class="ad-card" data-delay="${i*70}">
+    <div class="ad-thumb">
+      <div class="ad-thumb-bar" style="background:${p.color}"></div>
+      <div class="ad-lines"><div class="ad-line1"></div><div class="ad-line2"></div></div>
+    </div>
+    <span class="ad-year">${p.year}</span>
+    <div class="ad-client">${p.client}</div>
+    <div class="ad-role">${p.role}</div>
+  </div>`).join('');
 
-// ─── Build Shop Grid ──────────────────────────────────────────────────────────
-const shopGrid = document.getElementById('shop-grid');
-ARTWORKS.forEach((a, i) => {
-  shopGrid.innerHTML += `
-    <div class="art-card" data-delay="${i * 60}">
-      <div class="art-thumb" style="background:${a.bg}">
-        <div class="art-thumb-inner"><div class="art-thumb-sq"></div></div>
-        <div class="art-overlay">
-          <button class="add-btn" data-id="${a.id}" onclick="addToCart(ARTWORKS[${i}])">ADD TO BAG</button>
-        </div>
+document.getElementById('shop-grid').innerHTML = ARTWORKS.map((a,i)=>`
+  <div class="art-card" data-delay="${i*60}">
+    <div class="art-thumb" style="background:${a.bg}">
+      <div class="art-thumb-inner"><div class="art-thumb-sq"></div></div>
+      <div class="art-overlay">
+        <button class="add-btn" data-id="${a.id}" onclick="addToCart(ARTWORKS[${i}])">ADD TO BAG</button>
       </div>
-      <div class="art-info">
-        <div>
-          <div class="art-title">${a.title}</div>
-          <div class="art-medium">${a.medium}</div>
-        </div>
-        <div class="art-price">$${a.price.toLocaleString()}</div>
-      </div>
-    </div>`;
-});
+    </div>
+    <div class="art-info">
+      <div><div class="art-title">${a.title}</div><div class="art-medium">${a.medium}</div></div>
+      <div class="art-price">$${a.price.toLocaleString()}</div>
+    </div>
+  </div>`).join('');
 
-// ─── Scroll ───────────────────────────────────────────────────────────────────
-window.addEventListener('wheel', e => {
+// ── Scroll ────────────────────────────────────────────────────────────────────
+window.addEventListener('wheel', e=>{
   e.preventDefault();
-  target = Math.max(-2, Math.min(2, target + e.deltaY * 0.0008));
-}, { passive: false });
+  // Range -2 to +2. Scroll speed tuned so video has plenty of time.
+  target = Math.max(-2, Math.min(2, target + e.deltaY * 0.0012));
+}, { passive:false });
 
-// ─── Main Loop ────────────────────────────────────────────────────────────────
-function tick() {
-  current += (target - current) * 0.09;
+// ── Elements ─────────────────────────────────────────────────────────────────
+const stage       = document.getElementById('stage');
+const progressBar = document.getElementById('progress-bar');
+const portrait    = document.getElementById('portrait-img');
+const bloom       = document.getElementById('bloom');
+const scrollHint  = document.getElementById('scroll-hint');
+const vidArtist   = document.getElementById('video-artist');
+const vidDir      = document.getElementById('video-director');
+const adLabel     = document.getElementById('ad-label');
+const shopLabel   = document.getElementById('shop-label');
+
+// ── Main loop ─────────────────────────────────────────────────────────────────
+function tick(){
+  current += (target - current) * 0.08;
   scrollPos = current;
 
-  // Stage translate — panels arrive only at scroll extremes (±2)
-  stage.style.transform = `translateX(${(-1 - scrollPos/2) * 100}vw)`;
-
-  // Progress bar
-  progressBar.style.width = `${((scrollPos/2 + 1) / 2) * 100}%`;
-
-  const artP = Math.max(0, scrollPos) / 2;   // 0→1 as scrollPos 0→2
+  // VIDEO progress — plays over full -2→+2 range
+  const artP = Math.max(0, scrollPos) / 2;   // 0→1 as scrollPos 0→+2
   const dirP = Math.max(0, -scrollPos) / 2;  // 0→1 as scrollPos 0→-2
-  const absPos = Math.abs(scrollPos) / 2;
 
-  // Portrait fade
-  portrait.style.opacity = Math.max(0, 1 - absPos * 6);
+  // STAGE movement — only kicks in after 75% of scroll (abs > 1.5)
+  // So panels only slide in during the final 25% of the journey
+  const artPanel = Math.max(0, (scrollPos - 1.5) / 0.5);   // 0→1 in range 1.5→2
+  const dirPanel = Math.max(0, (-scrollPos - 1.5) / 0.5);  // 0→1 in range -1.5→-2
+  const stageShift = artPanel - dirPanel; // -1 to +1
+  stage.style.transform = `translateX(${(-1 - stageShift) * 100}vw)`;
 
-  // Videos
-  vidArtist.style.opacity  = Math.min(1, artP * 3);
-  vidDir.style.opacity     = Math.min(1, dirP * 3);
+  // Progress bar (maps full -2→+2 to 0→100%)
+  progressBar.style.width = `${((scrollPos + 2) / 4) * 100}%`;
 
-  if (vidArtist.readyState >= 2 && vidArtist.duration)
+  // Portrait fades as soon as video starts
+  const absP = Math.max(artP, dirP);
+  portrait.style.opacity = Math.max(0, 1 - absP * 5);
+
+  // Video opacity
+  vidArtist.style.opacity = Math.min(1, artP * 4);
+  vidDir.style.opacity    = Math.min(1, dirP * 4);
+
+  // Video scrub
+  if(vidArtist.readyState >= 2 && vidArtist.duration)
     vidArtist.currentTime = Math.min(artP, 0.9999) * vidArtist.duration;
-  if (vidDir.readyState >= 2 && vidDir.duration)
+  if(vidDir.readyState >= 2 && vidDir.duration)
     vidDir.currentTime = Math.min(dirP, 0.9999) * vidDir.duration;
 
-  // White bloom at end
-  const bloomArt = Math.max(0, (artP - 0.85) / 0.15);
-  const bloomDir = Math.max(0, (dirP - 0.85) / 0.15);
-  bloom.style.opacity = Math.max(bloomArt, bloomDir);
+  // White bloom — triggers in last 15% of video
+  const bArt = Math.max(0, (artP - 0.85) / 0.15);
+  const bDir = Math.max(0, (dirP - 0.85) / 0.15);
+  bloom.style.opacity = Math.max(bArt, bDir);
 
   // Scroll hint
-  scrollHint.style.opacity = absPos < 0.04 ? 1 : 0;
+  scrollHint.style.opacity = absP < 0.05 ? 1 : 0;
 
-  // AD panel visibility
-  const dirProgress = Math.max(0, (-scrollPos - 0.05) / 0.95);
-  const adVisible   = dirProgress > 0.08;
+  // Panel card visibility
+  const adVisible   = dirPanel > 0.05;
+  const shopVisible = artPanel > 0.05;
+
   adLabel.classList.toggle('vis', adVisible);
-  document.querySelectorAll('.ad-card').forEach((el, i) => {
-    setTimeout(() => el.classList.toggle('vis', adVisible), adVisible ? i * 70 : 0);
-  });
-
-  // Shop panel visibility
-  const artProgress  = Math.max(0, (scrollPos - 0.05) / 0.95);
-  const shopVisible  = artProgress > 0.08;
   shopLabel.classList.toggle('vis', shopVisible);
-  document.querySelectorAll('.art-card').forEach((el, i) => {
-    setTimeout(() => el.classList.toggle('vis', shopVisible), shopVisible ? i * 60 : 0);
+  document.querySelectorAll('.ad-card').forEach((el,i)=>{
+    el.style.transitionDelay = adVisible ? `${i*0.07}s` : '0s';
+    el.classList.toggle('vis', adVisible);
+  });
+  document.querySelectorAll('.art-card').forEach((el,i)=>{
+    el.style.transitionDelay = shopVisible ? `${i*0.06}s` : '0s';
+    el.classList.toggle('vis', shopVisible);
   });
 
   requestAnimationFrame(tick);
 }
-
 tick();
 </script>
 </body>
