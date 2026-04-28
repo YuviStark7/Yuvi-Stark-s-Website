@@ -378,7 +378,7 @@ ARTWORKS.forEach((a, i) => {
 // ─── Scroll ───────────────────────────────────────────────────────────────────
 window.addEventListener('wheel', e => {
   e.preventDefault();
-  target = Math.max(-1, Math.min(1, target + e.deltaY * 0.0004));
+  target = Math.max(-2, Math.min(2, target + e.deltaY * 0.0008));
 }, { passive: false });
 
 // ─── Main Loop ────────────────────────────────────────────────────────────────
@@ -386,15 +386,15 @@ function tick() {
   current += (target - current) * 0.09;
   scrollPos = current;
 
-  // Stage translate
-  stage.style.transform = `translateX(${(-1 - scrollPos) * 100}vw)`;
+  // Stage translate — panels arrive only at scroll extremes (±2)
+  stage.style.transform = `translateX(${(-1 - scrollPos/2) * 100}vw)`;
 
   // Progress bar
-  progressBar.style.width = `${((scrollPos + 1) / 2) * 100}%`;
+  progressBar.style.width = `${((scrollPos/2 + 1) / 2) * 100}%`;
 
-  const absPos  = Math.abs(scrollPos);
-  const artP    = Math.max(0, scrollPos);   // 0→1 right
-  const dirP    = Math.max(0, -scrollPos);  // 0→1 left
+  const artP = Math.max(0, scrollPos) / 2;   // 0→1 as scrollPos 0→2
+  const dirP = Math.max(0, -scrollPos) / 2;  // 0→1 as scrollPos 0→-2
+  const absPos = Math.abs(scrollPos) / 2;
 
   // Portrait fade
   portrait.style.opacity = Math.max(0, 1 - absPos * 6);
