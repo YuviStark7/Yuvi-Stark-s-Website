@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YUVI STARK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #fff;
@@ -20,6 +23,9 @@
                 background:#0a0a0a; z-index:9999; pointer-events:none; will-change:transform; }
     #cur-ring { position: fixed; top:0; left:0; width:32px; height:32px; border-radius:50%;
                 border:1px solid rgba(0,0,0,0.22); z-index:9998; pointer-events:none; will-change:transform; }
+    /* invert the cursor so it stays visible on dark pages (e.g. About) */
+    body.cursor-light #cur-dot  { background:#fff; }
+    body.cursor-light #cur-ring { border-color:rgba(255,255,255,0.6); }
 
     #island {
       position:fixed; top:20px; left:50%; transform:translateX(-50%);
@@ -64,87 +70,400 @@
     .pl.center { left:50%; transform:translateX(-50%); }
     .pl.right  { right:24px; }
 
-    /* Landing */
-    #landing { display:flex; align-items:center; justify-content:center; }
+    /* Landing — centred portrait/video column + side indicators (per Figma) */
+    #landing { background:#fff; }
+    #landing-media { position:absolute; left:50%; transform:translateX(-50%);
+      top:92px; bottom:0; width:min(999px, 56vw); overflow:hidden; }
     #portrait-img {
       position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; object-position:center center;
+      object-fit:cover; object-position:center top;
       z-index:2; transition:opacity 0.15s linear;
     }
     #video-artist, #video-director {
       position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:0;
+      object-fit:cover; object-position:center top; opacity:0;
     }
     #bloom { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:3; }
-    #scroll-hint { position:absolute; bottom:60px; display:flex; flex-direction:column;
-                   align-items:center; gap:12px; z-index:4; transition:opacity 0.4s ease; }
-    .hint-row { display:flex; gap:48px; }
-    .hint-text { font-size:8.5px; letter-spacing:0.25em; color:#bbb; }
-    .hint-line { width:1px; height:32px; background:linear-gradient(to bottom, transparent, #ccc); }
-    #landing-label { position:absolute; top:80px; left:50%; transform:translateX(-50%);
-                     font-size:8.5px; letter-spacing:0.3em; color:#ccc; z-index:4; }
 
-    /* AD Panel */
-    #ad-panel { padding:80px 80px 80px 100px; display:flex; align-items:center; }
-    #ad-label { position:absolute; top:80px; left:100px; font-size:8.5px; letter-spacing:0.32em;
-                color:#bbb; opacity:0; transform:translateY(16px);
-                transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    #ad-label.vis { opacity:1; transform:translateY(0); }
-    #ad-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px 40px; width:100%; padding-top:32px; }
-    .ad-card { border-top:1px solid #ebebeb; padding-top:20px; cursor:pointer;
-               opacity:0; transform:translateY(28px);
-               transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
-    .ad-card.vis { opacity:1; transform:translateY(0); }
-    .ad-thumb { height:180px; border-radius:3px; margin-bottom:14px; background:#f8f7f5;
-                transition:background 0.3s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
-                display:flex; align-items:center; justify-content:center;
-                position:relative; overflow:hidden; }
-    .ad-card:hover .ad-thumb { background:#f2eeea; transform:scale(0.985); }
-    .ad-thumb-bar { position:absolute; bottom:0; left:0; right:0; height:2px;
-                    transform:scaleX(0); transform-origin:left;
-                    transition:transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    .ad-card:hover .ad-thumb-bar { transform:scaleX(1); }
-    .ad-lines { display:flex; flex-direction:column; gap:6px; align-items:center; opacity:0.12; }
-    .ad-line1 { width:40px; height:1px; background:#000; }
-    .ad-line2 { width:24px; height:1px; background:#000; }
-    .ad-year   { font-size:8.5px; letter-spacing:0.2em; color:#bbb; display:block; margin-bottom:5px; }
-    .ad-client { font-size:13.5px; font-weight:500; letter-spacing:0.06em; color:#0a0a0a; margin-bottom:3px; }
-    .ad-role   { font-size:10px; color:#aaa; letter-spacing:0.1em; }
+    .land-ind { position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+      display:flex; align-items:center; gap:16px; color:#000; opacity:0.4;
+      font-family:'Montserrat',sans-serif; font-size:18px; letter-spacing:0.02em;
+      cursor:pointer; transition:opacity 0.4s ease; white-space:nowrap; }
+    .land-ind:hover { opacity:0.72; }
+    .land-ind.left  { left:clamp(24px, 7vw, 138px); }
+    .land-ind.right { right:clamp(24px, 7vw, 138px); }
+    .land-ind svg { width:24px; height:24px; flex-shrink:0; }
+    #landing.scrolled .land-ind { opacity:0 !important; pointer-events:none; }
+    @media (max-width:740px){
+      #landing-media { width:78vw; }
+      .land-ind span { display:none; }
+    }
 
-    /* Shop Panel */
-    #shop-panel { padding:80px 100px 80px 80px; overflow-y:auto; }
-    #shop-label { position:absolute; top:80px; right:100px; font-size:8.5px; letter-spacing:0.32em;
-                  color:#bbb; opacity:0; text-align:right; transform:translateY(16px);
-                  transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    #shop-label.vis { opacity:1; transform:translateY(0); }
-    #shop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; padding-top:40px; }
-    .art-card { opacity:0; transform:translateY(28px);
-                transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
-    .art-card.vis { opacity:1; transform:translateY(0); }
-    .art-thumb { height:200px; border-radius:3px; margin-bottom:12px; position:relative;
-                 overflow:hidden; cursor:pointer;
-                 transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
-    .art-card:hover .art-thumb { transform:scale(0.975); }
-    .art-thumb-inner { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
-    .art-thumb-sq { width:55%; height:55%; border-radius:2px; opacity:0.25; border:1px solid rgba(255,255,255,0.3); }
-    .art-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.22); opacity:0;
-                   transition:opacity 0.2s ease; display:flex; align-items:center; justify-content:center; }
-    .art-card:hover .art-overlay { opacity:1; }
-    .add-btn { background:#fff; color:#0a0a0a; border:none; padding:9px 18px; font-size:9px;
-               letter-spacing:0.14em; font-weight:600; border-radius:100px; cursor:pointer;
-               transform:translateY(10px); outline:none;
-               transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), background 0.2s ease, color 0.2s ease; }
-    .art-card:hover .add-btn { transform:translateY(0); }
-    .add-btn:active { transform:scale(0.97) !important; }
-    .add-btn.in-cart { background:#0a0a0a; color:#fff; }
-    .art-info   { display:flex; justify-content:space-between; align-items:flex-start; }
-    .art-title  { font-size:12.5px; font-weight:450; letter-spacing:0.04em; color:#0a0a0a; margin-bottom:3px; }
-    .art-medium { font-size:9.5px; color:#bbb; letter-spacing:0.1em; }
-    .art-price  { font-size:11.5px; color:#888; }
+    /* ── Galleries (Art Direction / Artworks) — per Figma ───────────────────── */
+    .gallery-panel { background:#fff; overflow-y:auto; padding:150px 40px 70px; }
+    .gallery-inner { max-width:1128px; margin:0 auto; }
+    .gallery-title { font-family:'Montserrat',sans-serif; font-size:24px; color:#000;
+      margin-bottom:40px; opacity:0; transform:translateY(16px);
+      transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .gallery-title.vis { opacity:0.4; transform:translateY(0); }
+    .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:44px 24px; }
+
+    .g-card { opacity:0; transform:translateY(28px);
+      transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .g-card.vis { opacity:1; transform:translateY(0); }
+    .g-thumb { position:relative; width:100%; aspect-ratio:360/200; background:#d9d9d9;
+      overflow:hidden; }
+    .g-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .g-meta { margin-top:21px; display:flex; flex-direction:column; gap:3px;
+      color:#000; font-family:'Montserrat',sans-serif; }
+    .g-year, .g-role { font-size:14px; opacity:0.5; }
+    .g-name { font-size:24px; font-weight:700; opacity:0.7; }
+    .g-name .light { font-weight:400; }
+    .g-arttitle { font-size:14px; opacity:0.5; }
+    .g-arttitle b { font-weight:700; }
+    .g-price { font-size:24px; font-weight:300; opacity:0.7; }
+
+    .g-sold { position:absolute; top:8px; right:8px; z-index:2; background:#0a0a0a; color:#fff;
+      font-family:'Montserrat',sans-serif; font-size:12px; padding:5px 14px; border-radius:100px; }
+    .g-over { position:absolute; inset:0; background:rgba(0,0,0,0.22); opacity:0;
+      display:flex; align-items:center; justify-content:center; transition:opacity 0.2s ease; }
+    .g-card:hover .g-over { opacity:1; }
+    .g-add { background:#fff; color:#0a0a0a; border:none; padding:9px 18px; font-size:9px;
+      letter-spacing:0.14em; font-weight:600; border-radius:100px; cursor:pointer; outline:none;
+      transform:translateY(10px);
+      transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), background 0.2s ease, color 0.2s ease; }
+    .g-card:hover .g-add { transform:translateY(0); }
+    .g-add:active { transform:scale(0.97); }
+    .g-add.in-cart { background:#0a0a0a; color:#fff; }
+
+    @media (max-width:900px){ .gallery-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:560px){ .gallery-grid { grid-template-columns:1fr; } }
 
     @keyframes toastIn {
       from { opacity:0; transform:translateY(12px) scale(0.96); }
       to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* ── About / Contact overlays ──────────────────────────────────────────── */
+    .page-overlay {
+      position:fixed; inset:0; z-index:450; overflow:hidden;
+      opacity:0; visibility:hidden; pointer-events:none;
+      transition:opacity 0.6s ease, visibility 0s linear 0.65s;
+    }
+    .page-overlay.open {
+      opacity:1; visibility:visible; pointer-events:auto;
+      transition:opacity 0.6s ease, visibility 0s;
+    }
+    .ov-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .ov-inner { position:absolute; inset:0;
+      transition:transform 0.7s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+
+    /* About lives "below" centre in the layout → slides up on enter */
+    #about-overlay { background:#000; }
+    #about-overlay .ov-inner { transform:translateY(7%); }
+    #about-overlay.open .ov-inner { transform:translateY(0); }
+    /* generative dot-field background (canvas) + veil to keep the type legible */
+    #about-dots { position:absolute; inset:0; width:100%; height:100%; display:block; }
+    .about-veil { position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse 62% 58% at 50% 54%,
+        rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.24) 42%, rgba(0,0,0,0) 74%); }
+
+    /* Contact lives "above" centre → slides down on enter */
+    #contact-overlay { background:#fff; }
+    #contact-overlay .ov-inner { transform:translateY(-7%); }
+    #contact-overlay.open .ov-inner { transform:translateY(0); }
+
+    .ov-close {
+      position:fixed; top:24px; right:30px; z-index:520;
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+      font-size:8.5px; letter-spacing:0.24em; opacity:0;
+      transition:opacity 0.5s ease 0.2s, color 0.2s ease;
+    }
+    .page-overlay.open .ov-close { opacity:0.65; }
+    .ov-close:hover { opacity:1 !important; }
+    .ov-close .x { font-size:14px; line-height:1; letter-spacing:0; }
+    #about-overlay   .ov-close { color:#fff; }
+    #contact-overlay .ov-close { color:#0a0a0a; }
+
+    /* About content */
+    .about-body { position:absolute; z-index:2; left:50%; top:54%; transform:translate(-50%,-50%);
+      width:774px; max-width:86vw; display:flex; flex-direction:column;
+      align-items:center; gap:38px; text-align:center; }
+    .about-name { font-family:'Inter',sans-serif; color:#fff; font-size:62px;
+      line-height:1; display:flex; align-items:baseline; gap:22px; white-space:nowrap; }
+    .about-name .n-bold { font-weight:700; }
+    .about-name .n-flip { display:inline-block; transform:scaleX(-1); }
+    .about-name .n-reg  { font-weight:400; }
+    .about-copy { font-family:'Montserrat',sans-serif; font-weight:300; color:#fff;
+      font-size:22px; line-height:1.55; }
+    .about-copy b { font-weight:700; }
+
+    /* Contact content */
+    .contact-body { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      display:flex; flex-direction:column; align-items:center; gap:18px; }
+    .contact-email { font-family:'Inter',sans-serif; color:#fff; font-size:22px;
+      letter-spacing:0.01em; text-decoration:none; }
+    .contact-email b { font-weight:900; }
+    .contact-socials { display:flex; gap:21px; align-items:center; }
+    .contact-socials a { width:18px; height:18px; display:block; color:#fff;
+      opacity:0.9; transition:opacity 0.2s ease, transform 0.2s ease; }
+    .contact-socials a:hover { opacity:1; transform:translateY(-2px); }
+    .contact-socials svg { width:100%; height:100%; display:block; fill:currentColor; }
+
+    @media (max-width:680px){
+      .about-name { font-size:38px; gap:14px; }
+      .about-copy { font-size:16px; }
+    }
+
+    /* gentle clickable cue on gallery cards */
+    .g-card { cursor:pointer; }
+    .g-card:hover .g-thumb { background:#cfcfcf; }
+
+    /* shared buttons */
+    .btn-primary { background:#0a0a0a; color:#fff; border:none; padding:15px 32px;
+      font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:0.18em; font-weight:600;
+      border-radius:100px; cursor:pointer; transition:transform 0.2s ease, opacity 0.2s ease; }
+    .btn-primary:hover { transform:translateY(-1px); }
+    .btn-primary:disabled { background:#bcbcbc; cursor:default; transform:none; }
+    .btn-ghost { background:transparent; color:#0a0a0a; border:1px solid #ddd; padding:15px 28px;
+      font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:0.18em; font-weight:600;
+      border-radius:100px; cursor:pointer; transition:border-color 0.2s ease; }
+    .btn-ghost:hover { border-color:#0a0a0a; }
+
+    /* ── Card detail overlay (project / artwork) ─────────────────────────── */
+    #detail-overlay, #checkout-overlay { background:#fff; }
+    #detail-overlay .ov-inner, #checkout-overlay .ov-inner { overflow-y:auto; }
+    #detail-overlay .ov-inner { padding:120px 8vw 100px; }
+    .detail-wrap { max-width:1100px; margin:0 auto; color:#0a0a0a; }
+
+    .pd-head { display:flex; flex-direction:column; gap:10px; margin-bottom:44px; }
+    .pd-year { font-family:'Montserrat',sans-serif; font-size:13px; opacity:0.5; letter-spacing:0.08em; }
+    .pd-name { font-family:'Inter',sans-serif; font-size:54px; font-weight:700; line-height:1.05; }
+    .pd-hero { width:100%; aspect-ratio:16/9; background:#d9d9d9; margin-bottom:48px; }
+    .pd-body { display:grid; grid-template-columns:1.55fr 1fr; gap:60px; margin-bottom:52px; }
+    .pd-desc { font-family:'Montserrat',sans-serif; font-weight:300; font-size:18px; line-height:1.75; }
+    .pd-facts { display:flex; flex-direction:column; gap:16px; font-family:'Montserrat',sans-serif; }
+    .pd-fact { display:flex; flex-direction:column; gap:5px; border-top:1px solid #ececec; padding-top:12px; }
+    .pd-fact .k { font-size:10px; letter-spacing:0.2em; opacity:0.45; }
+    .pd-fact .v { font-size:15px; }
+    .pd-gallery { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .pd-shot { width:100%; aspect-ratio:4/3; background:#d9d9d9; }
+    .pd-shot.wide { grid-column:1 / -1; aspect-ratio:16/6; }
+
+    .ad-detail { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start; }
+    .awd-img { width:100%; aspect-ratio:1/1; background:#d9d9d9; }
+    .awd-info { display:flex; flex-direction:column; gap:16px; padding-top:6px; }
+    .awd-title { font-family:'Inter',sans-serif; font-size:34px; font-weight:700; }
+    .awd-sub { font-family:'Montserrat',sans-serif; font-size:14px; opacity:0.55; letter-spacing:0.02em; }
+    .awd-price { font-family:'Montserrat',sans-serif; font-weight:300; font-size:26px; }
+    .awd-desc { font-family:'Montserrat',sans-serif; font-weight:300; font-size:16px; line-height:1.7; opacity:0.85; }
+    .awd-actions { display:flex; gap:14px; margin-top:12px; flex-wrap:wrap; }
+
+    /* ── Cart drawer ─────────────────────────────────────────────────────── */
+    .scrim { position:fixed; inset:0; z-index:540; background:rgba(0,0,0,0.35);
+      opacity:0; visibility:hidden; pointer-events:none;
+      transition:opacity 0.4s ease, visibility 0s linear 0.4s; }
+    .scrim.open { opacity:1; visibility:visible; pointer-events:auto; transition:opacity 0.4s ease; }
+    .drawer { position:fixed; top:0; right:0; bottom:0; z-index:560; width:min(420px, 92vw);
+      background:#fff; transform:translateX(100%); display:flex; flex-direction:column;
+      box-shadow:-10px 0 40px rgba(0,0,0,0.12);
+      transition:transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .drawer.open { transform:translateX(0); }
+    .cart-head { display:flex; align-items:center; justify-content:space-between;
+      padding:30px 28px 18px; border-bottom:1px solid #eee; font-family:'Montserrat',sans-serif; }
+    .cart-head h3 { font-size:12px; letter-spacing:0.22em; font-weight:600; }
+    .cart-close { cursor:pointer; font-size:15px; opacity:0.55; }
+    .cart-close:hover { opacity:1; }
+    .cart-items { flex:1; overflow-y:auto; padding:4px 28px; }
+    .cart-row { display:flex; gap:16px; padding:18px 0; border-bottom:1px solid #f1f1f1; }
+    .cart-thumb { width:62px; height:78px; background:#f0f0f0; flex-shrink:0; overflow:hidden; }
+    .cart-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .cart-meta { flex:1; font-family:'Montserrat',sans-serif; display:flex; flex-direction:column; gap:3px; }
+    .cart-meta .t { font-size:13px; font-weight:600; }
+    .cart-meta .s { font-size:11px; opacity:0.5; }
+    .cart-meta .p { font-size:13px; font-weight:300; margin-top:6px; }
+    .cart-rm { background:none; border:none; cursor:pointer; font-family:'Montserrat',sans-serif;
+      font-size:10px; letter-spacing:0.12em; opacity:0.4; align-self:flex-start; }
+    .cart-rm:hover { opacity:0.9; }
+    .cart-empty { padding:70px 28px; text-align:center; font-family:'Montserrat',sans-serif;
+      font-size:13px; opacity:0.5; }
+    .cart-foot { padding:22px 28px 28px; border-top:1px solid #eee; font-family:'Montserrat',sans-serif; }
+    .cart-sub { display:flex; justify-content:space-between; font-size:14px; margin-bottom:16px; }
+    .cart-sub .amt { font-weight:600; }
+    .cart-foot .btn-primary { width:100%; }
+    .cart-note { font-size:10px; opacity:0.4; text-align:center; margin-top:12px; letter-spacing:0.03em; }
+
+    /* ── Checkout ────────────────────────────────────────────────────────── */
+    #checkout-overlay .ov-inner { padding:110px 8vw 80px; }
+    .co-wrap { max-width:1040px; margin:0 auto; display:grid;
+      grid-template-columns:1.3fr 1fr; gap:60px; color:#0a0a0a; }
+    .co-title { font-family:'Inter',sans-serif; font-size:30px; font-weight:700;
+      margin-bottom:26px; grid-column:1 / -1; }
+    .co-form { display:flex; flex-direction:column; gap:24px; }
+    .co-group h4, .co-summary h4 { font-family:'Montserrat',sans-serif; font-size:10px;
+      letter-spacing:0.22em; opacity:0.5; margin-bottom:14px; }
+    .co-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+    .co-row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .co-field label { font-family:'Montserrat',sans-serif; font-size:11px; opacity:0.55; }
+    .co-field input { font-family:'Montserrat',sans-serif; font-size:14px; padding:12px 14px;
+      border:1px solid #e2e2e2; border-radius:8px; outline:none; color:#0a0a0a; background:#fff; }
+    .co-field input:focus { border-color:#0a0a0a; }
+    .co-summary { background:#fafafa; border:1px solid #eee; border-radius:14px; padding:26px;
+      align-self:start; font-family:'Montserrat',sans-serif; }
+    .co-sum-row { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #eee; }
+    .co-sum-row .t { flex:1; font-size:13px; }
+    .co-sum-row .p { font-size:13px; }
+    .co-tot { display:flex; justify-content:space-between; margin:18px 0 4px; font-size:15px; font-weight:600; }
+    .co-done { max-width:560px; margin:40px auto 0; text-align:center; font-family:'Montserrat',sans-serif; }
+    .co-done .chk { width:64px; height:64px; border-radius:50%; border:1.5px solid #0a0a0a;
+      display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 26px; }
+    .co-done h2 { font-family:'Inter',sans-serif; font-size:28px; margin-bottom:14px; font-weight:700; }
+    .co-done p { font-size:14px; opacity:0.6; line-height:1.7; }
+
+    /* ── Artwork shop ────────────────────────────────────────────────────── */
+    #shop-panel { padding:150px 0 0; }
+    .shop-wrap { max-width:1360px; margin:0 auto; padding:0 clamp(24px,5vw,72px); }
+
+    .shop-head { margin-bottom:54px; }
+    .shop-head .gallery-title { margin-bottom:6px; }
+    .shop-count { font-family:'Montserrat',sans-serif; font-size:13px; color:#0a0a0a;
+      opacity:0.45; letter-spacing:0.04em; }
+
+    .shop-bar { display:flex; align-items:center; justify-content:space-between;
+      gap:24px; flex-wrap:wrap; padding-bottom:26px; margin-bottom:64px;
+      border-bottom:1px solid #ededed; }
+    .filter-group { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .filter-label { font-family:'Montserrat',sans-serif; font-size:9.5px; letter-spacing:0.22em;
+      opacity:0.35; margin-right:4px; }
+    .chip { font-family:'Montserrat',sans-serif; font-size:10.5px; letter-spacing:0.12em;
+      padding:9px 17px; border:1px solid #e3e3e3; border-radius:100px; cursor:pointer;
+      background:#fff; color:#0a0a0a; white-space:nowrap;
+      transition:border-color 0.25s ease, background 0.25s ease, color 0.25s ease; }
+    .chip:hover { border-color:#b5b5b5; }
+    .chip.on { background:#0a0a0a; border-color:#0a0a0a; color:#fff; }
+    .sort-sel { font-family:'Montserrat',sans-serif; font-size:10.5px; letter-spacing:0.12em;
+      padding:9px 32px 9px 16px; border:1px solid #e3e3e3; border-radius:100px; background:#fff;
+      color:#0a0a0a; cursor:pointer; outline:none; appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.2'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 14px center; background-size:9px; }
+
+    /* Large A4-ish cards with generous negative space */
+    .shop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:86px 44px; }
+    .s-card { cursor:pointer; opacity:0; transform:translateY(26px);
+      transition:opacity 0.7s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .s-card.vis { opacity:1; transform:translateY(0); }
+    /* matches the artwork exports (2643x3145) so nothing gets cropped */
+    .s-media { position:relative; width:100%; aspect-ratio:2643/3145; overflow:hidden;
+      background:#f4f4f4; }
+    .s-media img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+      transition:transform 1s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+    .s-card:hover .s-media img { transform:scale(1.07); }   /* zoom on hover */
+    .s-sold { position:absolute; top:14px; right:14px; z-index:2; background:#0a0a0a; color:#fff;
+      font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:0.1em;
+      padding:6px 14px; border-radius:100px; }
+    .s-meta { margin-top:20px; display:flex; flex-direction:column; gap:6px;
+      font-family:'Montserrat',sans-serif; color:#0a0a0a; }
+    .s-title { font-size:13.5px; letter-spacing:0.01em; }
+    .s-title b { font-weight:700; }
+    .s-title .dim { opacity:0.45; }
+    .s-price { font-size:15px; font-weight:300; opacity:0.75; }
+    .s-price.out { opacity:0.35; text-decoration:line-through; }
+    .shop-empty { grid-column:1/-1; text-align:center; padding:90px 0;
+      font-family:'Montserrat',sans-serif; font-size:14px; opacity:0.45; }
+
+    /* ── Product detail (PDP) ────────────────────────────────────────────── */
+    .pdp { display:grid; grid-template-columns:1.25fr 1fr; gap:70px; align-items:start; }
+    .pdp-gallery { display:flex; flex-direction:column; gap:16px; }
+    .pdp-main { width:100%; background:#f4f4f4; overflow:hidden; }
+    .pdp-main img { width:100%; height:auto; display:block; }
+    .pdp-thumbs { display:flex; gap:12px; flex-wrap:wrap; }
+    .pdp-thumb { width:74px; aspect-ratio:2643/3145; overflow:hidden; cursor:pointer;
+      border:1px solid transparent; opacity:0.55; transition:opacity 0.25s ease, border-color 0.25s ease; }
+    .pdp-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .pdp-thumb:hover { opacity:0.85; }
+    .pdp-thumb.on { opacity:1; border-color:#0a0a0a; }
+
+    .pdp-info { position:sticky; top:120px; display:flex; flex-direction:column;
+      font-family:'Montserrat',sans-serif; color:#0a0a0a; }
+    .pdp-artist { font-size:10px; letter-spacing:0.24em; opacity:0.4; margin-bottom:14px; }
+    .pdp-title { font-family:'Inter',sans-serif; font-size:30px; font-weight:700; line-height:1.2;
+      margin-bottom:8px; }
+    .pdp-sub { font-size:13px; opacity:0.5; margin-bottom:26px; }
+    .pdp-price { font-size:24px; font-weight:300; margin-bottom:6px; }
+    .pdp-stock { font-size:11px; letter-spacing:0.1em; opacity:0.45; margin-bottom:28px; }
+    .pdp-specs { border-top:1px solid #ededed; padding-top:20px; margin-bottom:28px;
+      display:flex; flex-direction:column; gap:11px; }
+    .pdp-spec { display:flex; gap:14px; font-size:12.5px; }
+    .pdp-spec .k { width:96px; flex-shrink:0; opacity:0.4; letter-spacing:0.06em; }
+    .pdp-spec .v { opacity:0.85; }
+    .pdp-buy { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .qty { display:flex; align-items:center; border:1px solid #e3e3e3; border-radius:100px; }
+    .qty button { width:38px; height:44px; border:none; background:none; cursor:pointer;
+      font-size:15px; color:#0a0a0a; outline:none; }
+    .qty span { min-width:24px; text-align:center; font-size:13px; }
+    .pdp-buy .btn-primary { flex:1; padding:15px 24px; }
+    .pdp-note { font-size:11px; opacity:0.4; line-height:1.7; }
+
+    /* suggestions + newsletter */
+    .sugg { margin-top:130px; border-top:1px solid #ededed; padding-top:56px; }
+    .sugg h3, .nl h3 { font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:0.24em;
+      opacity:0.4; margin-bottom:34px; }
+    .sugg-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:28px; }
+    .nl { margin-top:110px; border-top:1px solid #ededed; padding-top:56px;
+      text-align:center; padding-bottom:20px; }
+    .nl h3 { margin-bottom:14px; }
+    .nl p { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:300;
+      opacity:0.6; max-width:440px; margin:0 auto 28px; line-height:1.7; }
+    .nl-form { display:flex; gap:10px; max-width:430px; margin:0 auto; }
+    .nl-form input { flex:1; font-family:'Montserrat',sans-serif; font-size:13px;
+      padding:13px 18px; border:1px solid #e3e3e3; border-radius:100px; outline:none; color:#0a0a0a; }
+    .nl-form input:focus { border-color:#0a0a0a; }
+    .nl-ok { font-family:'Montserrat',sans-serif; font-size:13px; opacity:0.6; }
+
+    /* newsletter consent + states */
+    .nl-consent { display:flex; gap:9px; align-items:flex-start; max-width:430px;
+      margin:15px auto 0; font-family:'Montserrat',sans-serif; font-size:11px;
+      line-height:1.6; opacity:0.55; text-align:left; cursor:pointer; }
+    .nl-consent input { margin-top:2px; accent-color:#0a0a0a; flex-shrink:0; }
+    .nl-consent a { color:inherit; text-decoration:underline; }
+    .nl-msg { font-family:'Montserrat',sans-serif; font-size:12.5px; margin-top:14px; opacity:0.7; }
+    .nl-msg.err { color:#b00020; opacity:0.95; }
+
+    /* footer */
+    .site-foot { margin-top:64px; border-top:1px solid #ededed; padding:24px 0 44px;
+      display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;
+      font-family:'Montserrat',sans-serif; font-size:11px; opacity:0.45; }
+    .site-foot .links { display:flex; gap:20px; flex-wrap:wrap; }
+    .site-foot a { color:inherit; text-decoration:none; cursor:pointer; }
+    .site-foot a:hover { text-decoration:underline; }
+
+    /* legal pages */
+    #legal-overlay { background:#fff; }
+    #legal-overlay .ov-inner { padding:120px 8vw 90px; overflow-y:auto; }
+    .legal-wrap { max-width:760px; margin:0 auto; font-family:'Montserrat',sans-serif; color:#0a0a0a; }
+    .legal-tabs { display:flex; gap:10px; margin-bottom:46px; flex-wrap:wrap; }
+    .legal-sec { display:none; }
+    .legal-sec.on { display:block; }
+    .legal-sec h1 { font-family:'Inter',sans-serif; font-size:30px; font-weight:700; margin-bottom:10px; }
+    .legal-sec .upd { font-size:11px; opacity:0.4; margin-bottom:36px; letter-spacing:0.06em; }
+    .legal-sec h2 { font-size:11px; letter-spacing:0.2em; margin:34px 0 12px; opacity:0.45; }
+    .legal-sec p { font-size:14px; font-weight:300; line-height:1.85; opacity:0.85; margin-bottom:12px; }
+    .legal-sec ul { padding-left:20px; margin:10px 0 14px; }
+    .legal-sec li { font-size:14px; font-weight:300; line-height:1.8; opacity:0.85; margin-bottom:7px; }
+    .legal-sec .todo { background:#fff6d6; border:1px solid #f0e2a8; border-radius:8px;
+      padding:14px 16px; font-size:12.5px; line-height:1.7; opacity:1; margin-bottom:30px; }
+
+    @media (max-width:1180px){ .shop-grid { grid-template-columns:repeat(2,1fr); gap:70px 36px; } }
+    @media (max-width:900px){
+      .pdp { grid-template-columns:1fr; gap:40px; }
+      .pdp-info { position:static; }
+      .sugg-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:640px){ .shop-grid { grid-template-columns:1fr; gap:56px; } }
+
+    @media (max-width:820px){
+      .pd-body, .ad-detail, .co-wrap { grid-template-columns:1fr; }
+      .pd-name { font-size:38px; }
     }
   </style>
 </head>
@@ -177,53 +496,321 @@
   <div id="progress-bar"></div>
   <span class="pl left">ART DIRECTION</span>
   <span class="pl center">YUVI STARK</span>
-  <span class="pl right">ART & SHOP</span>
+  <span class="pl right">ARTWORKS</span>
 </div>
 
 <div id="stage">
-  <!-- Panel 0: Art Direction -->
-  <div class="panel" id="ad-panel">
-    <span id="ad-label">ART DIRECTION</span>
-    <div id="ad-grid"></div>
+  <!-- Panel 0: Art Direction gallery -->
+  <div class="panel gallery-panel" id="ad-panel">
+    <div class="gallery-inner">
+      <h2 class="gallery-title" id="ad-title">ART DIRECTION</h2>
+      <div class="gallery-grid" id="ad-grid"></div>
+    </div>
   </div>
 
   <!-- Panel 1: Landing -->
   <div class="panel" id="landing">
-    <span id="landing-label">PORTFOLIO</span>
-    <video id="video-director" src="ART DIRECTOR.mp4" muted playsinline preload="auto"></video>
-    <video id="video-artist"   src="ARTIST.mp4"       muted playsinline preload="auto"></video>
-    <img   id="portrait-img"   src="portrait.jpg" alt="Yuvi Stark" />
-    <div   id="bloom"></div>
-    <div   id="scroll-hint">
-      <div class="hint-row">
-        <span class="hint-text">↑ ART DIRECTION</span>
-        <span class="hint-text">ART ↓</span>
-      </div>
-      <div class="hint-line"></div>
+    <div id="landing-media">
+      <!-- srcs intentionally crossed: the clip files were swapped vs their scroll direction.
+           #video-director plays when scrolling UP toward Art Direction; #video-artist when scrolling DOWN toward Artworks. -->
+      <video id="video-director" src="ARTIST.mp4"       muted playsinline preload="auto"></video>
+      <video id="video-artist"   src="ART DIRECTOR.mp4" muted playsinline preload="auto"></video>
+      <img   id="portrait-img"   src="portrait.jpg" alt="Yuvi Stark" />
+      <div   id="bloom"></div>
+    </div>
+    <div class="land-ind left" data-go="-2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="4" x2="8" y2="20"/><path d="M5 17 L8 20 L11 17"/>
+        <line x1="16" y1="20" x2="16" y2="4"/><path d="M13 7 L16 4 L19 7"/>
+      </svg>
+      <span>ART DIRECTION</span>
+    </div>
+    <div class="land-ind right" data-go="2">
+      <span>ARTWORKS</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="4" x2="8" y2="20"/><path d="M5 17 L8 20 L11 17"/>
+        <line x1="16" y1="20" x2="16" y2="4"/><path d="M13 7 L16 4 L19 7"/>
+      </svg>
     </div>
   </div>
 
-  <!-- Panel 2: Art Shop -->
-  <div class="panel" id="shop-panel">
-    <span id="shop-label">ART & SHOP</span>
-    <div id="shop-grid"></div>
+  <!-- Panel 2: Artworks gallery -->
+  <div class="panel gallery-panel" id="shop-panel">
+    <div class="shop-wrap">
+      <div class="shop-head">
+        <h2 class="gallery-title" id="shop-title">ARTWORKS</h2>
+        <div class="shop-count" id="shop-count"></div>
+      </div>
+      <div class="shop-bar">
+        <div class="filter-group" id="shop-filters"></div>
+        <select class="sort-sel" id="shop-sort" aria-label="Sort artworks">
+          <option value="featured">FEATURED</option>
+          <option value="price-asc">PRICE: LOW TO HIGH</option>
+          <option value="price-desc">PRICE: HIGH TO LOW</option>
+          <option value="title">ALPHABETICALLY</option>
+          <option value="year">YEAR: NEWEST</option>
+        </select>
+      </div>
+      <div class="shop-grid" id="shop-grid"></div>
+      <div class="nl" id="nl-shop-wrap"></div>
+      <footer class="site-foot" id="foot-shop"></footer>
+    </div>
   </div>
 </div>
 
+<!-- About overlay -->
+<div class="page-overlay" id="about-overlay">
+  <div class="ov-inner">
+    <canvas id="about-dots" aria-hidden="true"></canvas>
+    <div class="about-veil"></div>
+    <div class="about-body">
+      <h1 class="about-name">
+        <span class="n-bold"><span class="n-flip">y</span>uvraj</span>
+        <span class="n-reg">argal</span>
+      </h1>
+      <p class="about-copy">
+        Lorem ipsum dolor sit amet consectetur. Habitant felis faucibus nisl risus
+        cursus. Id arcu habitant nisl turpis commodo est auctor <b>vestibulum morbi.</b>
+        Luctus sed dolor pretium scelerisque adipiscing vitae consequat. Ipsum elementum
+        arcu arcu accumsan. Enim curabitur a diam in in dignissim dapibus arcu. Diam
+        platea faucibus amet blandit <b>eget mauris</b> ornare tempor morbi.
+      </p>
+    </div>
+  </div>
+  <div class="ov-close"><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
+<!-- Contact overlay -->
+<div class="page-overlay" id="contact-overlay">
+  <div class="ov-inner">
+    <img class="ov-bg" src="contact-bg.png" alt="" />
+    <div class="contact-body">
+      <a class="contact-email" href="mailto:hey@yuvistark.com"><b>hey</b>@yuvistark.com</a>
+      <div class="contact-socials">
+        <!-- TODO: replace # with your Instagram / LinkedIn profile URLs -->
+        <a href="#" aria-label="Instagram" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.3-1.46.72-2.12 1.38C1.36 2.67.94 3.34.63 4.14.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.3.8.72 1.47 1.38 2.13.66.66 1.33 1.08 2.12 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.7 5.7 0 0 0 2.13-1.38 5.7 5.7 0 0 0 1.38-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.7 5.7 0 0 0-1.38-2.12A5.7 5.7 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0z"/><path d="M12 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/><circle cx="18.41" cy="5.59" r="1.44"/></svg>
+        </a>
+        <a href="#" aria-label="LinkedIn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="ov-close"><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
+<!-- Card detail (project / artwork) — populated by JS -->
+<div class="page-overlay" id="detail-overlay">
+  <div class="ov-inner" id="detail-inner"></div>
+  <div class="ov-close" data-close><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
+<!-- Legal pages -->
+<div class="page-overlay" id="legal-overlay">
+  <div class="ov-inner">
+    <div class="legal-wrap">
+      <div class="legal-tabs">
+        <button class="chip on" data-sec="terms">TERMS OF SALE</button>
+        <button class="chip" data-sec="privacy">PRIVACY</button>
+        <button class="chip" data-sec="shipping">SHIPPING &amp; RETURNS</button>
+      </div>
+
+      <section class="legal-sec on" id="legal-terms">
+        <h1>Terms of Sale</h1>
+        <div class="upd">LAST UPDATED — 24 AUGUST 2026</div>
+        <div class="todo"><b>Before going live:</b> replace every [SQUARE BRACKET] below with your
+          real details. Italian and EU law require a seller identity, registered address and
+          VAT number (P.IVA) to be shown. Have a commercialista check this page.</div>
+
+        <h2>WHO YOU ARE BUYING FROM</h2>
+        <p>This shop is operated by [LEGAL NAME / DITTA], [REGISTERED ADDRESS], Italy.
+          VAT number (P.IVA): [P.IVA]. Contact: hey@yuvistark.com.</p>
+
+        <h2>THE ARTWORKS</h2>
+        <p>Every piece sold here is an original, one-of-a-kind work on paper, made and signed by
+          the artist. There are no reproductions or editions unless a listing says so explicitly.
+          Because each work is unique, once a piece is sold its listing is closed.</p>
+        <p>Colours may vary slightly between your screen and the physical work. Paper texture,
+          deckled edges and small studio marks are inherent to original work, not defects.</p>
+
+        <h2>PRICES AND PAYMENT</h2>
+        <p>All prices are shown in euro (EUR). [State whether prices include VAT, and under which
+          regime you sell — Italy has a specific scheme for artists selling their own work.]
+          Payment is processed by our payment provider; we never receive or store your card details.</p>
+
+        <h2>ORDERS</h2>
+        <p>Your order is an offer to buy. A contract is formed only when we confirm dispatch by
+          email. If a work has already sold, or a price is listed in error, we may decline the
+          order and refund you in full.</p>
+
+        <h2>DELIVERY AND RISK</h2>
+        <p>Risk passes to you on delivery. Ownership passes once payment has cleared in full.
+          See Shipping &amp; Returns for times, costs and damage claims.</p>
+
+        <h2>GOVERNING LAW</h2>
+        <p>These terms are governed by Italian law. Nothing here limits your statutory rights as
+          a consumer, including the right of withdrawal described in Shipping &amp; Returns.</p>
+      </section>
+
+      <section class="legal-sec" id="legal-privacy">
+        <h1>Privacy Policy</h1>
+        <div class="upd">LAST UPDATED — 24 AUGUST 2026</div>
+        <div class="todo"><b>Before going live:</b> fill in [SQUARE BRACKETS], and list the actual
+          processors you end up using (payment provider, email provider, hosting). Under GDPR the
+          data controller's identity and contact details must be accurate.</div>
+
+        <h2>WHO IS RESPONSIBLE</h2>
+        <p>The data controller is [LEGAL NAME], [REGISTERED ADDRESS], Italy — hey@yuvistark.com.</p>
+
+        <h2>WHAT WE COLLECT</h2>
+        <ul>
+          <li><b>If you subscribe:</b> your email address, and the date you gave consent.</li>
+          <li><b>If you order:</b> name, delivery address, email and order details. Payment card
+            data goes directly to our payment provider and is never seen or stored by us.</li>
+          <li><b>If you email us:</b> whatever you choose to send.</li>
+        </ul>
+
+        <h2>WHY, AND ON WHAT BASIS</h2>
+        <p>Order data is processed to perform our contract with you and to meet Italian tax and
+          bookkeeping obligations. Newsletter emails are sent only on the basis of your consent,
+          which you can withdraw at any time using the unsubscribe link in any email.</p>
+
+        <h2>WHO ELSE SEES IT</h2>
+        <p>We share data only with the providers needed to run the shop — [PAYMENT PROVIDER],
+          [EMAIL PROVIDER] and our hosting provider. They act as processors on our instructions.
+          We never sell your data.</p>
+
+        <h2>HOW LONG WE KEEP IT</h2>
+        <p>Order records are kept for as long as Italian tax law requires [typically 10 years].
+          Newsletter data is kept until you unsubscribe.</p>
+
+        <h2>YOUR RIGHTS</h2>
+        <p>You may request access to your data, correction, erasure, restriction, portability, or
+          object to processing. Write to hey@yuvistark.com. You also have the right to lodge a
+          complaint with the Garante per la protezione dei dati personali.</p>
+
+        <h2>COOKIES</h2>
+        <p>This site sets no advertising or analytics cookies. [If you later add analytics or a
+          Shopify cart, update this section and add a consent banner — that becomes mandatory.]</p>
+      </section>
+
+      <section class="legal-sec" id="legal-shipping">
+        <h1>Shipping &amp; Returns</h1>
+        <div class="upd">LAST UPDATED — 24 AUGUST 2026</div>
+        <div class="todo"><b>Before going live:</b> confirm your real dispatch times, carriers and
+          shipping prices, and decide who pays return postage.</div>
+
+        <h2>DISPATCH</h2>
+        <p>Works are packed and dispatched within [3–5] working days of payment clearing. You will
+          receive tracking by email as soon as your piece is on its way.</p>
+
+        <h2>PACKING</h2>
+        <p>Works on paper ship flat, protected between rigid boards in a water-resistant sleeve inside
+          a reinforced outer carton. Nothing is rolled unless you ask.</p>
+
+        <h2>WHERE WE SHIP, AND WHAT IT COSTS</h2>
+        <p>We ship worldwide, tracked and insured for the full sale value. Shipping is calculated
+          at checkout: [ITALY €X · EU €Y · REST OF WORLD €Z].</p>
+        <p>Orders outside the EU may attract import duties or taxes on arrival. These are set by
+          your country and are payable by you — we cannot calculate or refund them.</p>
+
+        <h2>RIGHT OF WITHDRAWAL</h2>
+        <p>If you are a consumer in the EU, you may withdraw from your purchase within 14 days of
+          receiving it, without giving a reason. Tell us at hey@yuvistark.com within that period,
+          then return the work within 14 days of telling us.</p>
+        <p>The work must come back unused and undamaged, in its original packing. [State who pays
+          return postage — by default the buyer does.] We refund within 14 days of receiving the
+          work back, or of proof that you sent it.</p>
+
+        <h2>DAMAGE IN TRANSIT</h2>
+        <p>Every shipment is insured. If your work arrives damaged, email hey@yuvistark.com within
+          48 hours with photographs of the work and all packaging, and we will arrange a
+          replacement where possible or a full refund.</p>
+      </section>
+    </div>
+  </div>
+  <div class="ov-close" data-close><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
+<!-- Cart drawer -->
+<div class="scrim" id="cart-scrim" data-close></div>
+<div class="drawer" id="cart-drawer">
+  <div class="cart-head">
+    <h3>YOUR BAG</h3>
+    <span class="cart-close" data-close>✕</span>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-foot" id="cart-foot"></div>
+</div>
+
+<!-- Checkout — populated by JS -->
+<div class="page-overlay" id="checkout-overlay">
+  <div class="ov-inner" id="checkout-inner"></div>
+  <div class="ov-close" data-close><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
 <script>
-const ARTWORKS = [
-  { id:1, title:"Void Study I",    medium:"Oil on Canvas", price:1200, bg:"#1c1917" },
-  { id:2, title:"Chromatic Drift", medium:"Digital Print", price:450,  bg:"#c8b8a2" },
-  { id:3, title:"Form & Silence",  medium:"Acrylic",       price:850,  bg:"#8b9db0" },
-  { id:4, title:"Negative Space",  medium:"Photography",   price:320,  bg:"#d4cdc4" },
-  { id:5, title:"Echo Chamber",    medium:"Mixed Media",   price:1800, bg:"#2d3a2e" },
-  { id:6, title:"Residue",         medium:"Watercolor",    price:580,  bg:"#b8a898" },
+// ── Shop catalogue ───────────────────────────────────────────────────────────
+// EDIT ME. One row per painting; the photo is shop/t/<id>.jpg (grid) and
+// shop/f/<id>.jpg (detail). TITLES, SIZES, YEARS and PRICES below are
+// PLACEHOLDERS — swap in the real values. Sold-out is just a true/false.
+// Sizes below assume works on paper (A5/A4/A3/A2). Technique is optional —
+// omit it and it falls back to DEFAULT_TECHNIQUE.
+//        [ id, title,             w,  h, year, price€, soldOut, technique ]
+const DEFAULT_TECHNIQUE = 'Mixed media on paper';
+const ARTWORK_ROWS = [
+  [  1, 'Silent Hours',       30, 42, 2025, 480, false, 'Watercolour & ink on paper' ],
+  [  2, 'Ember',              21, 30, 2024, 280, false, 'Watercolour & ink on paper' ],
+  [  3, 'After the Rain',     30, 42, 2025, 480, false, 'Watercolour on paper' ],
+  [  4, 'Weight of Light',    42, 59, 2023, 850, true,  'Watercolour & ink on paper' ],
+  [  5, 'Static Bloom',       21, 30, 2025, 280, false, 'Watercolour & ink on paper' ],
+  [  6, 'Undertow',           30, 42, 2024, 480, false, 'Ink & charcoal on paper' ],
+  [  7, 'Nocturne',           30, 42, 2026, 480, false, 'Charcoal on paper' ],
+  [  8, 'Paper Skin',         21, 30, 2022, 280, false, 'Mixed media on paper' ],
+  [  9, 'Hollow Season',      30, 42, 2025, 480, true,  'Ink & charcoal on paper' ],
+  [ 10, 'Drift',              21, 30, 2024, 280, false, 'Watercolour on paper' ],
+  [ 11, 'Fever Dream',        42, 59, 2023, 850, false, 'Ink & wash on paper' ],
+  [ 12, 'Salt & Ash',         42, 59, 2025, 850, false, 'Mixed media on paper' ],
+  [ 13, 'Quiet Riot',         30, 42, 2026, 480, false, 'Ink & charcoal on paper' ],
+  [ 14, 'Threadbare',         21, 30, 2021, 280, false, 'Watercolour on paper' ],
+  [ 15, 'Glasshouse',         30, 42, 2025, 480, false, 'Watercolour & ink on paper' ],
+  [ 16, 'Low Tide',           30, 42, 2024, 480, true,  'Charcoal on paper' ],
+  [ 17, 'Iron Lullaby',       21, 30, 2023, 280, false, 'Watercolour & ink on paper' ],
+  [ 18, 'Bloodline',          42, 59, 2025, 850, false, 'Charcoal on paper' ],
+  [ 19, 'Cathedral',          42, 30, 2024, 520, false, 'Gouache & ink on paper' ],
+  [ 20, 'Slow Burn',          42, 30, 2026, 520, false, 'Gouache & ink on paper' ],
+  [ 21, 'Fault Lines',        42, 30, 2022, 520, false, 'Gouache & ink on paper' ],
+  [ 22, 'Mirror Study',       42, 30, 2025, 520, false, 'Gouache & ink on paper' ],
+  [ 23, 'Half Light',         42, 30, 2023, 520, false, 'Ink & wash on paper' ],
+  [ 24, 'Wildflower',         42, 30, 2026, 520, true,  'Chalk on black paper' ],
+  [ 25, 'The Long Way',       42, 30, 2024, 520, false, 'Chalk on black paper' ],
+  [ 26, 'Tender Wreck',       30, 42, 2025, 480, false, 'Ink on toned paper' ],
+  [ 27, 'Smoke Signals',      42, 30, 2021, 520, false, 'Ink on toned paper' ],
+  [ 28, 'Rust',               30, 42, 2024, 480, false, 'Ink & wash on paper' ],
+  [ 29, 'Small Mercies',      21, 30, 2026, 280, false, 'Graphite on paper' ],
+  [ 30, 'Gravity',            30, 42, 2025, 480, false, 'Ink & wash on paper' ],
+  [ 31, 'Aftertaste',         42, 59, 2023, 850, false, 'Watercolour on paper' ],
 ];
+
+const ARTWORKS = ARTWORK_ROWS.map(([id,title,w,h,year,priceN,soldOut,technique]) => ({
+  id, title, w, h, year, priceN, soldOut,
+  dim:`(${w}x${h} cm)`,
+  price: fmt(priceN),                       // fmt() is hoisted from the cart section
+  size: h <= 30 ? 'Small' : (h <= 45 ? 'Medium' : 'Large'),
+  technique: technique || DEFAULT_TECHNIQUE,
+  thumb:`shop/t/${id}.jpg`,
+  // Extra detail shots: just add more paths here, e.g. `shop/f/${id}-detail.jpg`
+  images:[`shop/f/${id}.jpg`],
+}));
+// Art Direction gallery — names per Figma; suffix renders in regular weight
 const AD_PROJECTS = [
-  { id:1, client:"MAISON NORD",      role:"Brand Identity",    year:2024, color:"#0a0a0a" },
-  { id:2, client:"FORM STUDIO",      role:"Visual System",     year:2024, color:"#1a2535" },
-  { id:3, client:"EPOCH",            role:"Campaign Direction", year:2023, color:"#2a1a0f" },
-  { id:4, client:"BLANC COLLECTIVE", role:"Art Direction",      year:2023, color:"#0f1a1a" },
+  { name:"Lunar",             suffix:" S.r.l.s.", role:"Brand Identity", year:2025 },
+  { name:"Luca Menti",        suffix:"",          role:"Brand Identity", year:2024 },
+  { name:"UrbanV",            suffix:" S.p.A.",   role:"Brand Identity", year:2025 },
+  { name:"Sporting55",        suffix:"",          role:"Brand Identity", year:2026 },
+  { name:"Gatton Gattoni",    suffix:"",          role:"Brand Identity", year:2025 },
+  { name:"The Timeless Ride", suffix:"",          role:"Brand Identity", year:2025 },
 ];
 
 // scroll range: -2 (full AD) to +2 (full Art)
@@ -231,6 +818,7 @@ const AD_PROJECTS = [
 // STAGE moves:  only in the LAST 25% of travel (1.5→2 or -1.5→-2)
 let target = 0, current = 0, scrollPos = 0;
 let cart = [];
+let overlayOpen = false;
 
 // ── Cursor ──────────────────────────────────────────────────────────────────
 const dot = document.getElementById('cur-dot');
@@ -278,40 +866,202 @@ function showToast(msg){
 function addToCart(artwork){
   if(cart.find(c=>c.id===artwork.id)) return;
   cart.push(artwork);
-  updateIsland(); pulseIsland();
+  updateIsland(); pulseIsland(); renderCart();
   showToast(`"${artwork.title}" added to bag`);
-  const btn=document.querySelector(`[data-id="${artwork.id}"]`);
-  if(btn){ btn.textContent='IN BAG ✓'; btn.classList.add('in-cart'); }
+  const btn = document.getElementById('pdp-add');
+  if(btn && +btn.dataset.id === artwork.id){ btn.textContent='IN BAG ✓'; btn.disabled = true; }
 }
 
 // ── Build grids ───────────────────────────────────────────────────────────────
-document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map((p,i)=>`
-  <div class="ad-card" data-delay="${i*70}">
-    <div class="ad-thumb">
-      <div class="ad-thumb-bar" style="background:${p.color}"></div>
-      <div class="ad-lines"><div class="ad-line1"></div><div class="ad-line2"></div></div>
+document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
+  <div class="g-card">
+    <div class="g-thumb"></div>
+    <div class="g-meta">
+      <span class="g-year">${p.year}</span>
+      <span class="g-name">${p.name}${p.suffix?`<span class="light">${p.suffix}</span>`:''}</span>
+      <span class="g-role">${p.role}</span>
     </div>
-    <span class="ad-year">${p.year}</span>
-    <div class="ad-client">${p.client}</div>
-    <div class="ad-role">${p.role}</div>
   </div>`).join('');
 
-document.getElementById('shop-grid').innerHTML = ARTWORKS.map((a,i)=>`
-  <div class="art-card" data-delay="${i*60}">
-    <div class="art-thumb" style="background:${a.bg}">
-      <div class="art-thumb-inner"><div class="art-thumb-sq"></div></div>
-      <div class="art-overlay">
-        <button class="add-btn" data-id="${a.id}" onclick="addToCart(ARTWORKS[${i}])">ADD TO BAG</button>
+// ── Shop: filters, sort, grid ────────────────────────────────────────────────
+const shopFilter = { avail:'All', size:'All' };
+let shopSort = 'featured';
+
+function shopList(){
+  const list = ARTWORKS.filter(a =>
+    (shopFilter.size  === 'All' || a.size === shopFilter.size) &&
+    (shopFilter.avail === 'All' ||
+     (shopFilter.avail === 'Available' ? !a.soldOut : a.soldOut)));
+  if(shopSort === 'price-asc')       list.sort((a,b)=>a.priceN-b.priceN);
+  else if(shopSort === 'price-desc') list.sort((a,b)=>b.priceN-a.priceN);
+  else if(shopSort === 'title')      list.sort((a,b)=>a.title.localeCompare(b.title));
+  else if(shopSort === 'year')       list.sort((a,b)=>b.year-a.year || a.id-b.id);
+  return list;
+}
+
+function cardHTML(a){
+  return `
+    <div class="s-card" data-id="${a.id}">
+      <div class="s-media">
+        ${a.soldOut ? '<span class="s-sold">Sold out</span>' : ''}
+        <img src="${a.thumb}" alt="${a.title}" loading="lazy" />
       </div>
-    </div>
-    <div class="art-info">
-      <div><div class="art-title">${a.title}</div><div class="art-medium">${a.medium}</div></div>
-      <div class="art-price">$${a.price.toLocaleString()}</div>
-    </div>
-  </div>`).join('');
+      <div class="s-meta">
+        <span class="s-title"><b>${a.title}</b> <span class="dim">${a.dim} ${a.year}</span></span>
+        <span class="s-price${a.soldOut?' out':''}">${a.price}</span>
+      </div>
+    </div>`;
+}
+
+function renderFilters(){
+  const g = document.getElementById('shop-filters');
+  const chips = (key, opts) => opts.map(o =>
+    `<button class="chip${shopFilter[key]===o?' on':''}" data-f="${key}" data-v="${o}">${o.toUpperCase()}</button>`
+  ).join('');
+  g.innerHTML = chips('avail', ['All','Available','Sold out'])
+    + `<span class="filter-label" style="margin-left:20px">SIZE</span>`
+    + chips('size', ['All','Small','Medium','Large']);
+  g.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+    shopFilter[b.dataset.f] = b.dataset.v;
+    renderFilters(); renderShop();
+  }));
+}
+
+function renderShop(){
+  const list = shopList(), total = ARTWORKS.length;
+  document.getElementById('shop-count').textContent =
+    list.length === total ? `${total} artworks`
+                          : `${list.length} of ${total} artworks`;
+  const grid = document.getElementById('shop-grid');
+  grid.innerHTML = list.length
+    ? list.map(cardHTML).join('')
+    : `<div class="shop-empty">No artworks match these filters.</div>`;
+  grid.querySelectorAll('.s-card').forEach(c =>
+    c.addEventListener('click', () => openArtwork(+c.dataset.id)));
+}
+
+document.getElementById('shop-sort').addEventListener('change', e => {
+  shopSort = e.target.value; renderShop();
+});
+renderFilters();
+renderShop();
+
+// ── Newsletter ───────────────────────────────────────────────────────────────
+// ▼▼ PASTE YOUR PROVIDER'S FORM ENDPOINT HERE TO MAKE SIGNUPS REAL ▼▼
+//  Mailchimp : Audience → Signup forms → Embedded form → copy the <form action="...">
+//              e.g. https://yuvistark.us21.list-manage.com/subscribe/post?u=abc&id=def
+//              …and leave NEWSLETTER_FIELD as 'EMAIL'
+//  Buttondown: https://buttondown.email/api/emails/embed-subscribe/<your-username>
+//              …and set NEWSLETTER_FIELD to 'email'
+// While this is empty the form does NOT pretend to subscribe anyone — it hands off
+// to email instead, so nobody is told they joined a list that doesn't exist.
+const NEWSLETTER_ENDPOINT = '';
+const NEWSLETTER_FIELD    = 'EMAIL';
+
+function newsletterHTML(id){
+  return `
+    <h3>STAY IN THE LOOP</h3>
+    <p>New originals, studio releases and first access to drops — occasionally, never spam.</p>
+    <form class="nl-form" id="${id}" novalidate>
+      <input type="email" required placeholder="your@email.com" aria-label="Email address" />
+      <button type="submit" class="btn-primary">SUBSCRIBE</button>
+    </form>
+    <label class="nl-consent">
+      <input type="checkbox" />
+      <span>I agree to receive occasional emails from Yuvi Stark and accept the
+        <a data-legal="privacy">privacy policy</a>. Unsubscribe anytime.</span>
+    </label>`;
+}
+
+function footerHTML(){
+  return `
+    <span>© ${new Date().getFullYear()} Yuvi Stark — all works © the artist</span>
+    <span class="links">
+      <a data-legal="terms">Terms of sale</a>
+      <a data-legal="shipping">Shipping &amp; returns</a>
+      <a data-legal="privacy">Privacy</a>
+      <a href="mailto:hey@yuvistark.com">hey@yuvistark.com</a>
+    </span>`;
+}
+
+function wireNewsletter(form){
+  if(!form) return;
+  const wrap    = form.closest('.nl');
+  const input   = form.querySelector('input[type=email]');
+  const consent = wrap.querySelector('.nl-consent input');
+  const say = (msg, isErr) => {
+    let m = wrap.querySelector('.nl-msg');
+    if(!m){ m = document.createElement('div'); m.className = 'nl-msg'; wrap.appendChild(m); }
+    m.classList.toggle('err', !!isErr);
+    m.textContent = msg;
+  };
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+    if(consent && !consent.checked){ say('Please tick the consent box first.', true); return; }
+    const email = input.value.trim();
+
+    if(!NEWSLETTER_ENDPOINT){          // not wired up yet — be honest, don't fake it
+      say('Opening your email app — send it and I\'ll add you by hand.');
+      window.location.href = 'mailto:hey@yuvistark.com'
+        + '?subject=' + encodeURIComponent('Subscribe to studio updates')
+        + '&body='    + encodeURIComponent('Please add ' + email + ' to the mailing list.');
+      return;
+    }
+
+    const btn = form.querySelector('button');
+    btn.disabled = true; btn.textContent = 'SENDING…';
+    try {
+      const body = new URLSearchParams();
+      body.set(NEWSLETTER_FIELD, email);
+      // no-cors: the provider's endpoint doesn't send CORS headers, so the browser
+      // hides the response. The request DOES go through — we just can't read the
+      // result, so a rejected address surfaces in the provider's dashboard, not here.
+      await fetch(NEWSLETTER_ENDPOINT, { method:'POST', mode:'no-cors', body });
+      wrap.querySelector('.nl-consent')?.remove();
+      form.outerHTML = `<div class="nl-ok">Thanks — ${email} is on the list.</div>`;
+      showToast('Subscribed');
+    } catch(err){
+      btn.disabled = false; btn.textContent = 'SUBSCRIBE';
+      say('Something went wrong — email hey@yuvistark.com and I\'ll add you.', true);
+    }
+  });
+}
+
+// ── Legal pages ──────────────────────────────────────────────────────────────
+function openLegal(sec){
+  const ov = document.getElementById('legal-overlay');
+  ov.querySelectorAll('.legal-sec').forEach(s => s.classList.toggle('on', s.id === 'legal-'+sec));
+  ov.querySelectorAll('.legal-tabs .chip').forEach(c => c.classList.toggle('on', c.dataset.sec === sec));
+  openOverlay(ov);
+  ov.querySelector('.ov-inner').scrollTop = 0;
+}
+document.querySelectorAll('#legal-overlay .legal-tabs .chip')
+  .forEach(c => c.addEventListener('click', () => openLegal(c.dataset.sec)));
+// any [data-legal] link, anywhere (footers, consent text, PDP) opens that page
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-legal]');
+  if(a){ e.preventDefault(); e.stopPropagation(); openLegal(a.dataset.legal); }
+});
+
+// mount the shop's newsletter + footer
+document.getElementById('nl-shop-wrap').innerHTML = newsletterHTML('nl-shop');
+document.getElementById('foot-shop').innerHTML    = footerHTML();
+wireNewsletter(document.getElementById('nl-shop'));
 
 // ── Scroll ────────────────────────────────────────────────────────────────────
 window.addEventListener('wheel', e=>{
+  if(overlayOpen){ e.preventDefault(); return; }   // freeze behind an open page
+  // When parked on a side gallery that overflows, let the wheel scroll it natively
+  // before it starts pulling the stage back toward the centre.
+  const panel = current > 1.97 ? document.getElementById('shop-panel')
+              : current < -1.97 ? document.getElementById('ad-panel') : null;
+  if(panel){
+    const canDown = e.deltaY > 0 && panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
+    const canUp   = e.deltaY < 0 && panel.scrollTop > 0;
+    if(canDown || canUp) return;   // allow native scroll, don't move the stage
+  }
   e.preventDefault();
   // Range -2 to +2. Scroll speed tuned so video has plenty of time.
   target = Math.max(-2, Math.min(2, target + e.deltaY * 0.0012));
@@ -322,11 +1072,11 @@ const stage       = document.getElementById('stage');
 const progressBar = document.getElementById('progress-bar');
 const portrait    = document.getElementById('portrait-img');
 const bloom       = document.getElementById('bloom');
-const scrollHint  = document.getElementById('scroll-hint');
+const landing     = document.getElementById('landing');
 const vidArtist   = document.getElementById('video-artist');
 const vidDir      = document.getElementById('video-director');
-const adLabel     = document.getElementById('ad-label');
-const shopLabel   = document.getElementById('shop-label');
+const adTitle     = document.getElementById('ad-title');
+const shopTitle   = document.getElementById('shop-title');
 
 // ── Main loop ─────────────────────────────────────────────────────────────────
 function tick(){
@@ -366,27 +1116,507 @@ function tick(){
   const bDir = Math.max(0, (dirP - 0.85) / 0.15);
   bloom.style.opacity = Math.max(bArt, bDir);
 
-  // Scroll hint
-  scrollHint.style.opacity = absP < 0.05 ? 1 : 0;
+  // Landing side indicators fade out once the journey begins
+  landing.classList.toggle('scrolled', absP >= 0.05);
 
-  // Panel card visibility
+  // Gallery title + card reveal
   const adVisible   = dirPanel > 0.05;
   const shopVisible = artPanel > 0.05;
 
-  adLabel.classList.toggle('vis', adVisible);
-  shopLabel.classList.toggle('vis', shopVisible);
-  document.querySelectorAll('.ad-card').forEach((el,i)=>{
+  adTitle.classList.toggle('vis', adVisible);
+  shopTitle.classList.toggle('vis', shopVisible);
+  document.querySelectorAll('#ad-grid .g-card').forEach((el,i)=>{
     el.style.transitionDelay = adVisible ? `${i*0.07}s` : '0s';
     el.classList.toggle('vis', adVisible);
   });
-  document.querySelectorAll('.art-card').forEach((el,i)=>{
-    el.style.transitionDelay = shopVisible ? `${i*0.06}s` : '0s';
+  // stagger capped — with 31 cards an uncapped ramp would take ~2s to finish
+  document.querySelectorAll('#shop-grid .s-card').forEach((el,i)=>{
+    el.style.transitionDelay = shopVisible ? `${Math.min(i,7)*0.05}s` : '0s';
     el.classList.toggle('vis', shopVisible);
   });
 
   requestAnimationFrame(tick);
 }
 tick();
+
+// ── About background: generative dot field ────────────────────────────────────
+// Vanilla port of the ReactBits "DotField" effect. Every dot lives in one batched
+// canvas path (one fill per frame, so ~9k dots stay cheap). The field reacts to
+// how FAST the pointer moves: that speed drives `engagement`, which both bulges
+// dots away from the cursor and blooms a soft radial glow.
+const dotField = (function(){
+  const canvas = document.getElementById('about-dots');
+  const ctx = canvas.getContext('2d', { alpha:true });
+  const TWO_PI = Math.PI * 2;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const CFG = {
+    dotRadius:2, dotSpacing:10,     // grid step = radius + spacing
+    minDotR:0.25, maxDotR:5.2,      // halftone range: dot size = portrait brightness
+    cursorRadius:500, bulgeStrength:67,
+    glowRadius:280, glowAlpha:0.30,
+    from:'rgba(255,255,255,0.90)',  // dot gradient — monochrome to match the brand
+    to:'rgba(255,255,255,0.50)'
+  };
+
+  let dots=[], W=0, H=0, raf=null, running=false, resizeT=null;
+
+  // Luminance map of the portrait, baked to 160x90 with its tone curve already
+  // applied and inlined as a data URI: sampling a real <img> would taint the
+  // canvas over file://, and this drops the 1.9MB PNG download entirely.
+  const PORTRAIT_MAP = 'data:image/jpeg;base64,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';
+  let lum=null, lumW=0, lumH=0;
+
+  (function loadMap(){
+    const im = new Image();
+    im.onload = () => {
+      lumW = im.naturalWidth; lumH = im.naturalHeight;
+      const t = document.createElement('canvas');
+      t.width = lumW; t.height = lumH;
+      const tx = t.getContext('2d', { willReadFrequently:true });
+      tx.drawImage(im, 0, 0);
+      try {
+        const d = tx.getImageData(0,0,lumW,lumH).data;
+        lum = new Uint8Array(lumW*lumH);
+        for(let i=0,j=0; i<d.length; i+=4, j++) lum[j] = d[i];
+        sizeDots();                 // face appears as soon as the map is ready
+      } catch(e){ lum = null; }     // fall back to an even field
+    };
+    im.src = PORTRAIT_MAP;
+  })();
+
+  function sampleLum(u,v){          // bilinear, 0..1
+    u = u < 0 ? 0 : (u > lumW-1 ? lumW-1 : u);
+    v = v < 0 ? 0 : (v > lumH-1 ? lumH-1 : v);
+    const x0=u|0, y0=v|0;
+    const x1 = x0+1 < lumW ? x0+1 : x0, y1 = y0+1 < lumH ? y0+1 : y0;
+    const fx=u-x0, fy=v-y0;
+    const a=lum[y0*lumW+x0], b=lum[y0*lumW+x1];
+    const c=lum[y1*lumW+x0], e=lum[y1*lumW+x1];
+    return ((a*(1-fx)+b*fx)*(1-fy) + (c*(1-fx)+e*fx)*fy) / 255;
+  }
+
+  // Give every dot a radius from the portrait, mapped with `cover` framing
+  function sizeDots(){
+    const base = CFG.dotRadius/2;
+    if(!lum || !dots.length || !W){ for(const d of dots) d.r = base; return; }
+    const scale = Math.max(W/lumW, H/lumH);
+    const ox = (W - lumW*scale)/2, oy = (H - lumH*scale)/2;
+    for(const d of dots){
+      const t = sampleLum((d.ax-ox)/scale, (d.ay-oy)/scale);
+      d.r = CFG.minDotR + t*(CFG.maxDotR - CFG.minDotR);
+    }
+  }
+
+  let engagement=0, glowOp=0, lastSample=0;
+  const m = { x:-9999, y:-9999, px:-9999, py:-9999, speed:0 };
+
+  function build(){
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    if(!W || !H) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const step = CFG.dotRadius + CFG.dotSpacing;
+    const cols = Math.floor(W/step), rows = Math.floor(H/step);
+    const padX = (W % step)/2, padY = (H % step)/2;
+    dots = new Array(cols*rows);
+    let i = 0;
+    for(let row=0; row<rows; row++){
+      for(let col=0; col<cols; col++){
+        const ax = padX + col*step + step/2;
+        const ay = padY + row*step + step/2;
+        dots[i++] = { ax, ay, sx:ax, sy:ay, r:CFG.dotRadius/2 };
+      }
+    }
+    sizeDots();   // stamp the portrait onto the grid
+  }
+
+  function onMove(e){ m.x = e.clientX; m.y = e.clientY; }
+
+  function draw(now){
+    // sample pointer speed on a fixed ~20ms cadence so it's framerate-independent
+    if(now - lastSample > 20){
+      const dx = m.px - m.x, dy = m.py - m.y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      m.speed += (d - m.speed) * 0.5;
+      if(m.speed < 0.001) m.speed = 0;
+      m.px = m.x; m.py = m.y;
+      lastSample = now;
+    }
+
+    const targetEng = Math.min(m.speed / 5, 1);
+    engagement += (targetEng - engagement) * 0.06;
+    if(engagement < 0.001) engagement = 0;
+    glowOp += (engagement - glowOp) * 0.08;
+
+    ctx.clearRect(0,0,W,H);
+
+    // soft glow beneath the dots
+    if(glowOp > 0.002){
+      const g = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, CFG.glowRadius);
+      g.addColorStop(0, `rgba(255,255,255,${CFG.glowAlpha * glowOp})`);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(m.x-CFG.glowRadius, m.y-CFG.glowRadius, CFG.glowRadius*2, CFG.glowRadius*2);
+    }
+
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0, CFG.from);
+    grad.addColorStop(1, CFG.to);
+    ctx.fillStyle = grad;
+
+    const cr = CFG.cursorRadius, crSq = cr*cr;
+    ctx.beginPath();
+    for(let i=0, len=dots.length; i<len; i++){
+      const d = dots[i], rad = d.r;
+      const dx = m.x - d.ax, dy = m.y - d.ay;
+      const distSq = dx*dx + dy*dy;
+      if(distSq < crSq && engagement > 0.01){
+        const dist = Math.sqrt(distSq) || 0.0001;
+        const t = 1 - dist/cr;
+        const push = t * t * CFG.bulgeStrength * engagement;
+        const ang = Math.atan2(dy, dx);
+        d.sx += (d.ax - Math.cos(ang)*push - d.sx) * 0.15;
+        d.sy += (d.ay - Math.sin(ang)*push - d.sy) * 0.15;
+      } else {
+        d.sx += (d.ax - d.sx) * 0.1;   // spring home
+        d.sy += (d.ay - d.sy) * 0.1;
+      }
+      ctx.moveTo(d.sx + rad, d.sy);
+      ctx.arc(d.sx, d.sy, rad, 0, TWO_PI);
+    }
+    ctx.fill();   // one fill for the whole field
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  function onResize(){
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => { build(); if(!running) drawStatic(); }, 100);
+  }
+
+  function drawStatic(){          // reduced-motion / paused rendering
+    if(!W || !H) build();
+    ctx.clearRect(0,0,W,H);
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0, CFG.from);
+    grad.addColorStop(1, CFG.to);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    for(let i=0, len=dots.length; i<len; i++){
+      const d = dots[i];
+      ctx.moveTo(d.ax + d.r, d.ay); ctx.arc(d.ax, d.ay, d.r, 0, TWO_PI);
+    }
+    ctx.fill();
+  }
+
+  return {
+    start(){
+      build();
+      if(reduceMotion){ drawStatic(); return; }   // honour reduced-motion
+      if(running) return;
+      running = true;
+      window.addEventListener('mousemove', onMove, { passive:true });
+      window.addEventListener('resize', onResize);
+      raf = requestAnimationFrame(draw);
+    },
+    stop(){                        // don't burn frames while About is closed
+      if(!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('resize', onResize);
+      engagement = 0; glowOp = 0; m.speed = 0;
+      for(let i=0; i<dots.length; i++){ dots[i].sx = dots[i].ax; dots[i].sy = dots[i].ay; }
+    }
+  };
+})();
+
+// ── Overlay system (About / Contact / Detail / Cart / Checkout) ────────────────
+const aboutOv      = document.getElementById('about-overlay');
+const contactOv    = document.getElementById('contact-overlay');
+const detailOv     = document.getElementById('detail-overlay');
+const detailInner  = document.getElementById('detail-inner');
+const checkoutOv   = document.getElementById('checkout-overlay');
+const checkoutInner= document.getElementById('checkout-inner');
+const cartDrawer   = document.getElementById('cart-drawer');
+const cartScrim    = document.getElementById('cart-scrim');
+const cartItems    = document.getElementById('cart-items');
+const cartFoot     = document.getElementById('cart-foot');
+
+function closeOverlays(){
+  document.querySelectorAll('.page-overlay, .drawer, .scrim')
+    .forEach(o => o.classList.remove('open'));
+  document.body.classList.remove('cursor-light');
+  dotField.stop();
+  overlayOpen = false;
+}
+function openOverlay(ov, dark=false){
+  closeOverlays();                 // one surface at a time
+  ov.classList.add('open');
+  overlayOpen = true;
+  island.classList.remove('open');
+  document.body.classList.toggle('cursor-light', dark); // white cursor on dark pages
+  if(ov === aboutOv) dotField.start();
+}
+
+// Static close affordances (✕ buttons + cart scrim)
+document.querySelectorAll('.ov-close, [data-close]')
+  .forEach(b => b.addEventListener('click', closeOverlays));
+
+// Click a full page's backdrop (but not a link/button) to close
+[aboutOv, contactOv].forEach(ov => ov.addEventListener('click', e => {
+  if(!e.target.closest('a, button')) closeOverlays();
+}));
+
+// ── Card detail views ──────────────────────────────────────────────────────────
+const PROJECT_DESC = "Placeholder case-study copy — replace with the brief, the approach and the outcome: the thinking behind the identity and how it came to life across touchpoints.";
+
+function openProject(i){
+  const p = AD_PROJECTS[i], client = `${p.name}${p.suffix || ''}`;
+  detailInner.innerHTML = `
+    <div class="detail-wrap">
+      <div class="pd-head">
+        <span class="pd-year">${p.year} — ${p.role}</span>
+        <h1 class="pd-name">${client}</h1>
+      </div>
+      <div class="pd-hero"></div>
+      <div class="pd-body">
+        <p class="pd-desc">${PROJECT_DESC}</p>
+        <div class="pd-facts">
+          <div class="pd-fact"><span class="k">CLIENT</span><span class="v">${client}</span></div>
+          <div class="pd-fact"><span class="k">YEAR</span><span class="v">${p.year}</span></div>
+          <div class="pd-fact"><span class="k">DISCIPLINE</span><span class="v">${p.role}</span></div>
+          <div class="pd-fact"><span class="k">SERVICES</span><span class="v">Strategy, Identity, Art Direction</span></div>
+        </div>
+      </div>
+      <div class="pd-gallery">
+        <div class="pd-shot"></div><div class="pd-shot"></div><div class="pd-shot wide"></div>
+      </div>
+    </div>`;
+  openOverlay(detailOv);
+  detailInner.scrollTop = 0;
+}
+
+function openArtwork(id){
+  const a = ARTWORKS.find(x => x.id === id);
+  if(!a) return;
+  const inCart = cart.some(c => c.id === a.id);
+
+  // "You might also like" — same size bracket first, then closest in price
+  const also = ARTWORKS.filter(x => x.id !== a.id)
+    .sort((p,q) => (p.size===a.size?0:1) - (q.size===a.size?0:1)
+                || Math.abs(p.priceN-a.priceN) - Math.abs(q.priceN-a.priceN))
+    .slice(0,4);
+
+  detailInner.innerHTML = `
+    <div class="detail-wrap">
+      <div class="pdp">
+        <div class="pdp-gallery">
+          <div class="pdp-main"><img id="pdp-main-img" src="${a.images[0]}" alt="${a.title}"></div>
+          ${a.images.length > 1 ? `<div class="pdp-thumbs">${a.images.map((s,i)=>
+            `<div class="pdp-thumb${i===0?' on':''}" data-src="${s}"><img src="${s}" alt=""></div>`).join('')}</div>` : ''}
+        </div>
+        <div class="pdp-info">
+          <div class="pdp-artist">YUVI STARK</div>
+          <h1 class="pdp-title">${a.title}</h1>
+          <div class="pdp-sub">${a.dim} · ${a.year}</div>
+          <div class="pdp-price">${a.price}</div>
+          <div class="pdp-stock">${a.soldOut ? 'SOLD OUT' : 'ORIGINAL · 1 OF 1 · AVAILABLE'}</div>
+          <div class="pdp-specs">
+            <div class="pdp-spec"><span class="k">TECHNIQUE</span><span class="v">${a.technique}</span></div>
+            <div class="pdp-spec"><span class="k">DIMENSIONS</span><span class="v">${a.w} × ${a.h} cm</span></div>
+            <div class="pdp-spec"><span class="k">YEAR</span><span class="v">${a.year}</span></div>
+            <div class="pdp-spec"><span class="k">SHIPPING</span><span class="v">Global delivery, tracked &amp; insured</span></div>
+          </div>
+          ${a.soldOut
+            ? `<div class="pdp-buy"><button class="btn-primary" disabled style="flex:1">SOLD OUT</button></div>`
+            : `<div class="pdp-buy">
+                 <button class="btn-primary" id="pdp-add" data-id="${a.id}" ${inCart?'disabled':''}>${inCart?'IN BAG ✓':'ADD TO BAG'}</button>
+               </div>
+               <button class="btn-ghost" id="pdp-buynow" style="width:100%;margin-bottom:16px">BUY NOW</button>`}
+          <p class="pdp-note">Every piece is an original — one of one, signed. Shipped flat
+            between protective boards, tracked and insured worldwide.</p>
+        </div>
+      </div>
+
+      <div class="sugg">
+        <h3>YOU MIGHT ALSO LIKE</h3>
+        <div class="sugg-grid">${also.map(cardHTML).join('')}</div>
+      </div>
+
+      <div class="nl">${newsletterHTML('nl-pdp')}</div>
+      <footer class="site-foot">${footerHTML()}</footer>
+    </div>`;
+
+  openOverlay(detailOv);
+  detailInner.scrollTop = 0;
+
+  // gallery thumbs
+  const main = document.getElementById('pdp-main-img');
+  detailInner.querySelectorAll('.pdp-thumb').forEach(t => t.addEventListener('click', () => {
+    main.src = t.dataset.src;
+    detailInner.querySelectorAll('.pdp-thumb').forEach(o => o.classList.toggle('on', o === t));
+  }));
+
+  const add = document.getElementById('pdp-add');
+  if(add) add.addEventListener('click', () => addToCart(a));
+  const buy = document.getElementById('pdp-buynow');
+  if(buy) buy.addEventListener('click', () => { addToCart(a); openCheckout(); });
+
+  // suggestions live outside #shop-grid, so reveal them here and jump on click
+  detailInner.querySelectorAll('.sugg .s-card').forEach(c => {
+    c.classList.add('vis');
+    c.addEventListener('click', () => openArtwork(+c.dataset.id));
+  });
+
+  wireNewsletter(document.getElementById('nl-pdp'));
+}
+
+// Wire card clicks (grids already built above)
+document.querySelectorAll('#ad-grid .g-card').forEach((card,i) =>
+  card.addEventListener('click', () => openProject(i)));
+// shop cards are wired inside renderShop() — they're rebuilt on every filter change
+
+// ── Cart ─────────────────────────────────────────────────────────────────────
+function fmt(n){ return '€' + n.toLocaleString('de-DE') + ',00 EUR'; }
+function cartTotal(){ return cart.reduce((s,c) => s + (c.priceN || 0), 0); }
+
+function renderCart(){
+  if(cart.length === 0){
+    cartItems.innerHTML = `<div class="cart-empty">Your bag is empty.</div>`;
+    cartFoot.innerHTML = '';
+    return;
+  }
+  cartItems.innerHTML = cart.map(c => `
+    <div class="cart-row">
+      <div class="cart-thumb"><img src="${c.thumb}" alt="" /></div>
+      <div class="cart-meta">
+        <span class="t">${c.title}</span>
+        <span class="s">${c.dim} · ${c.year}</span>
+        <span class="p">${c.price}</span>
+      </div>
+      <button class="cart-rm" data-rm="${c.id}">REMOVE</button>
+    </div>`).join('');
+  cartFoot.innerHTML = `
+    <div class="cart-sub"><span>Subtotal</span><span class="amt">${fmt(cartTotal())}</span></div>
+    <button class="btn-primary" id="go-checkout">PROCEED TO CHECKOUT</button>
+    <div class="cart-note">Shipping &amp; taxes calculated at checkout</div>`;
+  cartItems.querySelectorAll('[data-rm]')
+    .forEach(b => b.addEventListener('click', () => removeFromCart(+b.dataset.rm)));
+  document.getElementById('go-checkout').addEventListener('click', openCheckout);
+}
+
+function removeFromCart(id){
+  cart = cart.filter(c => c.id !== id);
+  updateIsland(); renderCart();
+  const btn = document.getElementById('pdp-add');
+  if(btn && +btn.dataset.id === id){ btn.textContent='ADD TO BAG'; btn.disabled = false; }
+}
+
+function openCart(){
+  closeOverlays(); renderCart();
+  cartScrim.classList.add('open');
+  cartDrawer.classList.add('open');
+  overlayOpen = true;
+  island.classList.remove('open');
+}
+
+// Open the bag from the island
+['cart-icon','cart-badge-c','exp-bag','cart-badge-e'].forEach(id =>
+  document.getElementById(id).addEventListener('click', e => { e.stopPropagation(); openCart(); }));
+
+// ── Checkout ─────────────────────────────────────────────────────────────────
+function openCheckout(){
+  if(cart.length === 0) return;
+  renderCheckout();
+  openOverlay(checkoutOv);
+  checkoutInner.scrollTop = 0;
+}
+function renderCheckout(){
+  checkoutInner.innerHTML = `
+    <div class="co-wrap">
+      <h1 class="co-title">Checkout</h1>
+      <form class="co-form" id="co-form" novalidate>
+        <div class="co-group">
+          <h4>CONTACT</h4>
+          <div class="co-field"><label>Email</label><input type="email" required placeholder="you@email.com"></div>
+        </div>
+        <div class="co-group">
+          <h4>SHIPPING ADDRESS</h4>
+          <div class="co-row2">
+            <div class="co-field"><label>First name</label><input required></div>
+            <div class="co-field"><label>Last name</label><input required></div>
+          </div>
+          <div class="co-field"><label>Address</label><input required></div>
+          <div class="co-row2">
+            <div class="co-field"><label>City</label><input required></div>
+            <div class="co-field"><label>Postal code</label><input required></div>
+          </div>
+          <div class="co-field"><label>Country</label><input required value="Italy"></div>
+        </div>
+        <button type="submit" class="btn-primary">PLACE ORDER · ${fmt(cartTotal())}</button>
+        <div class="cart-note" style="text-align:left;margin-top:0;line-height:1.7">
+          By placing your order you accept the <a data-legal="terms" style="color:inherit">Terms of sale</a>,
+          <a data-legal="shipping" style="color:inherit">Shipping &amp; returns</a> and
+          <a data-legal="privacy" style="color:inherit">Privacy policy</a>.<br>
+          <b>Demo checkout — no real payment is processed.</b>
+        </div>
+      </form>
+      <div class="co-summary">
+        <h4>ORDER SUMMARY</h4>
+        ${cart.map(c => `<div class="co-sum-row"><span class="t">${c.title} <span style="opacity:.45">${c.dim}</span></span><span class="p">${c.price}</span></div>`).join('')}
+        <div class="co-tot"><span>Total</span><span>${fmt(cartTotal())}</span></div>
+      </div>
+    </div>`;
+  document.getElementById('co-form').addEventListener('submit', placeOrder);
+}
+function placeOrder(e){
+  e.preventDefault();
+  if(!e.target.checkValidity()){ e.target.reportValidity(); return; }
+  cart = []; updateIsland();
+  const pa = document.getElementById('pdp-add');
+  if(pa){ pa.textContent='ADD TO BAG'; pa.disabled = false; }
+  checkoutInner.innerHTML = `
+    <div class="co-done">
+      <div class="chk">✓</div>
+      <h2>Thank you.</h2>
+      <p>Your order has been received and a confirmation is on its way to your inbox.<br>This is a demo store — no payment was taken.</p>
+      <button class="btn-primary" id="co-continue" style="margin-top:28px">CONTINUE</button>
+    </div>`;
+  document.getElementById('co-continue').addEventListener('click', () => { closeOverlays(); target = 0; });
+}
+
+// ── Landing side indicators → glide to that gallery ───────────────────────────
+document.querySelectorAll('.land-ind').forEach(el =>
+  el.addEventListener('click', () => { closeOverlays(); target = parseFloat(el.dataset.go); }));
+
+// ── Island nav → actions ──────────────────────────────────────────────────────
+const navMap = {
+  ABOUT:   () => openOverlay(aboutOv, true),
+  CONTACT: () => openOverlay(contactOv),
+  SHOP:    () => { closeOverlays(); target = 2; },
+  GALLERY: () => { closeOverlays(); target = -2; },
+};
+document.querySelectorAll('#island-expanded .nav-item').forEach(item => {
+  item.addEventListener('click', () => { const fn = navMap[item.textContent.trim()]; if(fn) fn(); });
+});
+// Brand name returns to the centre / landing
+document.getElementById('island-collapsed')
+  .addEventListener('click', () => { closeOverlays(); target = 0; });
+
+// Keyboard: arrows mirror the cross layout, ESC closes whatever is open
+window.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeOverlays(); return; }
+  if(overlayOpen) return;          // don't hijack arrows while a surface is open
+  if(e.key === 'ArrowUp')         { e.preventDefault(); openOverlay(contactOv); }
+  else if(e.key === 'ArrowDown')  { e.preventDefault(); openOverlay(aboutOv, true); }
+  else if(e.key === 'ArrowRight') { target = 2; }
+  else if(e.key === 'ArrowLeft')  { target = -2; }
+});
 </script>
 </body>
 </html>
