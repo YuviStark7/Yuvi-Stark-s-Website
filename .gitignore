@@ -1,0 +1,4 @@
+# Local working copies — not needed by the site.
+# The two .mp4s the site actually loads live at the repo root; Videos/ is a
+# byte-identical duplicate kept locally for the asset library.
+Videos/
