@@ -385,18 +385,22 @@
       font-family:'Montserrat',sans-serif; font-size:14px; opacity:0.45; }
 
     /* ── Product detail (PDP) ────────────────────────────────────────────── */
-    .pdp { display:grid; grid-template-columns:1.25fr 1fr; gap:70px; align-items:start; }
-    .pdp-gallery { display:flex; flex-direction:column; gap:16px; }
-    .pdp-main { width:100%; background:#f4f4f4; overflow:hidden; }
-    .pdp-main img { width:100%; height:auto; display:block; }
-    .pdp-thumbs { display:flex; gap:12px; flex-wrap:wrap; }
-    .pdp-thumb { width:74px; aspect-ratio:2643/3145; overflow:hidden; cursor:pointer;
-      border:1px solid transparent; opacity:0.55; transition:opacity 0.25s ease, border-color 0.25s ease; }
-    .pdp-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-    .pdp-thumb:hover { opacity:0.85; }
-    .pdp-thumb.on { opacity:1; border-color:#0a0a0a; }
+    /* Split layout: artwork fills the left half, details pinned centre-right.
+       Extra shots simply stack down the left column while the right stays put. */
+    #detail-overlay.pdp-mode .ov-inner { padding:0; }
+    .pdp { display:grid; grid-template-columns:1fr 1fr; align-items:start; }
+    .pdp-media { background:#fff; }
+    .pdp-shot { height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:6vh 3vw; }
+    .pdp-shot img { max-width:100%; max-height:100%; width:auto; height:auto;
+      object-fit:contain; display:block; }
+    .pdp-side { position:sticky; top:0; height:100vh; display:flex; align-items:center;
+      padding:0 clamp(24px,5vw,84px); }
+    .pdp-side-in { width:100%; max-width:400px; display:flex; flex-direction:column;
+      font-family:'Montserrat',sans-serif; color:#0a0a0a; }
+    .pdp-after { padding:0 clamp(24px,8vw,100px) 90px; }
 
-    .pdp-info { position:sticky; top:120px; display:flex; flex-direction:column;
+    .pdp-info { display:flex; flex-direction:column;
       font-family:'Montserrat',sans-serif; color:#0a0a0a; }
     .pdp-artist { font-size:10px; letter-spacing:0.24em; opacity:0.4; margin-bottom:14px; }
     .pdp-title { font-family:'Inter',sans-serif; font-size:30px; font-weight:700; line-height:1.2;
@@ -418,7 +422,7 @@
     .pdp-note { font-size:11px; opacity:0.4; line-height:1.7; }
 
     /* suggestions + newsletter */
-    .sugg { margin-top:130px; border-top:1px solid #ededed; padding-top:56px; }
+    .sugg { margin-top:110px; border-top:1px solid #ededed; padding-top:56px; }
     .sugg h3, .nl h3 { font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:0.24em;
       opacity:0.4; margin-bottom:34px; }
     .sugg-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:28px; }
@@ -468,8 +472,12 @@
 
     @media (max-width:1180px){ .shop-grid { grid-template-columns:repeat(2,1fr); gap:70px 36px; } }
     @media (max-width:900px){
-      .pdp { grid-template-columns:1fr; gap:40px; }
-      .pdp-info { position:static; }
+      /* stack: artwork on top, details below — nothing pinned on a small screen */
+      .pdp { grid-template-columns:1fr; }
+      .pdp-shot { height:62vh; padding:3vh 6vw; }
+      .pdp-side { position:static; height:auto; padding:34px clamp(20px,6vw,40px) 0; }
+      .pdp-side-in { max-width:none; }
+      .pdp-after { padding:0 clamp(20px,6vw,40px) 70px; }
       .sugg-grid { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width:640px){ .shop-grid { grid-template-columns:1fr; gap:56px; } }
@@ -792,53 +800,54 @@
 
 <script>
 // ── Shop catalogue ───────────────────────────────────────────────────────────
-// EDIT ME. One row per painting; the photo is shop/t/<id>.jpg (grid) and
-// shop/f/<id>.jpg (detail). TITLES, SIZES, YEARS and PRICES below are
-// PLACEHOLDERS — swap in the real values. Sold-out is just a true/false.
-// Sizes below assume works on paper (A5/A4/A3/A2). Technique is optional —
-// omit it and it falls back to DEFAULT_TECHNIQUE.
-//        [ id, title,             w,  h, year, price€, soldOut, technique ]
+// Real catalogue, 24 works. The photo for each is shop/t/<id>.jpg (grid) and
+// shop/f/<id>.jpg (detail) — the id IS the source .png filename, so ids are
+// intentionally non-contiguous (24-27 and 29-31 are held back for now).
+// Set soldOut to true as pieces sell. year may be null if unknown.
+//        [ id, title,                                        w,    h,  year, price€, soldOut, technique ]
 const DEFAULT_TECHNIQUE = 'Mixed media on paper';
 const ARTWORK_ROWS = [
-  [  1, 'Silent Hours',       30, 42, 2025, 480, false, 'Watercolour & ink on paper' ],
-  [  2, 'Ember',              21, 30, 2024, 280, false, 'Watercolour & ink on paper' ],
-  [  3, 'After the Rain',     30, 42, 2025, 480, false, 'Watercolour on paper' ],
-  [  4, 'Weight of Light',    42, 59, 2023, 850, true,  'Watercolour & ink on paper' ],
-  [  5, 'Static Bloom',       21, 30, 2025, 280, false, 'Watercolour & ink on paper' ],
-  [  6, 'Undertow',           30, 42, 2024, 480, false, 'Ink & charcoal on paper' ],
-  [  7, 'Nocturne',           30, 42, 2026, 480, false, 'Charcoal on paper' ],
-  [  8, 'Paper Skin',         21, 30, 2022, 280, false, 'Mixed media on paper' ],
-  [  9, 'Hollow Season',      30, 42, 2025, 480, true,  'Ink & charcoal on paper' ],
-  [ 10, 'Drift',              21, 30, 2024, 280, false, 'Watercolour on paper' ],
-  [ 11, 'Fever Dream',        42, 59, 2023, 850, false, 'Ink & wash on paper' ],
-  [ 12, 'Salt & Ash',         42, 59, 2025, 850, false, 'Mixed media on paper' ],
-  [ 13, 'Quiet Riot',         30, 42, 2026, 480, false, 'Ink & charcoal on paper' ],
-  [ 14, 'Threadbare',         21, 30, 2021, 280, false, 'Watercolour on paper' ],
-  [ 15, 'Glasshouse',         30, 42, 2025, 480, false, 'Watercolour & ink on paper' ],
-  [ 16, 'Low Tide',           30, 42, 2024, 480, true,  'Charcoal on paper' ],
-  [ 17, 'Iron Lullaby',       21, 30, 2023, 280, false, 'Watercolour & ink on paper' ],
-  [ 18, 'Bloodline',          42, 59, 2025, 850, false, 'Charcoal on paper' ],
-  [ 19, 'Cathedral',          42, 30, 2024, 520, false, 'Gouache & ink on paper' ],
-  [ 20, 'Slow Burn',          42, 30, 2026, 520, false, 'Gouache & ink on paper' ],
-  [ 21, 'Fault Lines',        42, 30, 2022, 520, false, 'Gouache & ink on paper' ],
-  [ 22, 'Mirror Study',       42, 30, 2025, 520, false, 'Gouache & ink on paper' ],
-  [ 23, 'Half Light',         42, 30, 2023, 520, false, 'Ink & wash on paper' ],
-  [ 24, 'Wildflower',         42, 30, 2026, 520, true,  'Chalk on black paper' ],
-  [ 25, 'The Long Way',       42, 30, 2024, 520, false, 'Chalk on black paper' ],
-  [ 26, 'Tender Wreck',       30, 42, 2025, 480, false, 'Ink on toned paper' ],
-  [ 27, 'Smoke Signals',      42, 30, 2021, 520, false, 'Ink on toned paper' ],
-  [ 28, 'Rust',               30, 42, 2024, 480, false, 'Ink & wash on paper' ],
-  [ 29, 'Small Mercies',      21, 30, 2026, 280, false, 'Graphite on paper' ],
-  [ 30, 'Gravity',            30, 42, 2025, 480, false, 'Ink & wash on paper' ],
-  [ 31, 'Aftertaste',         42, 59, 2023, 850, false, 'Watercolour on paper' ],
+  [  1, 'Between Goodbye and Tomorrow',                21,   29.8, 2022, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [  2, 'When She Stopped Fighting',                   23.8, 29.8, 2025, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [  3, 'Somewhere Between You and Me',                23.8, 29.8, 2022, 500,  true, 'Watercolors' ],
+  [  4, 'Somewhere Between Looking and Losing Yourself',23.8,29.8, 2025, 325, false, 'Watercolors & Alcohol based Markers' ],
+  [  5, 'It Wasn\'t Supposed to Hurt This Much',       21,   29.8, 2022, 250, false, 'Watercolors & Alcohol based Markers' ],
+  [  6, 'You Forgot How to Breathe',                   23.8, 29.8, 2025, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [  7, 'Somewhere on That Field',                     23.8, 29.8, 2025, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [  8, 'All the Things She Was Too Loyal to Try',     21,   29.8, 2022, 225, false, 'Watercolors & Alcohol based Markers' ],
+  [  9, 'Nothing About Her Was Accidental',            23.8, 29.8, 2025, 275, false, 'Watercolors & Alcohol based Markers' ],
+  [ 10, 'Somewhere Between Feeling and Forgetting',    21,   29.8, 2022, 300, false, 'Watercolors' ],
+  [ 11, 'Nobody Told Him He Could Cry',                23.8, 29.8, 2025, 225, false, 'Watercolors & Alcohol based Markers' ],
+  [ 12, 'Still, I Wanted to Kiss You',                 21,   29.8, 2022, 600, false, 'Watercolors & Alcohol based Markers' ],
+  [ 13, 'Somewhere Beyond Tomorrow',                   21,   29.8, 2022, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [ 14, 'Somewhere Between Two Versions of Me',        21,   29.8, 2022, 200, false, 'Watercolors' ],
+  [ 15, 'Somewhere Between Summer and Fall',           23.8, 29.8, 2025, 260, false, 'Watercolors & Alcohol based Markers' ],
+  [ 16, 'Somewhere Between Trust and Truth',           21,   29.8, 2022, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [ 17, 'It Was Never Your Choice',                    21,   29.8, 2022, 300, false, 'Watercolors & Alcohol based Markers' ],
+  [ 18, 'I love my Long Earring',                      29.8, 23.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 19, 'I love my Scarf',                             29.8, 23.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 20, 'I love my Champagne',                         29.8, 23.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 21, 'I love my Fancy Coat',                        29.8, 23.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 22, 'I love my Big Jacket',                        29.8, 23.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 23, 'I love my Loose Jeans',                       23.8, 29.8, 2026, 100, false, 'Alcohol Based Markers' ],
+  [ 28, 'Anemoia',                                     23.8, 29.8, 2025, 400, false, 'Indian Ink' ],
 ];
+
+// Filter bucket: every piece is roughly A4, so medium is far more useful than size
+const mediumOf = t =>
+  /ink/i.test(t)                                 ? 'Ink'
+  : (/watercolor/i.test(t) && /marker/i.test(t)) ? 'Mixed'
+  : /watercolor/i.test(t)                        ? 'Watercolor'
+  : /marker/i.test(t)                            ? 'Markers'
+  : 'Other';
 
 const ARTWORKS = ARTWORK_ROWS.map(([id,title,w,h,year,priceN,soldOut,technique]) => ({
   id, title, w, h, year, priceN, soldOut,
   dim:`(${w}x${h} cm)`,
   price: fmt(priceN),                       // fmt() is hoisted from the cart section
-  size: h <= 30 ? 'Small' : (h <= 45 ? 'Medium' : 'Large'),
   technique: technique || DEFAULT_TECHNIQUE,
+  medium: mediumOf(technique || DEFAULT_TECHNIQUE),
+  orientation: w > h ? 'Landscape' : 'Portrait',
   thumb:`shop/t/${id}.jpg`,
   // Extra detail shots: just add more paths here, e.g. `shop/f/${id}-detail.jpg`
   images:[`shop/f/${id}.jpg`],
@@ -936,18 +945,19 @@ document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
   </div>`).join('');
 
 // ── Shop: filters, sort, grid ────────────────────────────────────────────────
-const shopFilter = { avail:'All', size:'All' };
+const shopFilter = { avail:'All', medium:'All' };
 let shopSort = 'featured';
 
 function shopList(){
   const list = ARTWORKS.filter(a =>
-    (shopFilter.size  === 'All' || a.size === shopFilter.size) &&
-    (shopFilter.avail === 'All' ||
+    (shopFilter.medium === 'All' || a.medium === shopFilter.medium) &&
+    (shopFilter.avail  === 'All' ||
      (shopFilter.avail === 'Available' ? !a.soldOut : a.soldOut)));
   if(shopSort === 'price-asc')       list.sort((a,b)=>a.priceN-b.priceN);
   else if(shopSort === 'price-desc') list.sort((a,b)=>b.priceN-a.priceN);
   else if(shopSort === 'title')      list.sort((a,b)=>a.title.localeCompare(b.title));
-  else if(shopSort === 'year')       list.sort((a,b)=>b.year-a.year || a.id-b.id);
+  // undated pieces sort last rather than jumping to the top as NaN
+  else if(shopSort === 'year')       list.sort((a,b)=>(b.year||0)-(a.year||0) || a.id-b.id);
   return list;
 }
 
@@ -959,7 +969,7 @@ function cardHTML(a){
         <img src="${a.thumb}" alt="${a.title}" loading="lazy" />
       </div>
       <div class="s-meta">
-        <span class="s-title"><b>${a.title}</b> <span class="dim">${a.dim} ${a.year}</span></span>
+        <span class="s-title"><b>${a.title}</b> <span class="dim">${a.dim}${a.year?' '+a.year:''}</span></span>
         <span class="s-price${a.soldOut?' out':''}">${a.price}</span>
       </div>
     </div>`;
@@ -970,9 +980,10 @@ function renderFilters(){
   const chips = (key, opts) => opts.map(o =>
     `<button class="chip${shopFilter[key]===o?' on':''}" data-f="${key}" data-v="${o}">${o.toUpperCase()}</button>`
   ).join('');
+  // every piece is roughly A4, so filtering by medium beats filtering by size
   g.innerHTML = chips('avail', ['All','Available','Sold out'])
-    + `<span class="filter-label" style="margin-left:20px">SIZE</span>`
-    + chips('size', ['All','Small','Medium','Large']);
+    + `<span class="filter-label" style="margin-left:20px">MEDIUM</span>`
+    + chips('medium', ['All','Watercolor','Mixed','Markers','Ink']);
   g.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
     shopFilter[b.dataset.f] = b.dataset.v;
     renderFilters(); renderShop();
@@ -1488,6 +1499,7 @@ function openProject(i){
         <div class="pd-shot"></div><div class="pd-shot"></div><div class="pd-shot wide"></div>
       </div>
     </div>`;
+  detailOv.classList.remove('pdp-mode');   // project pages keep the padded layout
   openOverlay(detailOv);
   detailInner.scrollTop = 0;
 }
@@ -1497,30 +1509,29 @@ function openArtwork(id){
   if(!a) return;
   const inCart = cart.some(c => c.id === a.id);
 
-  // "You might also like" — same size bracket first, then closest in price
-  const also = ARTWORKS.filter(x => x.id !== a.id)
-    .sort((p,q) => (p.size===a.size?0:1) - (q.size===a.size?0:1)
+  // "You might also like" — same medium first, then closest in price
+  const also = ARTWORKS.filter(x => x.id !== a.id && !x.soldOut)
+    .sort((p,q) => (p.medium===a.medium?0:1) - (q.medium===a.medium?0:1)
                 || Math.abs(p.priceN-a.priceN) - Math.abs(q.priceN-a.priceN))
     .slice(0,4);
 
   detailInner.innerHTML = `
-    <div class="detail-wrap">
+    <div>
       <div class="pdp">
-        <div class="pdp-gallery">
-          <div class="pdp-main"><img id="pdp-main-img" src="${a.images[0]}" alt="${a.title}"></div>
-          ${a.images.length > 1 ? `<div class="pdp-thumbs">${a.images.map((s,i)=>
-            `<div class="pdp-thumb${i===0?' on':''}" data-src="${s}"><img src="${s}" alt=""></div>`).join('')}</div>` : ''}
+        <div class="pdp-media">
+          ${a.images.map((s,i) => `
+          <div class="pdp-shot"><img id="${i===0?'pdp-main-img':''}" src="${s}" alt="${a.title}"></div>`).join('')}
         </div>
-        <div class="pdp-info">
+        <aside class="pdp-side"><div class="pdp-side-in">
           <div class="pdp-artist">YUVI STARK</div>
           <h1 class="pdp-title">${a.title}</h1>
-          <div class="pdp-sub">${a.dim} · ${a.year}</div>
+          <div class="pdp-sub">${a.dim}${a.year ? ' · ' + a.year : ''}</div>
           <div class="pdp-price">${a.price}</div>
           <div class="pdp-stock">${a.soldOut ? 'SOLD OUT' : 'ORIGINAL · 1 OF 1 · AVAILABLE'}</div>
           <div class="pdp-specs">
             <div class="pdp-spec"><span class="k">TECHNIQUE</span><span class="v">${a.technique}</span></div>
             <div class="pdp-spec"><span class="k">DIMENSIONS</span><span class="v">${a.w} × ${a.h} cm</span></div>
-            <div class="pdp-spec"><span class="k">YEAR</span><span class="v">${a.year}</span></div>
+            ${a.year ? `<div class="pdp-spec"><span class="k">YEAR</span><span class="v">${a.year}</span></div>` : ''}
             <div class="pdp-spec"><span class="k">SHIPPING</span><span class="v">Global delivery, tracked &amp; insured</span></div>
           </div>
           ${a.soldOut
@@ -1531,27 +1542,22 @@ function openArtwork(id){
                <button class="btn-ghost" id="pdp-buynow" style="width:100%;margin-bottom:16px">BUY NOW</button>`}
           <p class="pdp-note">Every piece is an original — one of one, signed. Shipped flat
             between protective boards, tracked and insured worldwide.</p>
+        </div></aside>
+      </div>
+
+      <div class="pdp-after">
+        <div class="sugg">
+          <h3>YOU MIGHT ALSO LIKE</h3>
+          <div class="sugg-grid">${also.map(cardHTML).join('')}</div>
         </div>
+        <div class="nl">${newsletterHTML('nl-pdp')}</div>
+        <footer class="site-foot">${footerHTML()}</footer>
       </div>
-
-      <div class="sugg">
-        <h3>YOU MIGHT ALSO LIKE</h3>
-        <div class="sugg-grid">${also.map(cardHTML).join('')}</div>
-      </div>
-
-      <div class="nl">${newsletterHTML('nl-pdp')}</div>
-      <footer class="site-foot">${footerHTML()}</footer>
     </div>`;
 
+  detailOv.classList.add('pdp-mode');     // full-bleed split layout
   openOverlay(detailOv);
   detailInner.scrollTop = 0;
-
-  // gallery thumbs
-  const main = document.getElementById('pdp-main-img');
-  detailInner.querySelectorAll('.pdp-thumb').forEach(t => t.addEventListener('click', () => {
-    main.src = t.dataset.src;
-    detailInner.querySelectorAll('.pdp-thumb').forEach(o => o.classList.toggle('on', o === t));
-  }));
 
   const add = document.getElementById('pdp-add');
   if(add) add.addEventListener('click', () => addToCart(a));
@@ -1573,7 +1579,9 @@ document.querySelectorAll('#ad-grid .g-card').forEach((card,i) =>
 // shop cards are wired inside renderShop() — they're rebuilt on every filter change
 
 // ── Cart ─────────────────────────────────────────────────────────────────────
-function fmt(n){ return '€' + n.toLocaleString('de-DE') + ',00 EUR'; }
+// Luxury-house convention: symbol after the number, no decimals (every price is
+// a whole euro), European thousands separator — 300 € / 1.200 €
+function fmt(n){ return n.toLocaleString('de-DE') + ' €'; }
 function cartTotal(){ return cart.reduce((s,c) => s + (c.priceN || 0), 0); }
 
 function renderCart(){
