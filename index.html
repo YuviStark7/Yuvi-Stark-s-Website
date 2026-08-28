@@ -75,13 +75,21 @@
              box-shadow:0 4px 24px rgba(0,0,0,0.18); white-space:nowrap;
              animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
 
-    #progress-wrap { position:fixed; bottom:0; left:0; right:0; height:1px;
-                     background:#f0f0f0; z-index:100; }
-    #progress-bar  { height:100%; background:#0a0a0a; width:50%; transition:width 0.05s linear; }
-    #progress-wrap .pl { position:absolute; bottom:8px; font-size:8px; letter-spacing:0.2em; color:#ccc; }
-    .pl.left   { left:24px; }
-    .pl.center { left:50%; transform:translateX(-50%); }
-    .pl.right  { right:24px; }
+    /* Three location tabs rather than a progress bar — you're somewhere, not
+       partway through something. Tappable, so they double as navigation. */
+    #progress-wrap { position:fixed; bottom:0; left:0; right:0; z-index:100;
+      display:flex; justify-content:center; align-items:center;
+      padding:0 12px 16px; pointer-events:none; }
+    .pl { pointer-events:auto; cursor:pointer; position:relative;
+      font-family:'Montserrat',sans-serif; font-size:8px; letter-spacing:0.2em;
+      color:#c4c4c4; padding:9px clamp(12px,4vw,26px); white-space:nowrap;
+      transition:color 0.35s ease; }
+    .pl::after { content:''; position:absolute; left:clamp(12px,4vw,26px);
+      right:clamp(12px,4vw,26px); bottom:2px; height:1px; background:#0a0a0a;
+      transform:scaleX(0); transform-origin:center;
+      transition:transform 0.45s cubic-bezier(0.16,1,0.3,1); }
+    .pl.on { color:#0a0a0a; }
+    .pl.on::after { transform:scaleX(1); }
 
     /* Landing — centred portrait/video column + side indicators (per Figma) */
     #landing { background:#fff; }
@@ -107,6 +115,25 @@
     .land-ind.right { right:clamp(24px, 7vw, 138px); }
     .land-ind svg { width:24px; height:24px; flex-shrink:0; }
     #landing.scrolled .land-ind { opacity:0 !important; pointer-events:none; }
+
+    /* Touch: the side arrows sat over the cropped video and read as broken —
+       replaced by a one-off intro hint that names both directions, then goes. */
+    #land-hint { position:absolute; inset:0; z-index:6; display:none;
+      flex-direction:column; align-items:center; justify-content:center; gap:26px;
+      background:rgba(255,255,255,0.72); backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+      font-family:'Montserrat',sans-serif; color:#0a0a0a; pointer-events:none;
+      opacity:0; transition:opacity 0.6s ease; }
+    #land-hint.show { opacity:1; }
+    .lh-row { display:flex; flex-direction:column; align-items:center; gap:7px;
+      font-size:11px; letter-spacing:0.24em; }
+    .lh-arrow { font-size:19px; line-height:1; opacity:0.5; }
+    .lh-mid { font-size:8.5px; letter-spacing:0.3em; opacity:0.4; }
+    /* must come AFTER .land-ind above — same specificity, so source order wins */
+    @media (hover: none), (pointer: coarse) {
+      .land-ind  { display:none; }
+      #land-hint { display:flex; }
+    }
     @media (max-width:740px){
       #landing-media { width:78vw; }
       .land-ind span { display:none; }
@@ -186,17 +213,23 @@
     #contact-overlay .ov-inner { transform:translateY(-7%); }
     #contact-overlay.open .ov-inner { transform:translateY(0); }
 
+    /* 34px tall at top:20px — exactly matches the YUVI STARK header pill.
+       The chip background matters: on Contact the dark silhouette crops over
+       the top-right on narrow screens and plain dark text disappeared into it. */
     .ov-close {
-      position:fixed; top:24px; right:30px; z-index:520;
+      position:fixed; top:20px; right:24px; z-index:520;
+      height:34px; padding:0 16px; border-radius:100px;
       display:flex; align-items:center; gap:8px; cursor:pointer;
       font-size:8.5px; letter-spacing:0.24em; opacity:0;
-      transition:opacity 0.5s ease 0.2s, color 0.2s ease;
+      background:rgba(255,255,255,0.86); color:#0a0a0a;
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      transition:opacity 0.5s ease 0.2s, background 0.2s ease;
     }
-    .page-overlay.open .ov-close { opacity:0.65; }
-    .ov-close:hover { opacity:1 !important; }
-    .ov-close .x { font-size:14px; line-height:1; letter-spacing:0; }
-    #about-overlay   .ov-close { color:#fff; }
-    #contact-overlay .ov-close { color:#0a0a0a; }
+    .page-overlay.open .ov-close { opacity:0.92; }
+    .ov-close:hover { opacity:1 !important; background:#fff; }
+    .ov-close .x { font-size:13px; line-height:1; letter-spacing:0; }
+    #about-overlay .ov-close { background:rgba(18,18,18,0.7); color:#fff; }
+    #about-overlay .ov-close:hover { background:rgba(18,18,18,0.9); }
 
     /* About content */
     .about-body { position:absolute; z-index:2; left:50%; top:54%; transform:translate(-50%,-50%);
@@ -465,7 +498,7 @@
       .gallery-title { font-size:19px; }
       #detail-overlay .ov-inner,
       #legal-overlay .ov-inner { padding:96px 20px 70px; }
-      .ov-close { top:16px; right:16px; }
+      .ov-close { right:16px; }   /* keep top:20px so it lines up with the header pill */
       .pdp-title  { font-size:25px; }
       .pdp-price  { font-size:21px; }
       .sugg       { margin-top:70px; }
@@ -513,10 +546,9 @@
 <div id="toast-wrap"></div>
 
 <div id="progress-wrap">
-  <div id="progress-bar"></div>
-  <span class="pl left">ART DIRECTION</span>
-  <span class="pl center">YUVI STARK</span>
-  <span class="pl right">ARTWORKS</span>
+  <span class="pl" data-go="-2">ART DIRECTION</span>
+  <span class="pl on" data-go="0">YUVI STARK</span>
+  <span class="pl" data-go="2">ARTWORKS</span>
 </div>
 
 <div id="stage">
@@ -551,6 +583,11 @@
         <line x1="8" y1="4" x2="8" y2="20"/><path d="M5 17 L8 20 L11 17"/>
         <line x1="16" y1="20" x2="16" y2="4"/><path d="M13 7 L16 4 L19 7"/>
       </svg>
+    </div>
+    <div id="land-hint" aria-hidden="true">
+      <div class="lh-row"><span class="lh-arrow">↑</span><span>ART DIRECTION</span></div>
+      <div class="lh-mid">SWIPE TO EXPLORE</div>
+      <div class="lh-row"><span>ARTWORKS</span><span class="lh-arrow">↓</span></div>
     </div>
   </div>
 
@@ -1186,9 +1223,8 @@ window.addEventListener('touchmove', e => {
   const y  = e.touches[0].clientY;
   const dy = touchPrevY - y;        // swipe up = positive, same sign as wheel
   touchPrevY = y;
-  // 0.002 ≈ one full-screen swipe per half-journey, so the video still scrubs
-  // visibly instead of snapping straight to the panel.
-  if(stageScroll(dy, 0.002)) e.preventDefault();
+  // 0.004 ≈ one decent swipe covers the whole journey (two short ones at worst).
+  if(stageScroll(dy, 0.004)) e.preventDefault();
 }, { passive:false });
 
 window.addEventListener('touchend',    () => { touchPrevY = null; }, { passive:true });
@@ -1196,7 +1232,7 @@ window.addEventListener('touchcancel', () => { touchPrevY = null; }, { passive:t
 
 // ── Elements ─────────────────────────────────────────────────────────────────
 const stage       = document.getElementById('stage');
-const progressBar = document.getElementById('progress-bar');
+const plTabs     = [...document.querySelectorAll("#progress-wrap .pl")];
 const portrait    = document.getElementById('portrait-img');
 const bloom       = document.getElementById('bloom');
 const landing     = document.getElementById('landing');
@@ -1221,8 +1257,10 @@ function tick(){
   const stageShift = artPanel - dirPanel; // -1 to +1
   stage.style.transform = `translateX(${(-1 - stageShift) * 100}vw)`;
 
-  // Progress bar (maps full -2→+2 to 0→100%)
-  progressBar.style.width = `${((scrollPos + 2) / 4) * 100}%`;
+  // Location tabs: highlight wherever you actually are, not how far you've come.
+  // Flips once a side panel is more than half slid in.
+  const here = stageShift > 0.5 ? 2 : (stageShift < -0.5 ? 0 : 1);
+  plTabs.forEach((t,i) => t.classList.toggle('on', i === here));
 
   // Portrait fades as soon as video starts
   const absP = Math.max(artP, dirP);
@@ -1328,7 +1366,13 @@ const dotField = (function(){
     const base = CFG.dotRadius/2;
     if(!lum || !dots.length || !W){ for(const d of dots) d.r = base; return; }
     const scale = Math.max(W/lumW, H/lumH);
-    const ox = (W - lumW*scale)/2, oy = (H - lumH*scale)/2;
+    const dw = lumW*scale, dh = lumH*scale;
+    // The map is 16:9. On a portrait phone, cover-cropping to centre shows only
+    // the empty middle of the frame and the face falls off the edge — so when we
+    // crop hard horizontally, anchor on the face (right of frame) instead.
+    const crop   = dw / W;                       // 1 = no crop, ~3.8 on a phone
+    const focalX = crop > 1.35 ? 0.70 : 0.5;
+    const ox = W/2 - dw*focalX, oy = (H - dh)/2;
     for(const d of dots){
       const t = sampleLum((d.ax-ox)/scale, (d.ay-oy)/scale);
       d.r = CFG.minDotR + t*(CFG.maxDotR - CFG.minDotR);
@@ -1362,6 +1406,12 @@ const dotField = (function(){
   }
 
   function onMove(e){ m.x = e.clientX; m.y = e.clientY; }
+  // Phones never fire mousemove, so the field sat dead on touch. A drag gives
+  // the same speed signal a cursor does; a tap lands the glow and lets it decay.
+  function onTouch(e){
+    const t = e.touches && e.touches[0];
+    if(t){ m.x = t.clientX; m.y = t.clientY; }
+  }
 
   function draw(now){
     // sample pointer speed on a fixed ~20ms cadence so it's framerate-independent
@@ -1447,6 +1497,8 @@ const dotField = (function(){
       if(running) return;
       running = true;
       window.addEventListener('mousemove', onMove, { passive:true });
+      window.addEventListener('touchstart', onTouch, { passive:true });
+      window.addEventListener('touchmove',  onTouch, { passive:true });
       window.addEventListener('resize', onResize);
       raf = requestAnimationFrame(draw);
     },
@@ -1455,6 +1507,8 @@ const dotField = (function(){
       running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('touchmove',  onTouch);
       window.removeEventListener('resize', onResize);
       engagement = 0; glowOp = 0; m.speed = 0;
       for(let i=0; i<dots.length; i++){ dots[i].sx = dots[i].ax; dots[i].sy = dots[i].ay; }
@@ -1696,6 +1750,30 @@ async function openCheckout(){
 // ── Landing side indicators → glide to that gallery ───────────────────────────
 document.querySelectorAll('.land-ind').forEach(el =>
   el.addEventListener('click', () => { closeOverlays(); target = parseFloat(el.dataset.go); }));
+
+// Location tabs double as navigation
+plTabs.forEach(t => t.addEventListener('click', () => {
+  closeOverlays(); target = parseFloat(t.dataset.go);
+}));
+
+// ── Touch intro hint ─────────────────────────────────────────────────────────
+// Shows once for 3s so first-timers know the page moves, then gets out of the
+// way. Dismissed early if they start swiping — no point explaining what they're
+// already doing.
+(function landingHint(){
+  const hint = document.getElementById('land-hint');
+  if(!hint || !matchMedia('(hover: none)').matches) return;
+  let done = false;
+  const hide = () => {
+    if(done) return;
+    done = true;
+    hint.classList.remove('show');
+    window.removeEventListener('touchstart', hide);
+  };
+  setTimeout(() => hint.classList.add('show'), 60);  // not rAF: throttled in background tabs
+  window.addEventListener('touchstart', hide, { passive:true, once:true });
+  setTimeout(hide, 3000);
+})();
 
 // ── Island nav → actions ──────────────────────────────────────────────────────
 const navMap = {
