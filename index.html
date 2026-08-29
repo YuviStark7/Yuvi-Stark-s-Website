@@ -696,8 +696,8 @@
 
         <h2>THE ARTWORKS</h2>
         <p>Every piece sold here is an original, one-of-a-kind work on paper, made and signed by
-          the artist. There are no reproductions or editions unless a listing says so explicitly.
-          Because each work is unique, once a piece is sold its listing is closed.</p>
+          the artist, and supplied framed. There are no reproductions or editions unless a listing
+          says so explicitly. Because each work is unique, once a piece is sold its listing is closed.</p>
         <p>Colours may vary slightly between your screen and the physical work. Paper texture,
           deckled edges and small studio marks are inherent to original work, not defects.</p>
 
@@ -772,9 +772,12 @@
         <p>Works are packed and dispatched within [3–5] working days of payment clearing. You will
           receive tracking by email as soon as your piece is on its way.</p>
 
-        <h2>PACKING</h2>
-        <p>Works on paper ship flat, protected between rigid boards in a water-resistant sleeve inside
-          a reinforced outer carton. Nothing is rolled unless you ask.</p>
+        <h2>FRAMING AND PACKING</h2>
+        <p>Every original is framed before dispatch and arrives ready to hang. The framed work is
+          wrapped, cushioned with foam and corner protection, and shipped inside a rigid outer box.
+          Nothing is rolled or folded.</p>
+        <p>The size shown on each listing is the artwork itself; the frame adds to the overall
+          dimensions.</p>
 
         <h2>WHERE WE SHIP, AND WHAT IT COSTS</h2>
         <p>We ship worldwide, tracked and insured for the full sale value. Shipping is calculated
@@ -792,8 +795,9 @@
 
         <h2>DAMAGE IN TRANSIT</h2>
         <p>Every shipment is insured. If your work arrives damaged, email hey@yuvistark.com within
-          48 hours with photographs of the work and all packaging, and we will arrange a
-          replacement where possible or a full refund.</p>
+          48 hours with photographs of the work, the frame and all packaging, and we will arrange a
+          repair, a re-frame or a full refund. Please keep the box and packing until the claim is
+          settled — carriers require them as evidence.</p>
       </section>
     </div>
   </div>
@@ -1623,9 +1627,10 @@ function openArtwork(id){
           <div class="pdp-stock">${a.soldOut ? 'SOLD OUT' : 'ORIGINAL · 1 OF 1 · AVAILABLE'}</div>
           <div class="pdp-specs">
             <div class="pdp-spec"><span class="k">TECHNIQUE</span><span class="v">${a.technique}</span></div>
-            <div class="pdp-spec"><span class="k">DIMENSIONS</span><span class="v">${a.w} × ${a.h} cm</span></div>
+            <div class="pdp-spec"><span class="k">ARTWORK SIZE</span><span class="v">${a.w} × ${a.h} cm</span></div>
+            <div class="pdp-spec"><span class="k">FRAMING</span><span class="v">Framed and ready to hang</span></div>
             ${a.year ? `<div class="pdp-spec"><span class="k">YEAR</span><span class="v">${a.year}</span></div>` : ''}
-            <div class="pdp-spec"><span class="k">SHIPPING</span><span class="v">Global delivery, tracked &amp; insured</span></div>
+            <div class="pdp-spec"><span class="k">SHIPPING</span><span class="v">Boxed worldwide, tracked &amp; insured</span></div>
           </div>
           ${a.soldOut
             ? `<div class="pdp-buy"><button class="btn-primary" disabled style="flex:1">SOLD OUT</button></div>`
@@ -1633,8 +1638,8 @@ function openArtwork(id){
                  <button class="btn-primary" id="pdp-add" data-id="${a.id}" ${inCart?'disabled':''}>${inCart?'IN BAG ✓':'ADD TO BAG'}</button>
                </div>
                <button class="btn-ghost" id="pdp-buynow" style="width:100%;margin-bottom:16px">BUY NOW</button>`}
-          <p class="pdp-note">Every piece is an original — one of one, signed. Shipped flat
-            between protective boards, tracked and insured worldwide.</p>
+          <p class="pdp-note">Every piece is an original — one of one, signed. It arrives framed
+            and ready to hang, cushioned and boxed, tracked and insured worldwide.</p>
         </div></aside>
       </div>
 
