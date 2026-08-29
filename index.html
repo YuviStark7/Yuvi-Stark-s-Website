@@ -361,6 +361,12 @@
       transition:border-color 0.25s ease, background 0.25s ease, color 0.25s ease; }
     .chip:hover { border-color:#b5b5b5; }
     .chip.on { background:#0a0a0a; border-color:#0a0a0a; color:#fff; }
+    /* only appears once a chip is active, so there's no permanent reset control */
+    .chip-clear { background:none; border:none; cursor:pointer; margin-left:4px;
+      font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:0.14em;
+      color:#0a0a0a; opacity:0.45; padding:9px 8px; white-space:nowrap;
+      transition:opacity 0.2s ease; }
+    .chip-clear:hover { opacity:0.9; }
     .sort-sel { font-family:'Montserrat',sans-serif; font-size:10.5px; letter-spacing:0.12em;
       padding:9px 32px 9px 16px; border:1px solid #e3e3e3; border-radius:100px; background:#fff;
       color:#0a0a0a; cursor:pointer; outline:none; appearance:none;
@@ -494,6 +500,10 @@
       .gallery-panel { padding:104px 20px 60px; }
       #shop-panel    { padding:104px 0 0; }
       .shop-bar      { margin-bottom:40px; }
+      /* tighten just enough for the four chips to hold one row at 375px */
+      .chip          { padding:9px 11px; font-size:10px; letter-spacing:0.08em; }
+      .filter-group  { gap:8px; }
+      .chip-clear    { padding:9px 4px; margin-left:0; }
       .shop-head     { margin-bottom:34px; }
       .gallery-title { font-size:19px; }
       #detail-overlay .ov-inner,
@@ -1001,14 +1011,16 @@ document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
   </div>`).join('');
 
 // ── Shop: filters, sort, grid ────────────────────────────────────────────────
-const shopFilter = { avail:'All', medium:'All' };
+// Toggle chips, multi-select: an empty set means "show everything", so there's
+// no ALL chip to maintain. Availability was dropped — nobody shops FOR sold-out
+// work, and sold pieces still carry their badge in the grid.
+const shopFilter = { mediums: new Set() };
+const MEDIUMS = ['Watercolor','Mixed','Markers','Ink'];
 let shopSort = 'featured';
 
 function shopList(){
   const list = ARTWORKS.filter(a =>
-    (shopFilter.medium === 'All' || a.medium === shopFilter.medium) &&
-    (shopFilter.avail  === 'All' ||
-     (shopFilter.avail === 'Available' ? !a.soldOut : a.soldOut)));
+    shopFilter.mediums.size === 0 || shopFilter.mediums.has(a.medium));
   if(shopSort === 'price-asc')       list.sort((a,b)=>a.priceN-b.priceN);
   else if(shopSort === 'price-desc') list.sort((a,b)=>b.priceN-a.priceN);
   else if(shopSort === 'title')      list.sort((a,b)=>a.title.localeCompare(b.title));
@@ -1033,17 +1045,21 @@ function cardHTML(a){
 
 function renderFilters(){
   const g = document.getElementById('shop-filters');
-  const chips = (key, opts) => opts.map(o =>
-    `<button class="chip${shopFilter[key]===o?' on':''}" data-f="${key}" data-v="${o}">${o.toUpperCase()}</button>`
-  ).join('');
-  // every piece is roughly A4, so filtering by medium beats filtering by size
-  g.innerHTML = chips('avail', ['All','Available','Sold out'])
-    + `<span class="filter-label" style="margin-left:20px">MEDIUM</span>`
-    + chips('medium', ['All','Watercolor','Mixed','Markers','Ink']);
+  const any = shopFilter.mediums.size > 0;
+  g.innerHTML = MEDIUMS.map(o =>
+      `<button class="chip${shopFilter.mediums.has(o)?' on':''}" data-v="${o}">${o.toUpperCase()}</button>`
+    ).join('')
+    + (any ? `<button class="chip-clear" id="chip-clear">✕ CLEAR</button>` : '');
+
   g.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
-    shopFilter[b.dataset.f] = b.dataset.v;
+    const v = b.dataset.v;
+    shopFilter.mediums.has(v) ? shopFilter.mediums.delete(v) : shopFilter.mediums.add(v);
     renderFilters(); renderShop();
   }));
+  const clear = document.getElementById('chip-clear');
+  if(clear) clear.addEventListener('click', () => {
+    shopFilter.mediums.clear(); renderFilters(); renderShop();
+  });
 }
 
 function renderShop(){
