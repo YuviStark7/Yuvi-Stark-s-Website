@@ -1389,11 +1389,16 @@ const dotField = (function(){
     if(!lum || !dots.length || !W){ for(const d of dots) d.r = base; return; }
     const scale = Math.max(W/lumW, H/lumH);
     const dw = lumW*scale, dh = lumH*scale;
-    // The map is 16:9. On a portrait phone, cover-cropping to centre shows only
-    // the empty middle of the frame and the face falls off the edge — so when we
-    // crop hard horizontally, anchor on the face (right of frame) instead.
-    const crop   = dw / W;                       // 1 = no crop, ~3.8 on a phone
-    const focalX = crop > 1.35 ? 0.70 : 0.5;
+    // The map is 16:9 and the portrait's two lit areas sit at ~7-20% (hair) and
+    // ~77-93% (the face) with near-black between. Cover-cropping a phone to the
+    // centre lands in that dead zone, so when we crop hard horizontally we anchor
+    // on the face. 0.85 centres the head; 0.70 only caught its trailing edge.
+    const crop = dw / W;                          // 1 = no crop, ~3.8 on a phone
+    let focalX = 0.5;
+    if(crop > 1.35){
+      const half = (W / scale) / lumW / 2;         // half the visible window, 0..1
+      focalX = Math.min(Math.max(0.85, half), 1 - half);  // keep it inside the image
+    }
     const ox = W/2 - dw*focalX, oy = (H - dh)/2;
     for(const d of dots){
       const t = sampleLum((d.ax-ox)/scale, (d.ay-oy)/scale);
