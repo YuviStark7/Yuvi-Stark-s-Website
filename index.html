@@ -206,15 +206,6 @@
     #about-overlay.open .ov-inner { transform:translateY(0); }
     /* generative dot-field background (canvas) + veil to keep the type legible */
     #about-dots { position:absolute; inset:0; width:100%; height:100%; display:block; }
-    /* Phones use a purpose-shot portrait photo instead of the halftone. The dot
-       field needs a LIT subject on black to read; this frame is the reverse
-       (dark figure on light), so a halftone of it renders the background and
-       leaves the face as a hole. The photo is the right call here.
-       It's a CSS background rather than an <img> because a hidden <img> still
-       downloads, while a background on a display:none element is never fetched
-       — so desktop never pays for the 250KB phone photo. */
-    #about-photo { display:none; position:absolute; inset:0;
-      background:#000 url('about-bg-mobile.jpg') center top / cover no-repeat; }
     .about-veil { position:absolute; inset:0; pointer-events:none;
       background:radial-gradient(ellipse 62% 58% at 50% 54%,
         rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.24) 42%, rgba(0,0,0,0) 74%); }
@@ -251,9 +242,17 @@
     .about-name .n-bold { font-weight:700; }
     .about-name .n-flip { display:inline-block; transform:scaleX(-1); }
     .about-name .n-reg  { font-weight:400; }
+    .about-scroll { position:absolute; inset:0; }
+    /* Short desktop windows: the absolutely-centred block would spill off both
+       ends, so let it flow and scroll instead. Only bites below ~620px tall. */
+    @media (min-width:681px) and (max-height:620px){
+      .about-scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+      .about-body { position:static; transform:none; margin:0 auto;
+        padding:14vh 24px 10vh; }
+    }
     .about-copy { font-family:'Montserrat',sans-serif; font-weight:300; color:#fff;
-      font-size:22px; line-height:1.55; }
-    .about-copy b { font-weight:700; }
+      font-size:19px; line-height:1.65; display:flex; flex-direction:column; gap:15px; }
+    .about-copy b { font-weight:600; }
 
     /* Contact content */
     .contact-body { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
@@ -273,10 +272,14 @@
       /* The tall map puts the subject up top and fades to black below, so the
          text sits in that dark half instead of fighting the halftone. Anchored
          to the bottom so a longer bio grows upward into the empty space. */
-      .about-body { top:auto; bottom:7%; transform:translateX(-50%); gap:20px; }
-      .about-veil { display:none; }   /* the photo already provides the falloff */
-      #about-dots { display:none; }
-      #about-photo { display:block; }
+      /* The tall frame puts the subject in the top 55% and goes black below, so
+         the copy starts under it and scrolls. The canvas sits outside this
+         container, so the portrait stays put while the text moves. */
+      .about-scroll { overflow-y:auto; -webkit-overflow-scrolling:touch;
+        touch-action:pan-y; }
+      .about-body { position:static; transform:none; width:auto; max-width:none;
+        margin:0 auto; padding:57vh 24px 14vh; gap:18px; }
+      .about-veil { display:none; }   /* the frame carries its own falloff */
     }
 
     /* gentle clickable cue on gallery cards */
@@ -646,20 +649,34 @@
 <div class="page-overlay" id="about-overlay">
   <div class="ov-inner">
     <canvas id="about-dots" aria-hidden="true"></canvas>
-    <div id="about-photo" aria-hidden="true"></div>
     <div class="about-veil"></div>
-    <div class="about-body">
-      <h1 class="about-name">
-        <span class="n-bold"><span class="n-flip">y</span>uvraj</span>
-        <span class="n-reg">argal</span>
-      </h1>
-      <p class="about-copy">
-        Lorem ipsum dolor sit amet consectetur. Habitant felis faucibus nisl risus
-        cursus. Id arcu habitant nisl turpis commodo est auctor <b>vestibulum morbi.</b>
-        Luctus sed dolor pretium scelerisque adipiscing vitae consequat. Ipsum elementum
-        arcu arcu accumsan. Enim curabitur a diam in in dignissim dapibus arcu. Diam
-        platea faucibus amet blandit <b>eget mauris</b> ornare tempor morbi.
-      </p>
+    <!-- scrolls on phones; the canvas is a sibling so it stays put underneath -->
+    <div class="about-scroll">
+      <div class="about-body">
+        <h1 class="about-name">
+          <span class="n-bold"><span class="n-flip">y</span>uvraj</span>
+          <span class="n-reg">argal</span>
+        </h1>
+        <!-- PLACEHOLDER COPY — written from what the catalogue shows, not from
+             Yuvraj's own words. Replace before launch. -->
+        <div class="about-copy">
+          <p>I draw faces at the moment they stop performing. Watercolour, ink,
+            alcohol markers and charcoal on paper — usually finished in one sitting,
+            because the second sitting is where the honesty goes.</p>
+          <p>The titles tend to arrive before the work does. <b>Somewhere Between
+            Trust and Truth.</b> <b>Nobody Told Him He Could Cry.</b> They aren't
+            descriptions of what you're looking at; they're the thing I was trying
+            to hold still long enough to paint.</p>
+          <p>Alongside the paintings I work as an art director, building identities
+            and visual systems for studios and brands. The two feed each other more
+            than they compete — the discipline of a system keeps the loose work
+            deliberate, and the loose work keeps the systems from going cold.</p>
+          <p>Everything in the shop is an original. One of one, signed, framed and
+            sent from Italy. Each piece exists once; if one finds you, there isn't
+            another of it anywhere.</p>
+          <p>Commissions, exhibitions and studio visits — <b>hey@yuvistark.com</b>.</p>
+        </div>
+      </div>
     </div>
   </div>
   <div class="ov-close"><span class="x">✕</span><span>CLOSE</span></div>
@@ -1368,25 +1385,43 @@ const dotField = (function(){
   // applied and inlined as a data URI: sampling a real <img> would taint the
   // canvas over file://, and this drops the 1.9MB PNG download entirely.
   const PORTRAIT_MAP = 'data:image/jpeg;base64,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';
-  let lum=null, lumW=0, lumH=0;
+  const PORTRAIT_MAP_TALL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAUEBAUEAwUFBAUGBgUGCA4JCAcHCBEMDQoOFBEVFBMRExMWGB8bFhceFxMTGyUcHiAhIyMjFRomKSYiKR8iIyL/2wBDAQYGBggHCBAJCRAiFhMWIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiL/wAARCADEAFoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD4yooooA98/Z11mIeKrPS72V47a+aXSZpFxmNLpQY2HutxDHg9i4r7BjDQ6raaxcKkbPKF1JEXiO4jYJMMf3W+8CeoIPevzz+Ht15Gu30aPsuJ7CX7O/OUmQiWNhgHlWjDDjqAO9foJ4X8UWHjDwxoPidXRbDxTFHBqESn/j2v1Hlq+PQt+5Y8/wDLDGBk0AfInjbwhd+Bf2kNR063hwi3Euo6aMZEkbI0gX/0JfwrzPXr6O91u4uLaIRJK27Z/dPcV9/fFzwCPFSeH/EMUaJrPh67VLhh/FbtwwPths/ifSvgbxVpNxoXjHV9Lvk2XNjcvC3+0Aflb8VwfxoAxt7kdvyo3P04/Kjkd6Og96ADe/Yj8quaYklzqlvEo4LZOB2AJNUsHseK9j+BPgA+J9fudVvgw0vT42MiqOZgMZUfVtq/99elAHC/ECwbSvCnge0nUpdPp8tzIp6gSTMV/QV57XsX7R7xxfGA6bGAraXp9vbyRr0RyplKj6ebj8K8doAKKKKALem6hPpOqW19ZsFuLaQSISMjI9R6V9ffAH4j6Rq+r3uhXun29n4d8SMbaXTQ+Yra6Me0Y9FmjBHb54sdXzXxtW34Z1s6Jq2+VpRZXAEdyIW2uFyCHU9nRgrqfVRQB+oHhjWntNYn8GeJrn7VeLG506/lIP8AalqvBDEdZ48hZF75VwAGIX51/ag+E01xdx+K/DtsZLm1gEeowoPmliH3JgO5UZB9QPavTfCF1D8YfBFncarqj2+t6eiW6ahahQ0N7Hl4byPPOJI33bfusGdD0IrTtfEN74x8N67pmqRQ2/jnwlJ5Gow2+TFOCu5JIwefLkXBAPKnI56kA/OccjII5o5xjvXovjTTtKu7+e6tbc2d+8hMsCEBc55IHb8q4/S7GGbU0ivI2KA5YNJsXHfJ6/kaANHwT4I1Xx34jh0zSImEZcCe5K/LED/Nj2H9Mmv0E8HeCNI+Hng+K0aSKKz0uP7XfXJ+7tjG7k9wMEk9+T3ryr4PWenyabZGwhaOyhOwCBPKV3OCV9cH16nqTW1+1d41bwh8FI9CtmWLUvE0n2ciPjbAmGlx7conPZzQB8LeNfEs3jHx7rniG4DK+qXklwEbqisx2r+C4H4VgUUUAFFFFABRWnpeh3mrRXMtsESC2QtJNM2xB/s57sewqvcafcW0jK8e4LzuQ7h+YoA+if2UviA2l+PJPCt+rzQazbmG0VQf9cp3oGIBKqP3hDYO3cx78ek/F7XoPh/8ZDqkkmo6LrGq2ChtRt2863utuFCzwEfPH2YoQ6nBHXA81+BE/h74R32m+MvGcqy6prMXlafYxYZrS2ZsPcycHaxAwq8ZUsSeRVb46+NovG/j2/8AsV0bzRwFNrn+BgPvL/dPY9iKAOP8fazaeIb86hsjg1Rzmdrd90bn+8D3B7N37gGuP00zvdIPOYKT8xGD/Os6TzIm2OCCK674daNJ4i8bafpUFs1zLdSBQobAA7kjv+PFAH2d8GE2+DV1jWsWWiaXambzJuFMags0h47YJLd6+MPjL8T7z4rfEe71mbdHpsOYNOtjx5UAJwSP7zfeb3OOgFfRn7R/xStPBngZ/hZoKF9Wu7WIandK2BbxnDCMAdWZQM9AFb34+LaACiiigAooooA+lLTwBF4h/Zs8N6t4CT7VNbTSprpMgUwzZ4DA9sMuCO2PWvFHjdSRg+5r6jtry58CfBjw1YWJ3S6l4YYzeH9MRpzLPcPuju5XC5XCNuIPQgKuRzXzpeWj2sjxSIVZPlZWGCD6GgDC+ZM4/H3q7alpeuQBUEi4OBVmAPCA2CeMkAdvWgCK9RWA3gZHfvXp/wCz1r2i+C/iK3iPxdKsGkQW7xLcn59sxUsq7Qc8hTg4wDgEjNeUX8uXBU9e1RWTR/a4xckrCThyBnAPcjvjrjvigB/jnxNqnjTx1q3iHXQwvdRmMpTJIjToiL/sqoCj2Fc3XvWlfD+DxZ8Hrl9MuYbvXbe8mFrbQRgzTwoMhUTOSct93ORxjNeEzQvbzyQyjEkbFWGehHUUAR0UUUAFanh230688V6Rba7cNa6TPeQx3lwnWKEuA7D3C5P4Vl1JDE08yxp1Of5ZoA+zvAvinVPC3x40Lw3pHl2uked/Zc8dwNwa2VXeLLk8kf8ALN8/MrKORgDz341+FpPC/wAW9atW5hvJDeQnnHlyEkD8OR+FeheB9Jvpf2ObyOGzur/xTql1bWFmAuJWWOdZbZVdsDbGru6sTheRngAedfFnx74r8UeJX/4TvQ7OxlslaG3s7Rwz25PB3OCS67lJwcc9PUgHk9/AYxuA+XoaGvWt1idM+WygSAHBPp+tUr2/a6yoQRpn7oYmqRlIXB6fyoAnvnjklEkXG4cr6U2whNxdxwqjO8xCIA235icDn/Hiq5fC+5p0W1mUSkhSeTjOBn0oA918K+GtI0/x7bmx0gatFAvmmxO2Z7i6IAWFZgRsCkqxPJ+VsfezXlXxZ0ptK+J+rJmApOy3CfZxhcSIr4x2OWwR65r134PTSNc2DWOpW9zfK883kzy/vt67dpIOSFKKcODglcVy/wC0do1ppvxBnlt7+SZ5JnVYpUIYrnJf6biR6cZ4oA8QooooAK91/Zw0TTtS8R63davbGW3s7Iu0iJueIZCnA9WLque3fAzXhVeg/CrxrN4O8VwSwyFBM4jPdWDkKwIxnpnntk+uaAPs6XXYLXSvGPhPTXWBLSze4tEvphLDChiUpFEo5AVZEI57MDnFfHvjS4mt/FeoQpJhHKSbNwLICAygleDgN2/pX0/8U7HQoLLw/rukaNZap/Z9hcia8BGB5QCoWK8lc5XJ4wSCec18veNJrW58QXFxpaKbO4jE8fzZYK7MRx/CAMIB6AUAcg7FicDAqPGfpTj3xTc5oAaQd2e1TQ7VYFwCOuD3/KouTya6XRtGtrrSXvJrmEzLcrAtoxIZwyk7sjoMjHPcigDu/CFtHeW9lbR6bBLDby7SsbAiR5MZ34IJxtHyg8rj3qb9qG7juPGfhuOSSKbUYdHQXM0LllYGRyg55yF7HnkV7F4Lj0Cw8LaddNounw6i0cgtrqWLKPhWXzCucKS5Cg9QQfXn4v1fULvU9WnudRuXubhm2tK77iQBtHPoAAB7AUAUKKKKACnKxRwynDDoabRQB9DeAPi3od3omneEvHdk8tnJmGXUIM7kR2DbsD+JT16ggH6Uzxb8NW0W91hdN+yalE6GW1e2bzlZAABIhHA5HXnqQR0r59BIORwRXU6D8QPEHhpY00bUJrVFzkRt97PbnOB7DHFAEV6sKSpHEjxtGoWZZDyX7kA9vSqeO46V6bP8Z5ZLiSWXTNKuLfcNkdzbLM2NnzD5hjr3x374riP+El0ptcM+oaNHe2DDP2aCU2pBx03KD0PJwOTnpQBRtbWa5kIijZwBubAOAPc9v/r16fpunWFl4ZtJ5ordtOt7qO5utQtwyzQguFSLf/GWJ52cAAnIIrkdU+IGnHS7jT/DWgrp1pcuDKJ7hrh2A6EMcBfcbeuDmuMvNXvb5FS5uJGUAAqWODj2/E0Adn8QvH7+IvEhn0ZpbKztswwRRkqNuc7sZ4YtuJ9zXnxJJJJyTSUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH/2Q==';
+  let lum=null, lumW=0, lumH=0, tall=false;
 
-  (function loadMap(){
+  // Two framings. The 16:9 map suits desktop, where the face sits right and the
+  // text lands in the dark centre. No phone-shaped crop of it can hold the whole
+  // head, so portrait screens get a purpose-shot tall frame instead — subject up
+  // top, black below, which is where the text then sits.
+  const decoded = {};
+  function decodeMap(key, uri){
     const im = new Image();
     im.onload = () => {
-      lumW = im.naturalWidth; lumH = im.naturalHeight;
       const t = document.createElement('canvas');
-      t.width = lumW; t.height = lumH;
+      t.width = im.naturalWidth; t.height = im.naturalHeight;
       const tx = t.getContext('2d', { willReadFrequently:true });
       tx.drawImage(im, 0, 0);
       try {
-        const d = tx.getImageData(0,0,lumW,lumH).data;
-        lum = new Uint8Array(lumW*lumH);
-        for(let i=0,j=0; i<d.length; i+=4, j++) lum[j] = d[i];
-        sizeDots();                 // face appears as soon as the map is ready
-      } catch(e){ lum = null; }     // fall back to an even field
+        const d = tx.getImageData(0,0,t.width,t.height).data;
+        const a = new Uint8Array(t.width*t.height);
+        for(let i=0,j=0; i<d.length; i+=4, j++) a[j] = d[i];
+        decoded[key] = { lum:a, w:t.width, h:t.height };
+      } catch(e){ decoded[key] = null; }   // tainted → fall back to an even field
+      pickMap(); sizeDots();
     };
-    im.src = PORTRAIT_MAP;
-  })();
+    im.onerror = () => { decoded[key] = null; };
+    im.src = uri;
+  }
+
+  // Choose by viewport shape, not width — a landscape phone wants the wide map.
+  function pickMap(){
+    const m = (W && H && (W/H) < 0.85 && decoded.tall) ? decoded.tall : decoded.wide;
+    if(!m) return;
+    lum = m.lum; lumW = m.w; lumH = m.h;
+    tall = (m === decoded.tall);
+  }
+
+  decodeMap('wide', PORTRAIT_MAP);
+  decodeMap('tall', PORTRAIT_MAP_TALL);
 
   function sampleLum(u,v){          // bilinear, 0..1
     u = u < 0 ? 0 : (u > lumW-1 ? lumW-1 : u);
@@ -1418,7 +1453,9 @@ const dotField = (function(){
     const ox = W/2 - dw*focalX, oy = (H - dh)/2;
     for(const d of dots){
       const t = sampleLum((d.ax-ox)/scale, (d.ay-oy)/scale);
-      d.r = CFG.minDotR + t*(CFG.maxDotR - CFG.minDotR);
+      const minR = tall ? 0.30 : CFG.minDotR;
+      const maxR = tall ? 4.20 : CFG.maxDotR;   // tuned to the finer step-9 grid
+      d.r = minR + t*(maxR - minR);
     }
   }
 
@@ -1433,7 +1470,10 @@ const dotField = (function(){
     canvas.width = W*dpr; canvas.height = H*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
 
-    const step = CFG.dotRadius + CFG.dotSpacing;
+    pickMap();    // viewport shape may have changed (rotation, resize)
+    // Finer grid on the tall frame: the head fills it, so a coarse step loses
+    // the profile. step 9 keeps halftone character without going mushy.
+    const step = tall ? 9 : (CFG.dotRadius + CFG.dotSpacing);
     const cols = Math.floor(W/step), rows = Math.floor(H/step);
     const padX = (W % step)/2, padY = (H % step)/2;
     dots = new Array(cols*rows);
@@ -1585,7 +1625,12 @@ function openOverlay(ov, dark=false){
   overlayOpen = true;
   island.classList.remove('open');
   document.body.classList.toggle('cursor-light', dark); // white cursor on dark pages
-  if(ov === aboutOv) dotField.start();
+  if(ov === aboutOv){
+    // reopening must start at the portrait, not wherever they left the copy
+    const sc = ov.querySelector('.about-scroll');
+    if(sc) sc.scrollTop = 0;
+    dotField.start();
+  }
 }
 
 // Static close affordances (✕ buttons + cart scrim)
