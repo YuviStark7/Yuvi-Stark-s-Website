@@ -135,7 +135,9 @@
       #land-hint { display:flex; }
     }
     @media (max-width:740px){
-      #landing-media { width:78vw; }
+      /* full-bleed on phones — the 78vw column left white bars down both sides
+         and the video read as cropped rather than deliberate */
+      #landing-media { width:100%; top:76px; }
       .land-ind span { display:none; }
     }
 
