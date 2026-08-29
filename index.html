@@ -206,6 +206,15 @@
     #about-overlay.open .ov-inner { transform:translateY(0); }
     /* generative dot-field background (canvas) + veil to keep the type legible */
     #about-dots { position:absolute; inset:0; width:100%; height:100%; display:block; }
+    /* Phones use a purpose-shot portrait photo instead of the halftone. The dot
+       field needs a LIT subject on black to read; this frame is the reverse
+       (dark figure on light), so a halftone of it renders the background and
+       leaves the face as a hole. The photo is the right call here.
+       It's a CSS background rather than an <img> because a hidden <img> still
+       downloads, while a background on a display:none element is never fetched
+       — so desktop never pays for the 250KB phone photo. */
+    #about-photo { display:none; position:absolute; inset:0;
+      background:#000 url('about-bg-mobile.jpg') center top / cover no-repeat; }
     .about-veil { position:absolute; inset:0; pointer-events:none;
       background:radial-gradient(ellipse 62% 58% at 50% 54%,
         rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.24) 42%, rgba(0,0,0,0) 74%); }
@@ -259,8 +268,15 @@
     .contact-socials svg { width:100%; height:100%; display:block; fill:currentColor; }
 
     @media (max-width:680px){
-      .about-name { font-size:38px; gap:14px; }
-      .about-copy { font-size:16px; }
+      .about-name { font-size:34px; gap:12px; }
+      .about-copy { font-size:15px; }
+      /* The tall map puts the subject up top and fades to black below, so the
+         text sits in that dark half instead of fighting the halftone. Anchored
+         to the bottom so a longer bio grows upward into the empty space. */
+      .about-body { top:auto; bottom:7%; transform:translateX(-50%); gap:20px; }
+      .about-veil { display:none; }   /* the photo already provides the falloff */
+      #about-dots { display:none; }
+      #about-photo { display:block; }
     }
 
     /* gentle clickable cue on gallery cards */
@@ -340,7 +356,6 @@
     .cart-sub .amt { font-weight:600; }
     .cart-foot .btn-primary { width:100%; }
     .cart-note { font-size:10px; opacity:0.4; text-align:center; margin-top:12px; letter-spacing:0.03em; }
-
 
     /* ── Artwork shop ────────────────────────────────────────────────────── */
     #shop-panel { padding:150px 0 0; }
@@ -631,6 +646,7 @@
 <div class="page-overlay" id="about-overlay">
   <div class="ov-inner">
     <canvas id="about-dots" aria-hidden="true"></canvas>
+    <div id="about-photo" aria-hidden="true"></div>
     <div class="about-veil"></div>
     <div class="about-body">
       <h1 class="about-name">
@@ -1429,6 +1445,7 @@ const dotField = (function(){
         dots[i++] = { ax, ay, sx:ax, sy:ay, r:CFG.dotRadius/2 };
       }
     }
+
     sizeDots();   // stamp the portrait onto the grid
   }
 
@@ -1519,6 +1536,8 @@ const dotField = (function(){
 
   return {
     start(){
+      // phones show the photo instead — don't build a grid or burn frames
+      if(getComputedStyle(canvas).display === 'none') return;
       build();
       if(reduceMotion){ drawStatic(); return; }   // honour reduced-motion
       if(running) return;
