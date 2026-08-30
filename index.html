@@ -548,6 +548,106 @@
       .pd-body, .ad-detail { grid-template-columns:1fr; }
       .pd-name { font-size:38px; }
     }
+
+    /* ── Project viewer (Art Direction case studies) ────────────────────────
+       A scroll deck. The stage is sticky and the track is N viewports tall, so
+       scroll position — not a click — decides which slide is lit. Sections hand
+       off at their boundary: the outgoing one fades out going up while the next
+       slides up into its place. */
+    #pv-overlay { background:#fff; }
+    .pv-scroll  { position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain;
+                  -webkit-overflow-scrolling:touch; }
+    .pv-track   { position:relative; height:calc(var(--pvn,1) * 100dvh); }
+    .pv-stage   { position:sticky; top:0; height:100dvh; display:flex; align-items:center;
+                  padding:0 clamp(22px,6vw,92px); }
+    .pv-inner   { width:100%; max-width:1340px; margin:0 auto;
+                  transform:translateY(3%); transition:transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    #pv-overlay.open .pv-inner { transform:translateY(0); }
+
+    .pv-head    { margin-bottom:clamp(16px,3vh,32px); }
+    .pv-eyebrow { display:block; font-family:'Montserrat',sans-serif; font-weight:300;
+                  font-size:clamp(11px,0.95vw,13px); letter-spacing:0.04em;
+                  color:#8d8d8d; margin-bottom:7px; }
+    .pv-client  { font-family:'Inter',sans-serif; font-weight:900; color:#0a0a0a;
+                  font-size:clamp(25px,3.1vw,44px); line-height:1.02; letter-spacing:-0.005em; }
+
+    /* every section sits in the same grid cell, so the block is as tall as the
+       tallest one and nothing jumps when they hand over */
+    .pv-secs { display:grid; }
+    .pv-sec  { grid-area:1/1; align-self:start; will-change:transform, opacity; }
+
+    .pv-media { position:relative; width:100%; aspect-ratio:1351/442;
+                max-height:46dvh; overflow:hidden; background:#f4f4f2; }
+    /* absolutely stacked rather than a grid: the rebrand film is a 16:9 master,
+       and as a grid item its intrinsic height stretched the row, which blew the
+       band out for every still in the section too */
+    .pv-shot  { position:absolute; inset:0; opacity:0; will-change:opacity; }
+    .pv-shot > * { width:100%; height:100%; object-fit:cover; display:block; }
+    /* 16:9 in a 3:1 band: contain keeps the whole frame, and the black around it
+       is what the Figma mockup shows for that slide anyway */
+    .pv-shot.vid { background:#000; }
+    .pv-shot.vid > video { object-fit:contain; }
+
+    .pv-foot { margin-top:clamp(16px,2.6vh,30px); display:grid;
+               grid-template-columns:minmax(0,1fr) auto;
+               gap:clamp(24px,5vw,80px); align-items:start; }
+    .pv-caps { display:grid; }
+    .pv-cap  { grid-area:1/1; align-self:start; opacity:0; will-change:opacity;
+               font-family:'Montserrat',sans-serif; font-weight:300; color:#161616;
+               font-size:clamp(13px,1.05vw,17px); line-height:1.62; max-width:54ch; }
+
+    /* the index: a rail whose marker slides to whichever piece you're looking at,
+       with everything you haven't reached yet held back */
+    .pv-index   { min-width:188px; }
+    .pv-secname { display:block; font-family:'Montserrat',sans-serif; font-weight:400;
+                  font-size:8.5px; letter-spacing:0.24em; color:#9d9d9d;
+                  text-transform:uppercase; margin-bottom:13px; }
+    .pv-list    { position:relative; padding-left:15px; }
+    .pv-rail    { position:absolute; left:0; top:0; bottom:0; width:1px; background:rgba(0,0,0,0.13); }
+    .pv-thumb   { position:absolute; left:-0.5px; width:2px; background:#0a0a0a; border-radius:2px; }
+    .pv-item    { display:block; width:100%; text-align:left; background:none; border:0;
+                  cursor:pointer; padding:6px 0; color:#0a0a0a; opacity:0.3;
+                  font-family:'Montserrat',sans-serif; font-weight:400;
+                  font-size:clamp(12px,0.95vw,15px); line-height:1.34;
+                  transition:opacity 0.4s ease; }
+    .pv-item.seen { opacity:0.55; }
+    .pv-item.on   { opacity:1; font-weight:700; }
+
+    .pv-hint { position:absolute; left:50%; bottom:24px; transform:translateX(-50%);
+               font-family:'Montserrat',sans-serif; font-size:8.5px; letter-spacing:0.26em;
+               color:#a8a8a8; pointer-events:none; opacity:0; transition:opacity 0.5s ease; }
+    #pv-overlay.open .pv-hint.show { opacity:1; }
+
+    @media (max-width:900px){
+      .pv-foot  { grid-template-columns:1fr; gap:22px; }
+      .pv-index { min-width:0; }
+    }
+    /* short windows: pull the block in off the header pill and give the band a
+       tighter ceiling, so the caption and the index never fall off the bottom */
+    @media (min-width:681px) and (max-height:760px){
+      .pv-stage { padding-top:66px; padding-bottom:28px; }
+      .pv-media { max-height:40dvh; }
+      .pv-cap   { font-size:14px; }
+    }
+    @media (max-width:680px){
+      .pv-stage { padding:0 20px; }
+      .pv-head  { margin-bottom:16px; }
+      .pv-foot  { margin-top:18px; gap:18px; }
+      .pv-cap   { font-size:13.5px; line-height:1.58; }
+      /* the source art is 3:1 — at phone width that's a 120px strip, so the
+         crop window pans across it instead of shrinking the whole thing */
+      .pv-media { aspect-ratio:16/10; }
+      .pv-shot.on:not(.vid) > * { animation:pv-pan 22s ease-in-out infinite; }
+      .pv-hint  { display:none; }
+    }
+    @keyframes pv-pan {
+      0%, 7%    { object-position:50% 50%; }
+      31%       { object-position:0%  50%; }
+      69%       { object-position:100% 50%; }
+      93%, 100% { object-position:50% 50%; }
+    }
+    @media (prefers-reduced-motion:reduce){ .pv-shot.on > * { animation:none; } }
+
   </style>
 </head>
 <body>
@@ -705,6 +805,25 @@
 <!-- Card detail (project / artwork) — populated by JS -->
 <div class="page-overlay" id="detail-overlay">
   <div class="ov-inner" id="detail-inner"></div>
+  <div class="ov-close" data-close><span class="x">✕</span><span>CLOSE</span></div>
+</div>
+
+<!-- Art Direction case study — a scroll deck, populated by openWork() -->
+<div class="page-overlay" id="pv-overlay">
+  <div class="pv-scroll" id="pv-scroll">
+    <div class="pv-track" id="pv-track">
+      <div class="pv-stage">
+        <div class="pv-inner">
+          <div class="pv-head">
+            <span class="pv-eyebrow" id="pv-eyebrow"></span>
+            <h1 class="pv-client" id="pv-client"></h1>
+          </div>
+          <div class="pv-secs" id="pv-secs"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pv-hint" id="pv-hint">SCROLL</div>
   <div class="ov-close" data-close><span class="x">✕</span><span>CLOSE</span></div>
 </div>
 
@@ -1247,7 +1366,14 @@ function stageScroll(dy, factor){
 }
 
 window.addEventListener('wheel', e=>{
-  if(overlayOpen){ e.preventDefault(); return; }   // freeze behind an open page
+  if(overlayOpen){
+    // freeze the stage behind an open page, but leave that page's own
+    // scrollers alone, since cancelling here killed the wheel inside them
+    const t = e.target;
+    if(!(t && t.closest && t.closest('.pv-scroll, .ov-inner, .about-scroll, .cart-items')))
+      e.preventDefault();
+    return;
+  }
   if(stageScroll(e.deltaY, 0.0012)) e.preventDefault();
 }, { passive:false });
 
@@ -1603,6 +1729,225 @@ const dotField = (function(){
 })();
 
 // ── Overlay system (About / Contact / Detail / Cart / Checkout) ────────────────
+// ── Art Direction case studies ───────────────────────────────────────────────
+// Keyed by the `name` in AD_PROJECTS. A project with no entry here still opens
+// the old placeholder page, so the other five keep working until their assets
+// land. Slides run in order; the section splits are just where one list ends
+// and the next begins — add or remove freely.
+//
+// COPY NOTE: the three Branding captions are Yuvraj's own, off the Figma
+// mockups (typos fixed). Everything in Advertising and Socials — captions and
+// the sub-section labels — I wrote from what the assets show. Replace at will;
+// this is the only place any of it lives.
+const AD_WORK = {
+  UrbanV: {
+    eyebrow: '2025 — Brand Identity Evolution',
+    client : 'URBAN V S.P.A',
+    sections: [
+      { name:'Branding', slides:[
+        { label:'Rebrand Video', src:'work/urbanv/s1-1.mp4', letterbox:true,
+          text:'Urban V needed a complete refresh of their current logo system — and in the course of our collaboration they asked for a further evolution of the whole brand system.' },
+        { label:'Brand Book', src:'work/urbanv/s1-2.jpg',
+          text:'A thorough brandbook organising and directing the new brand system, from every touchpoint to every use case, digital or physical.' },
+        { label:'Brand Pack', src:'work/urbanv/s1-3.mp4',
+          text:'A refreshed logo, an enhanced colour palette, a subtle new pattern and gradient language paired with strong type and supporting assets that make the brand feel alive.' },
+      ]},
+      { name:'Advertising &amp; Merchandising', slides:[
+        { label:'Business Cards', src:'work/urbanv/s2-1.jpg',
+          text:'Business cards carrying the gradient across both faces — the first physical thing anyone in the network actually holds.' },
+        { label:'Brochure', src:'work/urbanv/s2-2.jpg',
+          text:'Triple-fold brochures built to carry the offer, the partners and the destinations in one foldable story.' },
+        { label:'Billboards', src:'work/urbanv/s2-3.jpg',
+          text:'Large-format billboards and building wraps that take the identity off the page and onto the skyline.' },
+        { label:'Stendardo', src:'work/urbanv/s2-4.mp4',
+          text:'A run of vertical banners for airports and events, co-branded across the partners the network flies with.' },
+        { label:'Totem', src:'work/urbanv/s2-5.mp4',
+          text:'Free-standing totems and exhibition panels for trade shows and sandbox sites — each one a self-contained explainer.' },
+      ]},
+      { name:'Socials', slides:[
+        { label:'LinkedIn', src:'work/urbanv/s3-1.jpg',
+          text:'The LinkedIn presence rebuilt on the new system — cover, avatar and a post grid that finally reads as one company.' },
+        { label:'Informative Pills', src:'work/urbanv/s3-2.mp4',
+          text:'Informative pills: a rolling series answering the questions the category keeps getting asked — eVTOL, BVLOS, eSTOL, regulatory sandbox.' },
+        { label:'Presentation Template', src:'work/urbanv/s3-3.jpg',
+          text:'A master deck template, so anyone in the company can build a presentation that stays on brand without a designer in the room.' },
+        { label:'Environment', src:'work/urbanv/s3-4.jpg',
+          text:'Signage and desk collateral, bringing the identity into the office itself.' },
+      ]},
+    ]
+  }
+};
+
+// ── Project viewer engine ────────────────────────────────────────────────────
+const pvOv     = document.getElementById('pv-overlay');
+const pvScroll = document.getElementById('pv-scroll');
+const pvTrack  = document.getElementById('pv-track');
+const pvHint   = document.getElementById('pv-hint');
+const pvSecsEl = document.getElementById('pv-secs');
+const pvStage  = document.querySelector('#pv-overlay .pv-stage');
+
+// Size the track and the stage off the scroller in real pixels. The CSS dvh
+// values are only a pre-JS fallback: on iOS dvh shrinks as the toolbar
+// collapses, and a track that resizes mid-scroll drags every slide with it.
+function pvSize(){
+  const vh = pvScroll.clientHeight || 1;
+  pvTrack.style.height = (pvN * vh) + 'px';
+  pvStage.style.height = vh + 'px';
+  return vh;
+}
+
+let pvSecs = [], pvShots = [], pvN = 1, pvIdx = 0;
+let pvRaf = 0, pvSnapT = 0, pvTouching = false;
+
+const pvClamp = (v,a,b) => v < a ? a : v > b ? b : v;
+// smoothstep — 0 below `a`, 1 above `b`, eased in between
+function pvStep(a,b,x){ const t = pvClamp((x-a)/(b-a), 0, 1); return t*t*(3-2*t); }
+
+function openWork(w){
+  let n = 0;
+  const meta = [];
+  pvSecsEl.innerHTML = w.sections.map(sec => {
+    const a = n; n += sec.slides.length;
+    meta.push({ a, b:n-1 });
+    return `
+      <div class="pv-sec">
+        <div class="pv-media">${sec.slides.map(s => `
+          <div class="pv-shot${s.letterbox ? ' vid' : ''}">${/\.mp4$/i.test(s.src)
+            ? `<video data-src="${s.src}" muted loop playsinline preload="${s.letterbox ? 'metadata' : 'auto'}"></video>`
+            : `<img data-src="${s.src}" alt="${s.label}">`}</div>`).join('')}
+        </div>
+        <div class="pv-foot">
+          <div class="pv-caps">${sec.slides.map(s => `<p class="pv-cap">${s.text}</p>`).join('')}</div>
+          <nav class="pv-index">
+            <span class="pv-secname">${sec.name}</span>
+            <div class="pv-list">
+              <span class="pv-rail"></span><span class="pv-thumb"></span>
+              ${sec.slides.map((s,i) => `<button class="pv-item" data-i="${a+i}">${s.label}</button>`).join('')}
+            </div>
+          </nav>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('pv-eyebrow').textContent = w.eyebrow;
+  document.getElementById('pv-client').textContent  = w.client;
+
+  pvN = n;
+  pvTrack.style.setProperty('--pvn', n);
+  pvSecs = [...pvSecsEl.querySelectorAll('.pv-sec')].map((el,s) => ({
+    el, a:meta[s].a, b:meta[s].b,
+    shots:[...el.querySelectorAll('.pv-shot')],
+    caps :[...el.querySelectorAll('.pv-cap')],
+    items:[...el.querySelectorAll('.pv-item')],
+    thumb: el.querySelector('.pv-thumb'),
+  }));
+  pvShots = [];
+  pvSecs.forEach(S => S.shots.forEach(sh => pvShots.push(sh.firstElementChild)));
+
+  pvScroll.scrollTop = 0;
+  pvIdx = 0;
+  openOverlay(pvOv);
+  pvSize();
+  pvHint.classList.add('show');
+  pvRender();
+  pvHydrate();
+}
+
+function pvRender(){
+  const vh = pvScroll.clientHeight || 1;
+  const f  = pvScroll.scrollTop / vh;
+  pvIdx = Math.round(f);
+
+  pvSecs.forEach(S => {
+    const { a, b } = S;
+    // a section arrives over [a-1,a], holds over [a,b], leaves over [b,b+1]
+    let op = 1, ty = 0;
+    if(f < a)      { const t = pvStep(a-1, a, f); op = t;     ty = (1-t) * 26; }
+    else if(f > b) { const t = pvStep(b, b+1, f); op = 1 - t; ty = -t * 22; }
+    S.el.style.opacity       = op;
+    S.el.style.transform     = `translateY(${ty}vh)`;
+    S.el.style.visibility    = op > 0.004 ? 'visible' : 'hidden';
+    S.el.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+
+    S.shots.forEach((sh,i) => {
+      let d = f - (a + i);
+      // the edge slides hold full strength while the section itself is moving,
+      // so a handover is one clean dissolve instead of two stacked at 25%
+      if(i === 0 && d < 0) d = 0;
+      if(a + i === b && d > 0) d = 0;
+      const o = 1 - pvStep(0.30, 0.70, Math.abs(d));
+      sh.style.opacity = o;
+      S.caps[i].style.opacity = o;
+      sh.classList.toggle('on', o > 0.9);
+    });
+
+    // marker slides between the two items it currently sits between
+    const last  = S.items.length - 1;
+    const local = pvClamp(f - a, 0, last);
+    const i0 = Math.floor(local), i1 = Math.min(i0 + 1, last), t = local - i0;
+    const e0 = S.items[i0], e1 = S.items[i1];
+    S.thumb.style.top    = (e0.offsetTop    + (e1.offsetTop    - e0.offsetTop)    * t) + 'px';
+    S.thumb.style.height = (e0.offsetHeight + (e1.offsetHeight - e0.offsetHeight) * t) + 'px';
+    const act = Math.round(local);
+    S.items.forEach((it,i) => {
+      it.classList.toggle('on',   i === act);
+      it.classList.toggle('seen', i <  act);
+    });
+  });
+}
+
+// only fetch what is about to be seen — the GIFs are heavy
+function pvHydrate(){
+  const vh = pvScroll.clientHeight || 1;
+  const f  = pvScroll.scrollTop / vh;
+  pvShots.forEach((el,i) => {
+    const d = Math.abs(f - i);
+    if(d < 1.6 && el.dataset.src){ el.src = el.dataset.src; delete el.dataset.src; }
+    if(el.tagName === 'VIDEO' && !el.dataset.src){
+      if(d < 0.9){ if(el.paused) el.play().catch(()=>{}); }
+      else if(!el.paused) el.pause();
+    }
+  });
+}
+function pvPause(){ pvShots.forEach(el => { if(el.tagName === 'VIDEO') el.pause(); }); }
+
+// Settle on a whole slide once the scroll stops. Doing it here rather than with
+// CSS scroll-snap keeps the sticky stage out of the snapping machinery, which
+// is where Safari gets jumpy.
+function pvSnap(){
+  if(pvTouching) return;
+  const vh = pvScroll.clientHeight || 1;
+  const to = Math.round(pvScroll.scrollTop / vh) * vh;
+  if(Math.abs(to - pvScroll.scrollTop) > 2) pvScroll.scrollTo({ top:to, behavior:'smooth' });
+}
+function pvGo(i){
+  pvScroll.scrollTo({ top: pvClamp(i, 0, pvN-1) * (pvScroll.clientHeight || 1), behavior:'smooth' });
+}
+
+pvScroll.addEventListener('scroll', () => {
+  if(!pvRaf) pvRaf = requestAnimationFrame(() => { pvRaf = 0; pvRender(); pvHydrate(); });
+  pvHint.classList.toggle('show', pvScroll.scrollTop < 40);
+  clearTimeout(pvSnapT);
+  if(!pvTouching) pvSnapT = setTimeout(pvSnap, 130);
+}, { passive:true });
+
+pvScroll.addEventListener('touchstart', () => { pvTouching = true;  clearTimeout(pvSnapT); }, { passive:true });
+pvScroll.addEventListener('touchend',   () => { pvTouching = false; clearTimeout(pvSnapT);
+                                                pvSnapT = setTimeout(pvSnap, 220); }, { passive:true });
+
+pvSecsEl.addEventListener('click', e => {
+  const b = e.target.closest('.pv-item');
+  if(b) pvGo(+b.dataset.i);
+});
+
+// a rotate or a collapsing toolbar changes the step height — hold the slide
+addEventListener('resize', () => {
+  if(!pvOv.classList.contains('open')) return;
+  pvScroll.scrollTop = pvIdx * pvSize();
+  pvRender();
+});
+
+
 const aboutOv      = document.getElementById('about-overlay');
 const contactOv    = document.getElementById('contact-overlay');
 const detailOv     = document.getElementById('detail-overlay');
@@ -1617,6 +1962,7 @@ function closeOverlays(){
     .forEach(o => o.classList.remove('open'));
   document.body.classList.remove('cursor-light');
   dotField.stop();
+  pvPause();
   overlayOpen = false;
 }
 function openOverlay(ov, dark=false){
@@ -1647,6 +1993,8 @@ const PROJECT_DESC = "Placeholder case-study copy — replace with the brief, th
 
 function openProject(i){
   const p = AD_PROJECTS[i], client = `${p.name}${p.suffix || ''}`;
+  const work = AD_WORK[p.name];
+  if(work){ openWork(work); return; }   // the rest still get the placeholder page
   detailInner.innerHTML = `
     <div class="detail-wrap">
       <div class="pd-head">
@@ -1884,6 +2232,14 @@ document.getElementById('island-collapsed')
 // Keyboard: arrows mirror the cross layout, ESC closes whatever is open
 window.addEventListener('keydown', e => {
   if(e.key === 'Escape'){ closeOverlays(); return; }
+  if(pvOv.classList.contains('open')){
+    const at = Math.round(pvScroll.scrollTop / (pvScroll.clientHeight || 1));
+    if(e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); pvGo(at + 1); }
+    else if(e.key === 'ArrowUp' || e.key === 'PageUp'){ e.preventDefault(); pvGo(at - 1); }
+    else if(e.key === 'Home'){ e.preventDefault(); pvGo(0); }
+    else if(e.key === 'End') { e.preventDefault(); pvGo(pvN - 1); }
+    return;
+  }
   if(overlayOpen) return;          // don't hijack arrows while a surface is open
   if(e.key === 'ArrowUp')         { e.preventDefault(); openOverlay(contactOv); }
   else if(e.key === 'ArrowDown')  { e.preventDefault(); openOverlay(aboutOv, true); }
