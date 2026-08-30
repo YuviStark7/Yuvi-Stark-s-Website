@@ -574,7 +574,10 @@
     /* every section sits in the same grid cell, so the block is as tall as the
        tallest one and nothing jumps when they hand over */
     .pv-secs { display:grid; }
-    .pv-sec  { grid-area:1/1; align-self:start; will-change:transform, opacity; }
+    .pv-sec  { grid-area:1/1; align-self:start; will-change:transform, opacity;
+               visibility:hidden; pointer-events:none; }
+    #pv-overlay.open .pv-sec.vis  { visibility:visible; }
+    #pv-overlay.open .pv-sec.live { pointer-events:auto; }
 
     .pv-media { position:relative; width:100%; aspect-ratio:1351/442;
                 max-height:46dvh; overflow:hidden; background:#f4f4f2; }
@@ -1864,10 +1867,10 @@ function pvRender(){
     let op = 1, ty = 0;
     if(f < a)      { const t = pvStep(a-1, a, f); op = t;     ty = (1-t) * 26; }
     else if(f > b) { const t = pvStep(b, b+1, f); op = 1 - t; ty = -t * 22; }
-    S.el.style.opacity       = op;
-    S.el.style.transform     = `translateY(${ty}vh)`;
-    S.el.style.visibility    = op > 0.004 ? 'visible' : 'hidden';
-    S.el.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+    S.el.style.opacity   = op;
+    S.el.style.transform = `translateY(${ty}vh)`;
+    S.el.classList.toggle('vis',  op > 0.004);
+    S.el.classList.toggle('live', op > 0.5);
 
     S.shots.forEach((sh,i) => {
       let d = f - (a + i);
@@ -1908,7 +1911,7 @@ function pvHydrate(){
         if(el.paused && !el.ended) el.play().catch(()=>{});
       } else {
         if(!el.paused) el.pause();
-        if(!el.loop && el.currentTime) el.currentTime = 0;
+        if(!el.loop && d >= 1.4 && el.currentTime) el.currentTime = 0;
       }
     }
   });
