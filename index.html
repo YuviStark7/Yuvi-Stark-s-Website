@@ -1745,7 +1745,7 @@ const AD_WORK = {
     client : 'URBAN V S.P.A',
     sections: [
       { name:'Branding', slides:[
-        { label:'Rebrand Video', src:'work/urbanv/s1-1.mp4', letterbox:true,
+        { label:'Rebrand Video', src:'work/urbanv/s1-1.mp4', letterbox:true, loop:true,
           text:'Urban V needed a complete refresh of their current logo system — and in the course of our collaboration they asked for a further evolution of the whole brand system.' },
         { label:'Brand Book', src:'work/urbanv/s1-2.jpg',
           text:'A thorough brandbook organising and directing the new brand system, from every touchpoint to every use case, digital or physical.' },
@@ -1813,7 +1813,7 @@ function openWork(w){
       <div class="pv-sec">
         <div class="pv-media">${sec.slides.map(s => `
           <div class="pv-shot${s.letterbox ? ' vid' : ''}">${/\.mp4$/i.test(s.src)
-            ? `<video data-src="${s.src}" muted loop playsinline preload="${s.letterbox ? 'metadata' : 'auto'}"></video>`
+            ? `<video data-src="${s.src}" muted ${s.loop ? 'loop ' : ''}playsinline preload="${s.letterbox ? 'metadata' : 'auto'}"></video>`
             : `<img data-src="${s.src}" alt="${s.label}">`}</div>`).join('')}
         </div>
         <div class="pv-foot">
@@ -1904,8 +1904,12 @@ function pvHydrate(){
     const d = Math.abs(f - i);
     if(d < 1.6 && el.dataset.src){ el.src = el.dataset.src; delete el.dataset.src; }
     if(el.tagName === 'VIDEO' && !el.dataset.src){
-      if(d < 0.9){ if(el.paused) el.play().catch(()=>{}); }
-      else if(!el.paused) el.pause();
+      if(d < 0.9){
+        if(el.paused && !el.ended) el.play().catch(()=>{});
+      } else {
+        if(!el.paused) el.pause();
+        if(!el.loop && el.currentTime) el.currentTime = 0;
+      }
     }
   });
 }
