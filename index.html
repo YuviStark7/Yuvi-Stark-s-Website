@@ -573,18 +573,14 @@
 
     /* every section sits in the same grid cell, so the block is as tall as the
        tallest one and nothing jumps when they hand over */
-    .pv-secs { display:grid; grid-template-columns:minmax(0,1fr); }
+    .pv-secs { display:grid; }
     .pv-sec  { grid-area:1/1; align-self:start; will-change:transform, opacity;
                visibility:hidden; pointer-events:none; }
     #pv-overlay.open .pv-sec.vis  { visibility:visible; }
     #pv-overlay.open .pv-sec.live { pointer-events:auto; }
 
-    /* --band-ar and --cap are what pvMeasure() reads; the aspect-ratio next to
-       them is the same number as a pre-JS fallback. The cap lives in JS now
-       because a max-height here would also clip the tile grid, which is the one
-       slide allowed to be taller than the band. */
-    .pv-media { position:relative; width:100%; --band-ar:3.0566; --cap:46; --gcap:54;
-                aspect-ratio:1351/442; overflow:hidden; background:#f4f4f2; }
+    .pv-media { position:relative; width:100%; aspect-ratio:1351/442;
+                max-height:46dvh; overflow:hidden; background:#f4f4f2; }
     /* absolutely stacked rather than a grid: the rebrand film is a 16:9 master,
        and as a grid item its intrinsic height stretched the row, which blew the
        band out for every still in the section too */
@@ -594,25 +590,6 @@
        is what the Figma mockup shows for that slide anyway */
     .pv-shot.vid { background:#000; }
     .pv-shot.vid > video { object-fit:contain; }
-
-    /* A slide can be a grid of separate images instead of one flat picture.
-       The reveal is built here rather than baked into a clip, so the layout can
-       reflow â€” four across on a desktop, two on a phone â€” and every tile stays
-       a real image at whatever size it lands. */
-    .pv-shot.grid { background:#fff; }
-    .pv-tiles { display:grid; margin:0 auto; grid-template-columns:repeat(4,1fr);
-                grid-template-rows:repeat(2,1fr); gap:clamp(7px,0.9vw,14px);
-                width:100%; height:100%; }
-    .pv-tile  { width:100%; height:100%; object-fit:cover; display:block;
-                opacity:0; transform:translateY(15px) scale(0.965); filter:blur(9px); }
-    .pv-shot.grid.play .pv-tile {
-      animation:pv-tile-in 850ms cubic-bezier(0.16,1,0.3,1) forwards;
-      animation-delay:calc(var(--i) * 105ms);
-    }
-    @keyframes pv-tile-in {
-      from { opacity:0; transform:translateY(15px) scale(0.965); filter:blur(9px); }
-      to   { opacity:1; transform:none;                          filter:blur(0);   }
-    }
 
     .pv-foot { margin-top:clamp(16px,2.6vh,30px); display:grid;
                grid-template-columns:minmax(0,1fr) auto;
@@ -652,36 +629,27 @@
        tighter ceiling, so the caption and the index never fall off the bottom */
     @media (min-width:681px) and (max-height:760px){
       .pv-stage { padding-top:66px; padding-bottom:28px; }
-      .pv-media { --cap:40; --gcap:40; }
+      .pv-media { max-height:40dvh; }
       .pv-cap   { font-size:14px; }
     }
     @media (max-width:680px){
-      .pv-stage { padding:62px 20px 16px; }
+      .pv-stage { padding:0 20px; }
       .pv-head  { margin-bottom:16px; }
       .pv-foot  { margin-top:18px; gap:18px; }
       .pv-cap   { font-size:13.5px; line-height:1.58; }
       /* the source art is 3:1 — at phone width that's a 120px strip, so the
          crop window pans across it instead of shrinking the whole thing */
-      .pv-media { aspect-ratio:16/10; --band-ar:1.6; --gcap:54; }
-      .pv-shot.on:not(.vid):not(.grid) > * { animation:pv-pan 22s ease-in-out infinite; }
-      /* two across, four down â€” the whole point of building the grid by hand */
-      .pv-tiles { grid-template-columns:repeat(2,1fr); grid-template-rows:none; height:auto; }
-      .pv-tile  { height:auto; aspect-ratio:var(--tar,1.509); }
+      .pv-media { aspect-ratio:16/10; }
+      .pv-shot.on:not(.vid) > * { animation:pv-pan 22s ease-in-out infinite; }
       .pv-hint  { display:none; }
     }
-    /* a short phone cannot afford the full grid; trim its budget so the
-       caption and the index stay on screen */
-    @media (max-width:680px) and (max-height:700px){ .pv-media { --gcap:42; } }
     @keyframes pv-pan {
       0%, 7%    { object-position:50% 50%; }
       31%       { object-position:0%  50%; }
       69%       { object-position:100% 50%; }
       93%, 100% { object-position:50% 50%; }
     }
-    @media (prefers-reduced-motion:reduce){
-      .pv-shot.on > * { animation:none; }
-      .pv-shot.grid.play .pv-tile { animation:none; opacity:1; transform:none; filter:none; }
-    }
+    @media (prefers-reduced-motion:reduce){ .pv-shot.on > * { animation:none; } }
 
   </style>
 </head>
@@ -1784,11 +1752,7 @@ const AD_WORK = {
           text:'Urban V needed a complete refresh of their current logo system — and in the course of our collaboration they asked for a further evolution of the whole brand system.' },
         { label:'Brand Book', src:'work/urbanv/s1-2.jpg',
           text:'A thorough brandbook organising and directing the new brand system, from every touchpoint to every use case, digital or physical.' },
-        // Assembled from its eight tiles instead of a flat clip, so the grid
-        // reflows on a phone. Replace the files in place, same names, to swap
-        // in full-resolution exports; tileAR is their width/height.
-        { label:'Brand Pack', tileAR: 326/216,
-          tiles: [1,2,3,4,5,6,7,8].map(n => `work/urbanv/brandpack/${n}.jpg`),
+        { label:'Brand Pack', src:'work/urbanv/s1-3.mp4',
           text:'A refreshed logo, an enhanced colour palette, a subtle new pattern and gradient language paired with strong type and supporting assets that make the brand feel alive.' },
       ]},
       { name:'Advertising &amp; Merchandising', slides:[
@@ -1832,44 +1796,7 @@ function pvSize(){
   const vh = pvScroll.clientHeight || 1;
   pvTrack.style.height = (pvN * vh) + 'px';
   pvStage.style.height = vh + 'px';
-  pvMeasure(vh);
   return vh;
-}
-
-// How tall each slide's media wants to be at the current width. A normal shot
-// follows the band ratio, capped so a short window keeps the caption and the
-// index on screen. A tile grid works its own height out from however many
-// columns the CSS handed it â€” which is what lets the same eight images be 4x2
-// on a desktop and 2x4 on a phone. pvRender cross-fades the band between them,
-// so the height moves with the same curve as the pictures.
-let pvMeasuredW = -1;
-function pvMeasure(vh){
-  const W0 = pvSecs.length ? pvSecs[0].media.clientWidth : 0;
-  if(W0 < 2) return;              // not laid out yet - keep whatever we had
-  pvMeasuredW = W0;
-  pvSecs.forEach(S => {
-    S.media.style.aspectRatio = 'auto';
-    const cs   = getComputedStyle(S.media);
-    const W    = S.media.clientWidth || 1;
-    const band = parseFloat(cs.getPropertyValue('--band-ar')) || 3.0566;
-    const cap  = vh * ((parseFloat(cs.getPropertyValue('--cap'))  || 46) / 100);
-    const gcap = vh * ((parseFloat(cs.getPropertyValue('--gcap')) || 46) / 100);
-    S.heights = S.shots.map(sh => {
-      const t = sh.querySelector('.pv-tiles');
-      if(!t) return Math.min(W / band, cap);
-      const ts   = getComputedStyle(t);
-      const cols = ts.gridTemplateColumns.split(/\s+/).filter(Boolean).length || 1;
-      const gap  = parseFloat(ts.rowGap) || 0;
-      const rows = Math.ceil(t.children.length / cols);
-      const tar  = parseFloat(ts.getPropertyValue('--tar')) || 1.509;
-      const nat  = ((W - gap * (cols - 1)) / cols / tar) * rows + gap * (rows - 1);
-      if(nat <= gcap){ t.style.width = ''; return nat; }
-      // Too tall for the window: narrow the grid until it fits rather than
-      // cropping it. Solved for width, because the gaps do not scale with it.
-      t.style.width = ((gcap - gap * (rows - 1)) * cols * tar / rows + gap * (cols - 1)) + 'px';
-      return gcap;
-    });
-  });
 }
 
 let pvSecs = [], pvShots = [], pvN = 1, pvIdx = 0;
@@ -1888,11 +1815,7 @@ function openWork(w){
     return `
       <div class="pv-sec">
         <div class="pv-media">${sec.slides.map(s => `
-          <div class="pv-shot${s.letterbox ? ' vid' : ''}${s.tiles ? ' grid' : ''}">${
-            s.tiles
-            ? `<div class="pv-tiles" style="--tar:${s.tileAR || 1.509}">${s.tiles.map((t,k) =>
-                `<img class="pv-tile" style="--i:${k}" data-src="${t}" alt="">`).join('')}</div>`
-            : /\.mp4$/i.test(s.src)
+          <div class="pv-shot${s.letterbox ? ' vid' : ''}">${/\.mp4$/i.test(s.src)
             ? `<video data-src="${s.src}" muted ${s.loop ? 'loop ' : ''}playsinline preload="${s.letterbox ? 'metadata' : 'auto'}"></video>`
             : `<img data-src="${s.src}" alt="${s.label}">`}</div>`).join('')}
         </div>
@@ -1916,14 +1839,13 @@ function openWork(w){
   pvTrack.style.setProperty('--pvn', n);
   pvSecs = [...pvSecsEl.querySelectorAll('.pv-sec')].map((el,s) => ({
     el, a:meta[s].a, b:meta[s].b,
-    media: el.querySelector('.pv-media'),
     shots:[...el.querySelectorAll('.pv-shot')],
     caps :[...el.querySelectorAll('.pv-cap')],
     items:[...el.querySelectorAll('.pv-item')],
     thumb: el.querySelector('.pv-thumb'),
   }));
   pvShots = [];
-  pvSecs.forEach(S => S.shots.forEach(sh => pvShots.push(sh)));
+  pvSecs.forEach(S => S.shots.forEach(sh => pvShots.push(sh.firstElementChild)));
 
   pvScroll.scrollTop = 0;
   pvIdx = 0;
@@ -1936,9 +1858,6 @@ function openWork(w){
 
 function pvRender(){
   const vh = pvScroll.clientHeight || 1;
-  // re-measure whenever the width actually changed: covers the first paint,
-  // a rotate, and crossing the breakpoint where the grid goes 4-wide to 2-wide
-  if(pvSecs.length && pvSecs[0].media.clientWidth !== pvMeasuredW) pvMeasure(vh);
   const f  = pvScroll.scrollTop / vh;
   pvIdx = Math.round(f);
 
@@ -1953,7 +1872,6 @@ function pvRender(){
     S.el.classList.toggle('vis',  op > 0.004);
     S.el.classList.toggle('live', op > 0.5);
 
-    let hNum = 0, hDen = 0;
     S.shots.forEach((sh,i) => {
       let d = f - (a + i);
       // the edge slides hold full strength while the section itself is moving,
@@ -1964,9 +1882,7 @@ function pvRender(){
       sh.style.opacity = o;
       S.caps[i].style.opacity = o;
       sh.classList.toggle('on', o > 0.9);
-      if(S.heights){ hNum += o * S.heights[i]; hDen += o; }
     });
-    if(hDen) S.media.style.height = (hNum / hDen) + 'px';
 
     // marker slides between the two items it currently sits between
     const last  = S.items.length - 1;
@@ -1987,12 +1903,9 @@ function pvRender(){
 function pvHydrate(){
   const vh = pvScroll.clientHeight || 1;
   const f  = pvScroll.scrollTop / vh;
-  pvShots.forEach((sh,i) => {
-    const d  = Math.abs(f - i);
-    const el = sh.firstElementChild;
-    if(d < 1.6) sh.querySelectorAll('[data-src]').forEach(m => {
-      m.src = m.dataset.src; delete m.dataset.src;
-    });
+  pvShots.forEach((el,i) => {
+    const d = Math.abs(f - i);
+    if(d < 1.6 && el.dataset.src){ el.src = el.dataset.src; delete el.dataset.src; }
     if(el.tagName === 'VIDEO' && !el.dataset.src){
       if(d < 0.9){
         if(el.paused && !el.ended) el.play().catch(()=>{});
@@ -2000,18 +1913,10 @@ function pvHydrate(){
         if(!el.paused) el.pause();
         if(!el.loop && d >= 1.4 && el.currentTime) el.currentTime = 0;
       }
-    } else if(sh.classList.contains('grid')){
-      // the built reveal follows the same rules as a clip: run once on arrival,
-      // hold, and only re-arm once the slide is properly gone
-      if(d < 0.9) sh.classList.add('play');
-      else if(d >= 1.4) sh.classList.remove('play');
     }
   });
 }
-function pvPause(){ pvShots.forEach(sh => {
-  const el = sh.firstElementChild;
-  if(el && el.tagName === 'VIDEO') el.pause();
-}); }
+function pvPause(){ pvShots.forEach(el => { if(el.tagName === 'VIDEO') el.pause(); }); }
 
 // Settle on a whole slide once the scroll stops. Doing it here rather than with
 // CSS scroll-snap keeps the sticky stage out of the snapping machinery, which
