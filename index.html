@@ -1079,14 +1079,16 @@ const ARTWORKS = ARTWORK_ROWS.map(([id,title,w,h,year,priceN,soldOut,technique])
   // Extra detail shots: just add more paths here, e.g. `shop/f/${id}-detail.jpg`
   images:[`shop/f/${id}.jpg`],
 }));
-// Art Direction gallery — names per Figma; suffix renders in regular weight
+// Art Direction gallery. `dir` is the project's asset folder; the card looks for
+// <dir>/thumb.jpg and quietly falls back to the grey block if it isn't there yet.
+// Thumbs are 1.8:1 (the column is 360x200 at full width), so export 1080x600.
 const AD_PROJECTS = [
-  { name:"Lunar",             suffix:" S.r.l.s.", role:"Brand Identity", year:2025 },
-  { name:"Luca Menti",        suffix:"",          role:"Brand Identity", year:2024 },
-  { name:"UrbanV",            suffix:" S.p.A.",   role:"Brand Identity", year:2025 },
-  { name:"Sporting55",        suffix:"",          role:"Brand Identity", year:2026 },
-  { name:"Illy Caffe",        suffix:" - Blend",  role:"TV Series Concept",        year:2025 },
-  { name:"The Timeless Ride", suffix:"",          role:"Documentary &amp; Website", year:2024 },
+  { name:"UrbanV",            suffix:" S.p.A.",   role:"Brand Identity",           year:2026, dir:"work/urbanv" },
+  { name:"Luca Menti",        suffix:"",          role:"Brand Identity",           year:2024, dir:"work/lucamenti" },
+  { name:"Lunar",             suffix:" S.r.l.s.", role:"Brand Identity",           year:2026, dir:"work/lunar" },
+  { name:"Sporting55",        suffix:"",          role:"Brand Identity",           year:2025, dir:"work/sporting55" },
+  { name:"Illy Caffè",        suffix:" - Blend",  role:"TV Series Concept",        year:2025, dir:"work/blend" },
+  { name:"The Timeless Ride", suffix:"",          role:"Documentary &amp; Website", year:2024, dir:"work/timelessride" },
 ];
 
 // scroll range: -2 (full AD) to +2 (full Art)
@@ -1163,13 +1165,17 @@ function addToCart(artwork){
 // ── Build grids ───────────────────────────────────────────────────────────────
 document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
   <div class="g-card">
-    <div class="g-thumb"></div>
+    <div class="g-thumb">${p.dir ? `<img src="${p.dir}/thumb.jpg" alt="" loading="lazy">` : ''}</div>
     <div class="g-meta">
       <span class="g-year">${p.year}</span>
       <span class="g-name">${p.name}${p.suffix?`<span class="light">${p.suffix}</span>`:''}</span>
       <span class="g-role">${p.role}</span>
     </div>
   </div>`).join('');
+// A project whose thumb.jpg does not exist yet drops the broken image and keeps
+// the grey placeholder, so thumbnails can be added one file at a time.
+document.querySelectorAll('#ad-grid .g-thumb img')
+  .forEach(i => i.addEventListener('error', () => i.remove()));
 
 // ── Shop: filters, sort, grid ────────────────────────────────────────────────
 // Toggle chips, multi-select: an empty set means "show everything", so there's
@@ -1744,7 +1750,7 @@ const dotField = (function(){
 // this is the only place any of it lives.
 const AD_WORK = {
   UrbanV: {
-    eyebrow: '2025 - Brand Identity Evolution',
+    eyebrow: '2026 - Brand Identity Evolution',
     client : 'URBAN V S.P.A',
     sections: [
       { name:'Branding', slides:[
@@ -1816,7 +1822,7 @@ const AD_WORK = {
   },
 
   Sporting55: {
-    eyebrow: '2026 - Brand Identity',
+    eyebrow: '2025 - Brand Identity',
     client : 'SPORTING55',
     sections: [
       { name:'Identity &amp; Art Direction', slides:[
@@ -1837,7 +1843,7 @@ const AD_WORK = {
   },
 
   Lunar: {
-    eyebrow: '2025 - Brand Identity',
+    eyebrow: '2026 - Brand Identity',
     client : 'LUNAR S.R.L.S',
     sections: [
       { name:'Foundations', slides:[
@@ -1865,9 +1871,9 @@ const AD_WORK = {
     ]
   },
 
-  'Illy Caffe': {
+  'Illy Caffè': {
     eyebrow: '2025 - TV Series Conceptualization',
-    client : 'ILLY CAFFE - BLEND',
+    client : 'ILLY CAFFÈ - BLEND',
     sections: [
       { name:'Development &amp; Pitch', slides:[
         { label:'Pitch Deck', src:'work/blend/s1-1.mp4',
