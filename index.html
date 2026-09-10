@@ -156,6 +156,11 @@
     .g-thumb { position:relative; width:100%; aspect-ratio:360/200; background:#d9d9d9;
       overflow:hidden; }
     .g-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    /* the clip lies over its own poster frame, so the card is never blank
+       while the video is paused, seeking or still downloading */
+    .g-thumb video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+      opacity:0; transition:opacity 0.35s ease; }
+    .g-thumb video.on { opacity:1; }
     .g-meta { margin-top:21px; display:flex; flex-direction:column; gap:3px;
       color:#000; font-family:'Montserrat',sans-serif; }
     .g-year, .g-role { font-size:14px; opacity:0.5; }
@@ -1165,7 +1170,7 @@ function addToCart(artwork){
 // ── Build grids ───────────────────────────────────────────────────────────────
 document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
   <div class="g-card">
-    <div class="g-thumb">${p.dir ? `<img src="${p.dir}/thumb.jpg" alt="" loading="lazy">` : ''}</div>
+    <div class="g-thumb">${p.dir ? `<img src="${p.dir}/thumb.jpg" alt="" loading="lazy"><video src="${p.dir}/thumb.mp4" muted loop playsinline preload="none"></video>` : ''}</div>
     <div class="g-meta">
       <span class="g-year">${p.year}</span>
       <span class="g-name">${p.name}${p.suffix?`<span class="light">${p.suffix}</span>`:''}</span>
@@ -1176,6 +1181,29 @@ document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
 // the grey placeholder, so thumbnails can be added one file at a time.
 document.querySelectorAll('#ad-grid .g-thumb img')
   .forEach(i => i.addEventListener('error', () => i.remove()));
+
+// Cards rest on their poster and play the clip on hover. On touch there is no
+// hover, so whichever cards are actually on screen play instead. preload="none"
+// keeps the six clips off the wire until one of those things happens.
+(function wireThumbs(){
+  const cards = [...document.querySelectorAll('#ad-grid .g-card')];
+  const play = v => { if(!v) return; v.classList.add('on'); v.play().catch(()=>{}); };
+  const stop = v => { if(!v) return; v.classList.remove('on');
+                      setTimeout(() => { v.pause(); v.currentTime = 0; }, 350); };
+  if(COARSE && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      const v = e.target.querySelector('video');
+      if(e.isIntersecting) play(v); else stop(v);
+    }), { threshold: 0.5 });
+    cards.forEach(c => io.observe(c));
+  } else {
+    cards.forEach(c => {
+      const v = c.querySelector('video');
+      c.addEventListener('mouseenter', () => play(v));
+      c.addEventListener('mouseleave', () => stop(v));
+    });
+  }
+})();
 
 // ── Shop: filters, sort, grid ────────────────────────────────────────────────
 // Toggle chips, multi-select: an empty set means "show everything", so there's
