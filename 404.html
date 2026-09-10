@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <script>
+    // GitHub Pages serves this file for any missing path, at any depth. On the
+    // project URL the site lives under /Yuvi-Stark-s-Website/, on its own
+    // domain at /. Setting <base> here, before anything else loads, makes the
+    // fonts and the link home resolve correctly in both cases.
+    (function(){
+      var seg  = location.pathname.split('/')[1];
+      var base = (/github\.io$/.test(location.hostname) && seg) ? '/' + seg + '/' : '/';
+      document.write('<base href="' + base + '">');
+    })();
+  </script>
+  <title>Page not found | Yuvi Stark</title>
+  <style>
+    @font-face { font-family:'Inter'; font-weight:100 900; font-display:swap;
+      src:url(fonts/inter-latin.woff2) format('woff2'); }
+    @font-face { font-family:'Montserrat'; font-weight:100 900; font-display:swap;
+      src:url(fonts/montserrat-latin.woff2) format('woff2'); }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html, body { height:100%; background:#fff; color:#0a0a0a; }
+    body { display:flex; align-items:center; justify-content:center; padding:32px;
+      font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif; text-align:center; }
+    .code { font-family:'Inter', sans-serif; font-weight:900; line-height:0.9;
+      font-size:clamp(96px, 22vw, 240px); letter-spacing:-0.04em; color:#0a0a0a; }
+    .line { margin:22px 0 40px; font-weight:300; font-size:clamp(15px, 1.4vw, 18px);
+      line-height:1.6; opacity:0.7; }
+    .home { display:inline-flex; align-items:center; height:44px; padding:0 26px;
+      border-radius:100px; background:#0a0a0a; color:#fff; text-decoration:none;
+      font-size:10px; letter-spacing:0.22em; transition:opacity 0.2s ease; }
+    .home:hover { opacity:0.82; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="code">404</div>
+    <p class="line">This page has wandered off.<br>The rest of the studio is still here.</p>
+    <a class="home" href="./">BACK TO YUVI STARK</a>
+  </main>
+</body>
+</html>

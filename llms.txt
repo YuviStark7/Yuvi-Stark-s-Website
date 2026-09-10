@@ -1,0 +1,29 @@
+# Yuvi Stark
+
+> Yuvi Stark (Yuvraj Argal) is an artist and art director based in Italy. The paintings are original, one of a kind works on paper in watercolour, ink and alcohol markers, signed, supplied framed and sold through the artist's own shop. The art direction covers brand identities, campaigns, AI-assisted asset libraries and investor pitch decks.
+
+The website is a single page with three horizontal sections: Art Direction on the left, the landing portrait in the centre, and Artworks (the shop) on the right. About and Contact open as overlays.
+
+## Paintings
+
+- [Artworks shop](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): original paintings on paper, each one unique and signed, supplied framed, shipped worldwide from Italy. Prices are in euro.
+- [About](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): the artist statement. "I paint what remains when people stop performing: the face beneath the face, the feeling beneath the gesture."
+
+## Art direction
+
+- [Art Direction case studies](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): six projects.
+  - UrbanV S.p.A. (2026): brand identity evolution for an advanced air mobility company, with brand book, advertising, merchandising and social content.
+  - Luca Menti (2024): full brand system for a motivational speaker, including an AI-generated visual library, website, emails, workshops, books and workbooks.
+  - Lunar S.r.l.s. (2026): brand identity for a branding company, with a launch film, brand book, AI asset library and design toolkit.
+  - Sporting55 (2025): identity and art direction for a sports campus, with a separate direction for each sport, merchandise and large-format print.
+  - Blend, for Illy Caffè (2025): a TV series concept and investor pitch deck, built on a generated visual library.
+  - The Timeless Ride (2024): a documentary concept, pitch deck and website.
+
+## Contact
+
+- Email: hey@yuvistark.com
+
+## Rights
+
+- Copyright in every artwork and image belongs to the artist. Buying an original transfers the physical work, not the copyright.
+- Text and data mining rights, including any use for AI training, are expressly reserved under Directive (EU) 2019/790 art. 4(3). Describing, summarising and linking to this site is welcome.
