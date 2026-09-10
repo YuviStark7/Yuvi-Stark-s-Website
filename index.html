@@ -1170,7 +1170,7 @@ function addToCart(artwork){
 // ── Build grids ───────────────────────────────────────────────────────────────
 document.getElementById('ad-grid').innerHTML = AD_PROJECTS.map(p=>`
   <div class="g-card">
-    <div class="g-thumb">${p.dir ? `<img src="${p.dir}/thumb.jpg" alt="" loading="lazy"><video src="${p.dir}/thumb.mp4" muted loop playsinline preload="none"></video>` : ''}</div>
+    <div class="g-thumb">${p.dir ? `<img src="${p.dir}/thumb.jpg" alt=""><video src="${p.dir}/thumb.mp4" muted loop playsinline preload="none"></video>` : ''}</div>
     <div class="g-meta">
       <span class="g-year">${p.year}</span>
       <span class="g-name">${p.name}${p.suffix?`<span class="light">${p.suffix}</span>`:''}</span>
