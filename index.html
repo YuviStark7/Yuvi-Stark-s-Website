@@ -116,7 +116,10 @@
     #island-expanded  { opacity:0; transform:scale(0.9); gap:18px; }
     #island.open #island-collapsed { opacity:0; transform:scale(0.88); pointer-events:none; }
     #island.open #island-expanded  { opacity:1; transform:scale(1); transition-delay:0.1s; }
-    .island-name  { color:#fff; font-size:10.5px; letter-spacing:0.2em; font-weight:500; }
+    /* His wordmark, sized to the cap height of the type it replaced so the pill
+       keeps its proportions. currentColor keeps it one colour with the nav. */
+    .island-name     { color:#fff; display:flex; align-items:center; }
+    .island-name svg { display:block; height:7.5px; width:auto; fill:currentColor; }
     .island-sep   { width:1px; height:12px; background:rgba(255,255,255,0.2); }
     .island-badge { background:#fff; color:#0a0a0a; border-radius:100px; font-size:8.5px;
                     font-weight:700; padding:1px 5px; line-height:14px; display:inline-block;
@@ -777,7 +780,9 @@
 
 <div id="island">
   <div id="island-collapsed">
-    <span class="island-name">YUVI STARK</span>
+    <span class="island-name" role="img" aria-label="Yuvi Stark">
+      <svg viewBox="0 0 201 17" aria-hidden="true" focusable="false"><path d="M8.358 15.897V9.849L0 0.273H6.069L10.92 6.027L15.855 0.273H21.378L13.251 9.849V15.897H8.358Z"/><path d="M34.8132 16.128H34.0572C25.6782 16.128 24.3132 10.794 24.3132 7.854V0.273H29.2272V7.56C29.2272 9.576 30.1302 12.075 34.3932 12.075C38.5932 12.075 39.5172 9.576 39.5172 7.56V0.273H44.4102V7.854C44.4102 10.794 42.8352 16.128 34.8132 16.128Z"/><path d="M61.7746 15.897H55.6846L47.5576 0.273H53.1016L58.8556 11.76L64.2526 0.273H69.3346L61.7746 15.897Z"/><path d="M77.5632 0.273V15.897H72.6702V0.273H77.5632Z"/><path d="M99.6644 16.17C91.4744 16.17 90.5294 12.642 90.5294 10.584V10.353H95.6324C95.6954 11.277 96.2414 12.831 100.273 12.831H100.567C104.683 12.831 105.145 12.012 105.145 11.172C105.145 10.269 104.662 9.681 101.05 9.597L98.3624 9.534C92.5244 9.366 90.7394 7.392 90.7394 4.956V4.767C90.7394 2.436 92.1464 0 99.2444 0H100.693C108.085 0 109.765 2.583 109.765 4.935V5.145H104.683C104.599 4.536 104.242 3.276 100.168 3.276H99.8324C96.0524 3.276 95.7794 3.969 95.7794 4.62C95.7794 5.271 96.1784 5.922 99.3914 5.964L102.016 6.006C107.896 6.132 110.269 7.539 110.269 10.647V10.941C110.269 13.524 108.967 16.17 101.113 16.17H99.6644Z"/><path d="M119.953 15.897V3.969H113.233V0.273H131.629V3.969H124.888V15.897H119.953Z"/><path d="M145.326 9.513L142.302 3.654L139.404 9.513H145.326ZM148.602 15.897L147.132 13.041H137.661L136.254 15.897H131.277L139.173 0.273H145.515L153.873 15.897H148.602Z"/><path d="M162.023 3.822V6.888H169.436C170.822 6.888 171.41 6.216 171.41 5.355V5.334C171.41 4.515 170.864 3.822 169.436 3.822H162.023ZM162.023 10.353V15.897H157.13V0.273H169.73C174.938 0.273 176.513 2.079 176.513 4.326V4.578C176.513 6.804 174.644 7.686 173.615 8.001C175.211 8.421 176.576 9.597 176.576 11.592V13.881C176.576 15.141 176.744 15.54 176.87 15.792V15.897H171.893C171.746 15.708 171.662 15.456 171.662 14.91V13.104C171.662 11.193 170.822 10.353 168.407 10.353H162.023Z"/><path d="M185.789 15.897H180.896V0.273H185.789V6.783L193.79 0.273H200.006L191.018 7.413L200.426 15.897H194.042L185.789 8.526V15.897Z"/></svg>
+    </span>
     <span class="island-sep"  id="cart-sep"     style="display:none"></span>
     <span style="color:rgba(255,255,255,0.7);font-size:11px;display:none" id="cart-icon">◎</span>
     <span class="island-badge" id="cart-badge-c" style="display:none">0</span>
@@ -2157,9 +2162,10 @@ window.addEventListener('touchmove', e => {
 function touchSettle(){
   const g = touchG; touchG = null;
   if(!g || !g.axis) return;
-  // Far enough across and you travel the whole way to the other gallery, film
-  // and all; short of that the gallery falls back into place.
-  if(g.side !== 0) target = (g.out > T_CROSS ? -g.side : g.side) * 2;
+  // Far enough across and you come back to the centre, film and all, and the
+  // next swipe carries you on to the other side; short of that the gallery
+  // falls back into place.
+  if(g.side !== 0) target = g.out > T_CROSS ? 0 : g.side * 2;
   // A half swipe at the landing used to leave the portrait half dissolved.
   else target = Math.abs(target) > 0.35 ? Math.sign(target) * 2 : 0;
 }
