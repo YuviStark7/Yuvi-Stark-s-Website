@@ -3,3 +3,7 @@
 # byte-identical duplicate kept locally for the asset library.
 Videos/
 .claude/
+
+# Print-resolution source files. They live in the asset library outside this
+# repo, and must never be served by the public site again.
+Images/
