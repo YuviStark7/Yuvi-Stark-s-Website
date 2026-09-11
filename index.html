@@ -559,6 +559,27 @@
     .legal-sec li { font-size:14px; font-weight:300; line-height:1.8; opacity:0.85; margin-bottom:7px; }
     .legal-sec .todo { background:#fff6d6; border:1px solid #f0e2a8; border-radius:8px;
       padding:14px 16px; font-size:12.5px; line-height:1.7; opacity:1; margin-bottom:30px; }
+    .legal-sec .legal-form { border-left:2px solid rgba(0,0,0,0.12); padding-left:16px; }
+
+    /* Language switch at the right of the tabs. Each page holds one block per
+       language; the overlay's data-lang decides which is shown. */
+    .legal-head { display:flex; align-items:flex-start; justify-content:space-between;
+      gap:18px; margin-bottom:46px; }
+    .legal-head .legal-tabs { margin-bottom:0; }
+    .legal-lang { flex:none; display:flex; align-items:center; padding-top:10px;
+      font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:0.2em; color:#0a0a0a; }
+    .legal-lang span { opacity:0.25; padding:0 1px; }
+    .legal-lang button { background:none; border:0; padding:4px 5px; cursor:pointer; font:inherit;
+      letter-spacing:inherit; color:inherit; opacity:0.35; transition:opacity 0.2s ease; }
+    .legal-lang button:hover { opacity:0.7; }
+    .legal-lang button.on { opacity:1; font-weight:700; }
+    .l10n { display:none; }
+    #legal-overlay[data-lang="en"] .l10n[lang="en"],
+    #legal-overlay[data-lang="it"] .l10n[lang="it"] { display:block; }
+    @media (max-width:640px){
+      .legal-head { flex-direction:column-reverse; align-items:stretch; gap:12px; }
+      .legal-lang { align-self:flex-end; padding-top:0; }
+    }
 
     @media (max-width:1180px){ .shop-grid { grid-template-columns:repeat(2,1fr); gap:70px 36px; } }
     @media (max-width:900px){
@@ -660,11 +681,20 @@
        with everything you haven't reached yet held back */
     /* tools used on the slide: a quiet row under the caption, not a badge wall */
     .pv-tools    { display:flex; align-items:center; flex-wrap:wrap; gap:13px; margin-top:18px; }
-    .pv-tool     { width:15px; height:15px; flex:none; fill:#0a0a0a; opacity:0.3;
-                   transition:opacity 0.25s ease; }
-    .pv-tool:hover { opacity:0.75; }
+    .pv-tool     { position:relative; display:inline-flex; align-items:center; flex:none; outline:none; }
+    .pv-tool svg { width:15px; height:15px; fill:#0a0a0a; opacity:0.3; transition:opacity 0.25s ease; }
     .pv-tool-txt { font-family:'Montserrat',sans-serif; font-size:9.5px; letter-spacing:0.1em;
-                   text-transform:uppercase; color:#0a0a0a; opacity:0.32; }
+                   text-transform:uppercase; color:#0a0a0a; opacity:0.32; transition:opacity 0.25s ease; }
+    .pv-tool:hover svg, .pv-tool:focus svg,
+    .pv-tool:hover .pv-tool-txt, .pv-tool:focus .pv-tool-txt { opacity:0.85; }
+    /* the tool's name. SVG <title> tooltips are slow and never appear on touch,
+       so this shows on hover, on keyboard focus, and on a tap (tabindex=0) */
+    .pv-tool::after { content:attr(data-tip); position:absolute; left:0; bottom:calc(100% + 10px);
+      width:max-content; max-width:230px; white-space:normal; pointer-events:none; z-index:3;
+      font-family:'Montserrat',sans-serif; font-size:10px; line-height:1.45; letter-spacing:0.02em;
+      color:#fff; background:#0a0a0a; padding:6px 11px; border-radius:12px;
+      opacity:0; transform:translateY(4px); transition:opacity 0.2s ease, transform 0.2s ease; }
+    .pv-tool:hover::after, .pv-tool:focus::after { opacity:1; transform:translateY(0); }
 
     .pv-index   { min-width:188px; }
     .pv-secname { display:block; font-family:'Montserrat',sans-serif; font-weight:400;
@@ -884,18 +914,24 @@
 </div>
 
 <!-- Legal pages -->
-<div class="page-overlay" id="legal-overlay">
+<div class="page-overlay" id="legal-overlay" data-lang="en">
   <div class="ov-inner">
     <div class="legal-wrap">
-      <div class="legal-tabs">
-        <button class="chip on" data-sec="terms">TERMS</button>
-        <button class="chip" data-sec="privacy">PRIVACY</button>
-        <button class="chip" data-sec="cookies">COOKIES</button>
-        <button class="chip" data-sec="shipping">SHIPPING &amp; RETURNS</button>
+      <div class="legal-head">
+        <div class="legal-tabs">
+          <button class="chip on" data-sec="terms" data-en="TERMS" data-it="TERMINI">TERMS</button>
+          <button class="chip" data-sec="privacy" data-en="PRIVACY" data-it="PRIVACY">PRIVACY</button>
+          <button class="chip" data-sec="cookies" data-en="COOKIES" data-it="COOKIE">COOKIES</button>
+          <button class="chip" data-sec="shipping" data-en="SHIPPING &amp; RETURNS" data-it="SPEDIZIONI E RESI">SHIPPING &amp; RETURNS</button>
+        </div>
+        <div class="legal-lang" role="group" aria-label="Language / Lingua">
+          <button data-lang="en" class="on" aria-pressed="true">EN</button><span aria-hidden="true">/</span><button data-lang="it" aria-pressed="false">IT</button>
+        </div>
       </div>
 
       <!-- ============================================================ TERMS -->
       <section class="legal-sec on" id="legal-terms">
+      <div class="l10n" lang="en">
         <h1>Terms &amp; Conditions</h1>
         <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
         <div class="todo"><b>Before selling:</b> replace every [SQUARE BRACKET]. Italian law requires
@@ -1000,10 +1036,135 @@
         <h2>15. CHANGES</h2>
         <p>We may update these terms from time to time. The version published when you place an
           order is the one that applies to that order.</p>
+
+        <h2>16. LANGUAGE</h2>
+        <p>These terms are available in more than one language. If the versions differ, the Italian
+          version prevails.</p>
+      </div>
+
+      <div class="l10n" lang="it">
+        <h1>Termini e Condizioni</h1>
+        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
+        <div class="todo"><b>Prima di vendere:</b> sostituire ogni [PARENTESI QUADRA]. La legge italiana
+          richiede che nome legale completo, indirizzo e Partita IVA siano indicati agli acquirenti
+          (D.Lgs. 70/2003, art. 7). Verificare il regime IVA con un commercialista: determina la
+          formulazione della sezione 7.</div>
+
+        <h2>1. CHI SIAMO</h2>
+        <p>Questo sito è gestito da [LEGAL NAME], [REGISTERED ADDRESS], Italia, Partita IVA [P.IVA],
+          email hey@yuvistark.com (di seguito «l’artista» o «noi»). I presenti termini disciplinano
+          l’utilizzo del sito e ogni acquisto effettuato tramite esso.</p>
+
+        <h2>2. DIRITTO D’AUTORE</h2>
+        <p>Ogni opera, immagine, video, testo e grafica presente su questo sito è opera dell’artista ed
+          è tutelata dal diritto d’autore ai sensi della legge italiana (Legge n. 633/1941) e dei
+          trattati internazionali. Può consultarli liberamente e condividere link a questo sito. Non è
+          consentito copiarli, scaricarli per riutilizzarli, riprodurli, stamparli, modificarli,
+          venderli o distribuirli senza autorizzazione scritta.</p>
+        <p><b>L’acquisto di un originale trasferisce esclusivamente la proprietà dell’opera fisica.</b>
+          Non trasferisce il diritto d’autore né alcun diritto di riprodurre l’immagine, sotto forma di
+          stampe, prodotti, fotografie a uso commerciale, NFT o in qualsiasi altra forma (Legge n.
+          633/1941, art. 109). L’artista conserva tutti i diritti di proprietà intellettuale sull’opera,
+          compreso il diritto di fotografarla e riprodurla a fini di portfolio, esposizione,
+          pubblicazione e promozione. I diritti morali dell’artista, compreso il diritto di esserne
+          riconosciuto autore, sono inalienabili e restano in capo all’artista.</p>
+        <p>Può naturalmente esporre, assicurare, prestare, rivendere o regalare l’opera fisica
+          acquistata.</p>
+
+        <h2>3. ESTRAZIONE DI TESTO E DI DATI E INTELLIGENZA ARTIFICIALE</h2>
+        <p>L’artista si riserva espressamente i diritti di estrazione di testo e di dati su tutti i
+          contenuti di questo sito, ai sensi dell’articolo 70-quater della Legge n. 633/1941 e
+          dell’articolo 4, paragrafo 3, della Direttiva (UE) 2019/790. Nessuna parte di questo sito può
+          essere estratta, sottoposta a data mining o utilizzata per addestrare, perfezionare o
+          valutare sistemi di intelligenza artificiale o di apprendimento automatico senza previa
+          autorizzazione scritta. La presente riserva è pubblicata anche in formato leggibile da
+          dispositivo automatico, nei file robots.txt e TDM Reservation Protocol del sito.</p>
+
+        <h2>4. LAVORI PER CLIENTI</h2>
+        <p>La sezione Art Direction mostra lavori realizzati per clienti. Nomi, loghi, marchi e
+          materiali dei clienti appartengono ai rispettivi titolari, sono mostrati esclusivamente a
+          fini di portfolio e non implicano alcuna approvazione. Parte delle immagini dei casi studio è
+          stata realizzata con l’ausilio di strumenti di intelligenza artificiale generativa.</p>
+
+        <h2>5. LE OPERE</h2>
+        <p>Ogni opera in vendita è un originale, un pezzo unico, realizzato e firmato dall’artista su
+          carta e fornito con cornice. Salvo diversa indicazione nella scheda, non esistono edizioni né
+          riproduzioni. Una volta venduta, la scheda dell’opera viene chiusa.</p>
+        <p>Ogni opera è realizzata a mano. La texture della carta, i bordi a barba, le variazioni del
+          pigmento e i piccoli segni dello studio fanno parte di un originale e non costituiscono
+          difetti. I colori visualizzati dipendono dallo schermo e possono differire leggermente
+          dall’opera reale. Le dimensioni indicate sono quelle dell’opera; la cornice ne aumenta
+          l’ingombro complessivo.</p>
+
+        <h2>6. ORDINI</h2>
+        <p>L’invio di un ordine costituisce una proposta d’acquisto. Il contratto si conclude nel
+          momento in cui Le inviamo via email la conferma d’ordine. Il checkout, il pagamento e le
+          email relative all’ordine sono gestiti per nostro conto da Shopify.</p>
+        <p>Poiché ogni opera è un pezzo unico, qualora risultasse già venduta tramite un altro canale
+          prima del Suo ordine, oppure qualora un prezzo o una descrizione sul sito contenga un errore
+          evidente, potremo annullare l’ordine e rimborsare integralmente e tempestivamente quanto
+          pagato. Ciò non pregiudica i Suoi diritti di legge.</p>
+
+        <h2>7. PREZZI E PAGAMENTO</h2>
+        <p>I prezzi sono espressi in euro. [IVA: da definire con il commercialista, ad esempio «Prezzi
+          comprensivi di IVA ove applicabile», oppure, in regime forfettario, «Operazione in franchigia
+          da IVA ai sensi dell’art. 1, commi da 54 a 89, della Legge n. 190/2014».] Le spese di
+          spedizione sono calcolate e indicate al checkout, prima del pagamento. Il pagamento è
+          elaborato da Shopify e dai suoi partner di pagamento; non riceviamo né conserviamo i dati
+          della Sua carta.</p>
+
+        <h2>8. PROPRIETÀ E RISCHIO</h2>
+        <p>La proprietà dell’opera Le viene trasferita al ricevimento dell’intero pagamento. Il rischio
+          di perdita o danneggiamento Le viene trasferito al momento della consegna a Lei, o a un terzo
+          da Lei designato diverso dal vettore (Codice del Consumo, art. 63). Fino ad allora il rischio
+          resta a nostro carico, motivo per cui ogni spedizione è assicurata.</p>
+
+        <h2>9. GARANZIA LEGALE DI CONFORMITÀ</h2>
+        <p>Se è un consumatore, si applica la garanzia legale di conformità prevista dagli articoli 128
+          e seguenti del Codice del Consumo (Decreto Legislativo n. 206/2005), per due anni dalla
+          consegna. La garanzia copre l’opera non conforme alla descrizione o che arriva danneggiata.
+          Non copre le caratteristiche naturali dell’opera realizzata a mano descritte alla sezione 5,
+          né i danni causati dopo la consegna. La preghiamo di segnalarci tempestivamente qualsiasi
+          problema.</p>
+
+        <h2>10. DIRITTO DI RECESSO</h2>
+        <p>I consumatori dispongono di 14 giorni per recedere da un acquisto senza indicarne il motivo.
+          Modalità, modulo tipo ed eccezioni sono illustrati nella sezione Spedizioni e Resi.</p>
+
+        <h2>11. OPERE SU COMMISSIONE</h2>
+        <p>Le opere su commissione e realizzate su ordinazione sono disciplinate da un accordo scritto
+          separato. Poiché sono realizzate secondo le Sue indicazioni, il diritto di recesso non si
+          applica (Codice del Consumo, art. 59, comma 1, lettera c).</p>
+
+        <h2>12. ETÀ</h2>
+        <p>Per acquistare su questo sito è necessario avere almeno 18 anni.</p>
+
+        <h2>13. RESPONSABILITÀ</h2>
+        <p>Nessuna disposizione dei presenti termini esclude o limita la responsabilità che la legge non
+          consente di escludere o limitare, compresa la responsabilità per dolo o colpa grave (Codice
+          Civile, art. 1229), né i Suoi diritti di legge in quanto consumatore. Negli altri casi
+          rispondiamo esclusivamente dei danni prevedibili al momento della conclusione del contratto
+          (Codice Civile, art. 1225).</p>
+
+        <h2>14. LEGGE APPLICABILE E CONTROVERSIE</h2>
+        <p>I presenti termini sono regolati dalla legge italiana. Se è un consumatore, conserva la
+          tutela delle norme imperative del Paese in cui risiede e può agire dinanzi ai giudici del
+          luogo di residenza. Per qualsiasi domanda o reclamo, scriva prima a hey@yuvistark.com: nella
+          maggior parte dei casi si risolve rapidamente.</p>
+
+        <h2>15. MODIFICHE</h2>
+        <p>Possiamo aggiornare periodicamente i presenti termini. A ciascun ordine si applica la
+          versione pubblicata al momento in cui è stato effettuato.</p>
+
+        <h2>16. LINGUA</h2>
+        <p>I presenti termini sono disponibili in più lingue. In caso di discordanza tra le versioni,
+          prevale la versione italiana.</p>
+      </div>
       </section>
 
       <!-- ========================================================== PRIVACY -->
       <section class="legal-sec" id="legal-privacy">
+      <div class="l10n" lang="en">
         <h1>Privacy Policy</h1>
         <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
         <div class="todo"><b>Before selling:</b> replace the [SQUARE BRACKETS]. When you connect a
@@ -1046,9 +1207,10 @@
           delivery address; without them we cannot deliver your order. The mailing list needs only
           an email address.</p>
 
-        <h2>5. WHO PROCESSES IT FOR US</h2>
-        <p>We rely on a small number of providers, each acting on our instructions under a data
-          processing agreement:</p>
+        <h2>5. WHO ELSE RECEIVES IT</h2>
+        <p>We share data only with the providers we need. GitHub, Shopify and our mailing list
+          provider process it on our behalf, under a data processing agreement. The courier and our
+          accountant receive only what they need to deliver your order and keep our accounts.</p>
         <ul>
           <li>GitHub, Inc. (website hosting), United States.</li>
           <li>Shopify International Limited (shop, checkout and orders), Ireland, with processing in
@@ -1098,10 +1260,118 @@
 
         <h2>12. CHANGES</h2>
         <p>If this policy changes, the new version will be published here with a new date.</p>
+      </div>
+
+      <div class="l10n" lang="it">
+        <h1>Informativa sulla Privacy</h1>
+        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
+        <div class="todo"><b>Prima di vendere:</b> sostituire le [PARENTESI QUADRE]. Una volta scelto il
+          fornitore della newsletter, indicarne il nome nella sezione 5.</div>
+
+        <h2>1. TITOLARE DEL TRATTAMENTO</h2>
+        <p>Il titolare del trattamento è [LEGAL NAME], [REGISTERED ADDRESS], Italia, Partita IVA
+          [P.IVA], email hey@yuvistark.com. Non è stato nominato un Responsabile della protezione dei
+          dati (DPO), in quanto non richiesto per un’attività di queste dimensioni (GDPR, art. 37).</p>
+
+        <h2>2. IN BREVE</h2>
+        <p>Questo sito non utilizza strumenti di analisi, pubblicità né alcuna forma di tracciamento, e
+          non installa cookie. Raccogliamo dati personali solo quando è Lei a fornirceli: per
+          acquistare un’opera, iscriversi alla newsletter o scriverci. Non li vendiamo mai.</p>
+
+        <h2>3. QUALI DATI, PERCHÉ E SU QUALE BASE GIURIDICA</h2>
+        <ul>
+          <li><b>Navigazione del sito.</b> Il nostro fornitore di hosting, GitHub, riceve
+            automaticamente il Suo indirizzo IP e alcuni dati tecnici di ciascuna richiesta (browser,
+            orario, pagina) per erogare il sito e garantirne la sicurezza. Base giuridica: il nostro
+            legittimo interesse a gestire un sito sicuro (GDPR, art. 6, par. 1, lett. f). Non
+            accediamo a questi log né li utilizziamo.</li>
+          <li><b>Apertura dello shop.</b> Quando apre lo shop o la scheda di un’opera, il Suo browser
+            richiede a Shopify la disponibilità aggiornata. In questo modo il Suo indirizzo IP viene
+            comunicato a Shopify; nessun altro dato personale viene trasmesso. Ciò avviene solo se
+            visita lo shop. Base giuridica: il legittimo interesse a mostrarLe una disponibilità
+            accurata (art. 6, par. 1, lett. f).</li>
+          <li><b>Acquisto di un’opera.</b> Nome, email, indirizzo di spedizione e di fatturazione,
+            numero di telefono se fornito, e dettagli dell’ordine, raccolti al checkout da Shopify per
+            nostro conto. I dati della carta sono trasmessi direttamente ai partner di pagamento di
+            Shopify e non vengono mai visti né conservati da noi. Base giuridica: l’esecuzione del
+            contratto (art. 6, par. 1, lett. b) e l’adempimento degli obblighi di legge in materia
+            fiscale e contabile (art. 6, par. 1, lett. c).</li>
+          <li><b>Iscrizione alla newsletter.</b> Il Suo indirizzo email e la data e le modalità del
+            consenso. Base giuridica: il Suo consenso (art. 6, par. 1, lett. a), revocabile in
+            qualsiasi momento tramite il link di disiscrizione presente in ogni email.</li>
+          <li><b>Contatti via email.</b> Quanto sceglie di includere. Base giuridica: il nostro
+            legittimo interesse a risponderLe, o misure precontrattuali adottate su Sua richiesta
+            (art. 6, par. 1, lett. b e f).</li>
+        </ul>
+
+        <h2>4. NATURA DEL CONFERIMENTO</h2>
+        <p>Il conferimento dei dati è facoltativo. Per completare un acquisto sono necessari nome, email
+          e indirizzo di spedizione; in loro assenza non è possibile consegnare l’ordine. Per la
+          newsletter è sufficiente l’indirizzo email.</p>
+
+        <h2>5. DESTINATARI DEI DATI</h2>
+        <p>Condividiamo i dati solo con i fornitori necessari. GitHub, Shopify e il fornitore della
+          newsletter li trattano per nostro conto, in qualità di responsabili del trattamento, sulla
+          base di un accordo sul trattamento dei dati. Il corriere e il nostro commercialista ricevono
+          solo quanto necessario a consegnare l’ordine e a tenere la contabilità.</p>
+        <ul>
+          <li>GitHub, Inc. (hosting del sito), Stati Uniti.</li>
+          <li>Shopify International Limited (shop, checkout e ordini), Irlanda, con trattamenti in
+            Canada e altrove.</li>
+          <li>[EMAIL PROVIDER] (newsletter), una volta attivato.</li>
+          <li>Il corriere che consegna l’ordine, che riceve nome, indirizzo e numero di telefono.</li>
+          <li>Il nostro commercialista, per gli adempimenti fiscali e contabili.</li>
+        </ul>
+        <p>Non vendiamo, noleggiamo né cediamo in alcun modo i Suoi dati personali.</p>
+
+        <h2>6. TRASFERIMENTI AL DI FUORI DELL’UE</h2>
+        <p>Alcuni fornitori trattano i dati al di fuori dello Spazio economico europeo. Il Canada
+          beneficia di una decisione di adeguatezza della Commissione europea. I trasferimenti verso
+          gli Stati Uniti si basano sul Data Privacy Framework UE-USA, ove il fornitore vi aderisca, e
+          altrimenti sulle Clausole contrattuali standard della Commissione europea.</p>
+
+        <h2>7. PERIODO DI CONSERVAZIONE</h2>
+        <ul>
+          <li><b>Ordini e fatture:</b> 10 anni, come previsto dalla legge italiana (Codice Civile, art.
+            2220).</li>
+          <li><b>Newsletter:</b> fino alla disiscrizione. Successivamente conserviamo solo la
+            registrazione del consenso e della sua revoca, a fini probatori.</li>
+          <li><b>Email:</b> per il tempo necessario a gestire la richiesta, e comunque non oltre due anni
+            dall’ultimo scambio, salvo che siano collegate a un ordine.</li>
+          <li><b>Log dell’hosting:</b> conservati da GitHub secondo la propria policy.</li>
+        </ul>
+
+        <h2>8. DIRITTI DELL’INTERESSATO</h2>
+        <p>Ai sensi degli articoli da 15 a 22 del GDPR può chiederci l’accesso ai Suoi dati, la loro
+          rettifica o cancellazione, la limitazione del trattamento e la portabilità dei dati, e può
+          opporsi al trattamento basato sul legittimo interesse. Può revocare il consenso in qualsiasi
+          momento, senza pregiudicare la liceità del trattamento effettuato prima della revoca. Scriva
+          a hey@yuvistark.com: risponderemo entro un mese.</p>
+        <p>Ha inoltre il diritto di proporre reclamo all’autorità di controllo italiana, il Garante per
+          la protezione dei dati personali (www.garanteprivacy.it), o all’autorità di controllo del
+          Paese dell’UE in cui risiede.</p>
+
+        <h2>9. PROCESSI DECISIONALI AUTOMATIZZATI</h2>
+        <p>Non adottiamo decisioni basate unicamente su trattamenti automatizzati e non effettuiamo
+          profilazione.</p>
+
+        <h2>10. MINORI</h2>
+        <p>Questo sito non è rivolto ai minori. Non raccogliamo consapevolmente dati di minori di 14 anni,
+          età del consenso digitale in Italia, e per effettuare acquisti è necessario avere 18 anni.</p>
+
+        <h2>11. SICUREZZA</h2>
+        <p>Tutto il traffico verso questo sito è cifrato tramite HTTPS. Il pagamento avviene interamente
+          sui sistemi di Shopify, conformi allo standard PCI.</p>
+
+        <h2>12. MODIFICHE</h2>
+        <p>Eventuali modifiche alla presente informativa saranno pubblicate su questa pagina con una
+          nuova data.</p>
+      </div>
       </section>
 
       <!-- ========================================================== COOKIES -->
       <section class="legal-sec" id="legal-cookies">
+      <div class="l10n" lang="en">
         <h1>Cookie Policy</h1>
         <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
 
@@ -1119,6 +1389,7 @@
             party.</li>
           <li><b>Your bag</b> is held in the page&rsquo;s memory while it is open, and is gone when
             you close or reload it. Nothing is written to your device.</li>
+          <li><b>Your language choice</b> on these pages follows your browser, and is not saved.</li>
           <li><b>Images and videos</b> may be cached by your browser so they load faster. That is an
             ordinary browser function you control, not a tracking technology.</li>
         </ul>
@@ -1131,10 +1402,48 @@
         <h2>IF THIS EVER CHANGES</h2>
         <p>If we ever add analytics or anything else that needs your consent, we will ask for it
           before anything is set, give you an equally easy way to refuse, and update this page.</p>
+      </div>
+
+      <div class="l10n" lang="it">
+        <h1>Informativa sui Cookie</h1>
+        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
+
+        <h2>IN BREVE</h2>
+        <p><b>Questo sito non installa cookie e non memorizza nulla sul Suo dispositivo.</b> Non sono
+          presenti strumenti di analisi, pubblicità, tracciamento dei social media né contenuti di terze
+          parti in grado di seguirLa. Per questo non Le è stato mostrato alcun banner sui cookie: ai
+          sensi dell’articolo 122 del Codice in materia di protezione dei dati personali e delle Linee
+          guida del Garante per la protezione dei dati personali sui cookie del 10 giugno 2021, il
+          consenso è richiesto solo per i cookie e le tecnologie analoghe non strettamente necessari, e
+          questo sito non ne utilizza alcuno.</p>
+
+        <h2>COSA SUCCEDE INVECE</h2>
+        <ul>
+          <li><b>I caratteri tipografici</b> sono forniti direttamente da questo sito, non da Google né
+            da altre terze parti.</li>
+          <li><b>Il Suo carrello</b> è conservato nella memoria della pagina finché resta aperta e
+            scompare quando la chiude o la ricarica. Nulla viene scritto sul Suo dispositivo.</li>
+          <li><b>La lingua</b> di queste pagine segue quella del Suo browser e non viene salvata.</li>
+          <li><b>Immagini e video</b> possono essere memorizzati nella cache del browser per caricarsi
+            più velocemente. Si tratta di una normale funzione del browser, sotto il Suo controllo, e
+            non di una tecnologia di tracciamento.</li>
+        </ul>
+
+        <h2>CHECKOUT</h2>
+        <p>Quando procede al checkout lascia questo sito per una pagina di pagamento gestita da Shopify.
+          Shopify vi installa i propri cookie, necessari per elaborare l’ordine e il pagamento, che sono
+          disciplinati dalla sua cookie policy (www.shopify.com/legal/cookies).</p>
+
+        <h2>SE QUALCOSA CAMBIASSE</h2>
+        <p>Qualora in futuro aggiungessimo strumenti di analisi o altre tecnologie che richiedono il
+          consenso, Le chiederemo il consenso prima di installare qualsiasi elemento, offrendoLe un modo
+          altrettanto semplice per rifiutare, e aggiorneremo questa pagina.</p>
+      </div>
       </section>
 
       <!-- ========================================================= SHIPPING -->
       <section class="legal-sec" id="legal-shipping">
+      <div class="l10n" lang="en">
         <h1>Shipping &amp; Returns</h1>
         <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
 
@@ -1199,6 +1508,81 @@
           refund. Please keep the box and packing until the claim is settled, as the courier needs
           them as evidence. None of this affects your rights under the legal guarantee of
           conformity.</p>
+      </div>
+
+      <div class="l10n" lang="it">
+        <h1>Spedizioni e Resi</h1>
+        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
+
+        <h2>SPEDIZIONE</h2>
+        <p>Ogni originale viene incorniciato e imballato a mano prima della spedizione, operazione che
+          richiede in genere circa una settimana dal pagamento. In ogni caso l’ordine Le sarà
+          consegnato entro 30 giorni, termine massimo previsto dalla legge (Codice del Consumo, art.
+          61). Riceverà il codice di tracciamento via email non appena l’opera sarà in viaggio.</p>
+
+        <h2>CORNICE E IMBALLAGGIO</h2>
+        <p>Ogni originale viene incorniciato prima della spedizione e arriva pronto da appendere.
+          L’opera incorniciata è avvolta, protetta con schiuma e paraspigoli e spedita all’interno di
+          una scatola esterna rigida. Nulla viene arrotolato né piegato.</p>
+        <p>Le dimensioni indicate in ogni scheda si riferiscono all’opera; la cornice ne aumenta
+          l’ingombro complessivo.</p>
+
+        <h2>DESTINAZIONI E COSTI</h2>
+        <p>Spediamo in tutto il mondo con corriere tracciabile, con assicurazione per l’intero valore di
+          vendita. I costi di spedizione dipendono dalla destinazione e sono calcolati e indicati al
+          checkout, prima del pagamento.</p>
+        <p>Gli ordini al di fuori dell’UE possono essere soggetti a dazi e imposte all’importazione.
+          Questi sono stabiliti dal Paese di destinazione, sono a carico dell’acquirente e non possono
+          essere rimborsati da noi.</p>
+
+        <h2>DIRITTO DI RECESSO</h2>
+        <p>Se è un consumatore, ha il diritto di recedere dal presente contratto, senza indicarne le
+          ragioni, entro 14 giorni. Il periodo di recesso scade dopo 14 giorni dal giorno in cui Lei, o
+          un terzo diverso dal vettore e da Lei designato, acquisisce il possesso fisico dell’opera.</p>
+        <p>Per esercitare il diritto di recesso, è tenuto a informarci della Sua decisione tramite una
+          dichiarazione esplicita, ad esempio un’email a hey@yuvistark.com. A tal fine può utilizzare il
+          modulo tipo di recesso riportato di seguito, ma non è obbligatorio. Per rispettare il termine
+          è sufficiente inviare la comunicazione prima della scadenza del periodo di recesso.</p>
+        <p><b>Rimborso.</b> Se recede dal contratto, Le saranno rimborsati tutti i pagamenti effettuati a
+          nostro favore, compresi i costi di consegna (ad eccezione dei costi supplementari derivanti
+          dalla Sua eventuale scelta di un tipo di consegna diverso dal tipo meno costoso di consegna
+          standard da noi offerto), senza indebito ritardo e comunque entro 14 giorni dal giorno in cui
+          siamo informati della Sua decisione di recedere. Il rimborso sarà effettuato con lo stesso
+          mezzo di pagamento da Lei usato per la transazione iniziale, salvo che Lei abbia
+          espressamente convenuto altrimenti; in ogni caso non dovrà sostenere alcun costo quale
+          conseguenza del rimborso. Il rimborso può essere sospeso fino al ricevimento dell’opera
+          oppure fino all’avvenuta dimostrazione da parte Sua di averla rispedita, se precedente.</p>
+        <p><b>Restituzione dell’opera.</b> È tenuto a rispedire l’opera senza indebito ritardo e in ogni
+          caso entro 14 giorni dal giorno in cui ci ha comunicato il recesso. I costi diretti della
+          restituzione sono a Suo carico. Trattandosi di un originale incorniciato, fragile e di
+          valore, La preghiamo di restituirlo nell’imballaggio originale, con un servizio tracciabile
+          e assicurato per l’intero valore. È responsabile solo della diminuzione del valore
+          dell’opera risultante da una manipolazione diversa da quella necessaria per stabilirne la
+          natura e le caratteristiche.</p>
+        <p><b>Eccezione.</b> Il diritto di recesso non si applica alle opere realizzate su misura o
+          chiaramente personalizzate, come le opere su commissione (Codice del Consumo, art. 59, comma
+          1, lettera c).</p>
+
+        <h2>MODULO DI RECESSO TIPO</h2>
+        <p>Compilare e restituire il presente modulo solo se si desidera recedere dal contratto.</p>
+        <p class="legal-form">Destinatario: [LEGAL NAME], [REGISTERED ADDRESS], Italia, hey@yuvistark.com<br>
+          Con la presente notifico il recesso dal mio contratto di vendita della seguente opera:<br>
+          Titolo dell’opera:<br>
+          Ordinata il / ricevuta il:<br>
+          Nome:<br>
+          Indirizzo:<br>
+          Firma (solo se il presente modulo è notificato in versione cartacea):<br>
+          Data:</p>
+
+        <h2>DANNI DURANTE IL TRASPORTO</h2>
+        <p>Ogni spedizione è assicurata. Se l’opera arriva danneggiata, La preghiamo di scrivere a
+          hey@yuvistark.com entro 48 ore dalla consegna, allegando fotografie dell’opera, della cornice e
+          dell’intero imballaggio, così da poter avviare rapidamente la pratica assicurativa.
+          Provvederemo alla riparazione, a una nuova cornice o al rimborso integrale. La preghiamo di
+          conservare la scatola e l’imballaggio fino alla chiusura della pratica, poiché il corriere li
+          richiede come prova. Tutto ciò non pregiudica i Suoi diritti derivanti dalla garanzia legale
+          di conformità.</p>
+      </div>
       </section>
     </div>
   </div>
@@ -1628,6 +2012,26 @@ function openLegal(sec){
 }
 document.querySelectorAll('#legal-overlay .legal-tabs .chip')
   .forEach(c => c.addEventListener('click', () => openLegal(c.dataset.sec)));
+
+// Legal pages come in English and Italian: the Consumer Code (art. 9) wants
+// consumer information available at least in Italian. The language follows the
+// browser, and the switch overrides it for the visit. The choice is held in
+// memory only, never stored, so the site still writes nothing to the device.
+// Add a language by giving each page an .l10n[lang] block, the chips a data-xx
+// label, a button here, and a CSS line next to the existing two.
+function setLegalLang(lang){
+  const ov = document.getElementById('legal-overlay');
+  ov.dataset.lang = lang;
+  ov.querySelectorAll('.legal-lang button').forEach(b => {
+    const on = b.dataset.lang === lang;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  });
+  ov.querySelectorAll('.legal-tabs .chip').forEach(c => { c.textContent = c.dataset[lang] || c.dataset.en; });
+}
+document.querySelectorAll('#legal-overlay .legal-lang button')
+  .forEach(b => b.addEventListener('click', () => setLegalLang(b.dataset.lang)));
+setLegalLang(/^it\b/i.test(navigator.language || '') ? 'it' : 'en');
 // any [data-legal] link, anywhere (footers, consent text, PDP) opens that page
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-legal]');
@@ -2035,6 +2439,10 @@ const dotField = (function(){
 // key; anything without an icon here falls back to its name as small text,
 // so an unknown tool never breaks the row.
 const TOOL_ICONS = {
+  'Nano Banana':       'M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81',
+  'Claude':            'm4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z',
+  'ChatGPT':           'M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z',
+  'PowerPoint':        'M13.5 1.5q1.453 0 2.795.375 1.342.375 2.508 1.06 1.166.686 2.12 1.641.956.955 1.641 2.121.686 1.166 1.061 2.508Q24 10.547 24 12q0 1.453-.375 2.795-.375 1.342-1.06 2.508-.686 1.166-1.641 2.12-.955.956-2.121 1.641-1.166.686-2.508 1.061-1.342.375-2.795.375-1.29 0-2.52-.305-1.23-.304-2.337-.884-1.108-.58-2.063-1.418-.955-.838-1.693-1.893H.997q-.411 0-.704-.293T0 17.004V6.996q0-.41.293-.703T.996 6h3.89q.739-1.055 1.694-1.893.955-.837 2.063-1.418 1.107-.58 2.337-.884Q12.21 1.5 13.5 1.5zm.75 1.535v8.215h8.215q-.14-1.64-.826-3.076-.686-1.436-1.782-2.531-1.095-1.096-2.537-1.782-1.441-.685-3.07-.826zm-5.262 7.57q0-.68-.228-1.166-.229-.486-.627-.79-.399-.305-.938-.446-.539-.14-1.172-.14H2.848v7.863h1.84v-2.742H5.93q.574 0 1.119-.17t.978-.493q.434-.322.698-.802.263-.48.263-1.114zM13.5 21q1.172 0 2.262-.287t2.056-.82q.967-.534 1.776-1.278.808-.744 1.418-1.664.61-.92.984-1.986.375-1.067.469-2.227h-9.703V3.035q-1.735.14-3.27.908T6.797 6h4.207q.41 0 .703.293t.293.703v10.008q0 .41-.293.703t-.703.293H6.797q.644.715 1.412 1.271.768.557 1.623.944.855.387 1.781.586Q12.54 21 13.5 21zM5.812 9.598q.575 0 .915.228.34.229.34.838 0 .27-.124.44-.123.17-.31.275-.188.105-.422.146-.234.041-.445.041H4.687V9.598Z',
   'Illustrator':       'M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z',
   'Photoshop':         'M9.85 8.42c-.37-.15-.77-.21-1.18-.2-.26 0-.49 0-.68.01-.2-.01-.34 0-.41.01v3.36c.14.01.27.02.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03.01-.31-.07-.62-.23-.89-.17-.26-.41-.46-.7-.57zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.899c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.391 11.65c-.399.56-.959.98-1.609 1.22-.68.25-1.43.34-2.25.34-.24 0-.4 0-.5-.01s-.24-.01-.43-.01v3.209c.01.07-.04.131-.11.141H5.52c-.08 0-.12-.041-.12-.131V6.42c0-.07.03-.11.1-.11.17 0 .33 0 .56-.01.24-.01.49-.01.76-.02s.56-.01.87-.02c.31-.01.61-.01.91-.01.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.149.42.229.85.229 1.3.001.86-.199 1.57-.6 2.13zm7.091 3.89c-.28.4-.671.709-1.12.891-.49.209-1.09.318-1.811.318-.459 0-.91-.039-1.359-.129-.35-.061-.7-.17-1.02-.32-.07-.039-.121-.109-.111-.189v-1.74c0-.029.011-.07.041-.09.029-.02.06-.01.09.01.39.23.8.391 1.24.49.379.1.779.15 1.18.15.38 0 .65-.051.83-.141.16-.07.27-.24.27-.42 0-.141-.08-.27-.24-.4-.16-.129-.489-.279-.979-.471-.51-.18-.979-.42-1.42-.719-.31-.221-.569-.51-.761-.85-.159-.32-.239-.67-.229-1.021 0-.43.12-.84.341-1.21.25-.4.619-.72 1.049-.92.469-.239 1.059-.349 1.769-.349.41 0 .83.03 1.24.09.3.04.59.12.86.23.039.01.08.05.1.09.01.04.02.08.02.12v1.63c0 .04-.02.08-.05.1-.09.02-.14.02-.18 0-.3-.16-.62-.27-.96-.34-.37-.08-.74-.13-1.12-.13-.2-.01-.41.02-.601.07-.129.03-.24.1-.31.2-.05.08-.08.18-.08.27s.04.18.101.26c.09.11.209.2.34.27.229.12.47.23.709.33.541.18 1.061.43 1.541.73.33.209.6.49.789.83.16.318.24.67.23 1.029.011.471-.129.94-.389 1.331z',
   'InDesign':          'M4.25.3C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm11.31 5.13h2.03c.05-.01.09.03.1.07v9.54c0 .18.01.38.02.6.02.21.03.41.04.58 0 .07-.03.13-.1.16-.52.22-1.07.38-1.63.48-.5.09-1.02.14-1.54.14-.74.01-1.48-.14-2.15-.45-.63-.29-1.15-.77-1.51-1.36-.37-.61-.55-1.37-.55-2.28-.01-.74.18-1.47.55-2.11.38-.65.93-1.19 1.59-1.55.7-.39 1.54-.58 2.53-.58.05 0 .12 0 .21.01s.19.01.31.02V5.54c0-.07.03-.11.1-.11zm-8.93.86h1.95c.06-.01.12.03.13.1.01.01.01.02.01.03v10.26c0 .11-.05.16-.14.16H6.62c-.09 0-.13-.05-.13-.16V6.42c0-.09.05-.13.14-.13zm8.23 4.24c-.39 0-.78.08-1.13.26-.34.17-.63.42-.85.74-.22.32-.33.75-.33 1.27-.01.35.05.7.17 1.03.1.27.25.51.45.71.19.18.42.32.68.4.27.09.55.13.83.13.15 0 .29-.01.42-.02.13.01.25-.01.36-.05v-4.4c-.09-.02-.18-.04-.27-.05-.11-.01-.22-.02-.33-.02z',
@@ -2049,11 +2457,26 @@ const TOOL_ICONS = {
   'DaVinci Resolve':   'M17.621 0 5.977.004c-1.37 0-2.756.345-3.762 1.11a4.925 4.925 0 0 0-1.61 2.003C.233 3.93 0 5.02 0 5.951l.012 12.2c.002 1.604.479 3.057 1.461 4.112.984 1.056 2.462 1.683 4.331 1.691L16.856 24c1.26.005 3.095-.036 4.303-.714 1.075-.605 2.025-1.556 2.497-2.984.278-.84.345-2.084.344-3.147l-.021-11.13c-.002-.888-.15-2.023-.547-2.934-.425-.976-1.181-1.815-2.322-2.425C20.353.26 19.123 0 17.622 0zm0 .93c1.378 0 2.538.295 3.04.565.977.523 1.544 1.166 1.889 1.96.315.721.47 1.793.473 2.572l.018 11.13c.002 1.013-.097 2.257-.298 2.86-.396 1.202-1.146 1.946-2.063 2.462-.814.457-2.612.593-3.82.588l-11.05-.044c-1.657-.007-2.832-.534-3.626-1.386-.792-.851-1.212-2.06-1.212-3.485L.999 5.95c0-.829.196-1.827.474-2.437.345-.757.75-1.207 1.365-1.674C3.585 1.27 4.868.97 6.08.97zm-5.66 3.423c-1.976.089-3.204 1.658-3.214 3.29.019 1.443 1.635 3.481 2.884 4.53.12.099.154.109.33.18.062.025.198-.047.327-.135.36-.245.993-.947 1.648-1.738a7.67 7.67 0 0 0 1.031-1.683c.409-.89.261-1.599.235-1.888a3.983 3.983 0 0 0-.99-1.692 3.36 3.36 0 0 0-2.251-.864zm4.172 7.922a10.185 10.185 0 0 0-3.244.61c-.15.058-.26.1-.374.17-.057.036-.11.135-.105.292.017.433.29 1.278.624 2.27.384 1.135 1.066 2.27 1.844 2.74a3.23 3.23 0 0 0 2.53.342c.832-.243 1.595-.868 1.962-1.546.986-1.818.19-3.548-1.121-4.417-.447-.296-1.133-.445-1.89-.46-.074 0-.15-.002-.226-.001zm-8.432.038a6.201 6.201 0 0 0-.752.047c-.596.078-.932.273-1.29.51a3.177 3.177 0 0 0-1.365 1.979c-.075.552-.086 1.053.033 1.507.433 1.389 1.326 2.222 2.847 2.452.636.028 1.37-.063 1.99-.45 1.269-.782 2.08-3.17 2.412-4.742.053-.176.035-.357-.013-.42-.005-.067-.044-.113-.19-.183-.398-.192-1.32-.417-2.375-.6a7.68 7.68 0 0 0-1.297-.1z',
 };
 
+// Longest key the name starts with, so 'Nano Banana 2' and 'Nano Banana Pro'
+// both find the Nano Banana mark, and 'Claude MCP' finds Claude.
+function toolIcon(name){
+  let best = '';
+  for(const k in TOOL_ICONS) if(name.startsWith(k) && k.length > best.length) best = k;
+  return best ? TOOL_ICONS[best] : null;
+}
+// A tool is 'Name' or 'Name: detail'. Only the name picks the icon; the whole
+// string is the tooltip, which is how a platform like Higgsfield keeps one mark
+// in the row while still listing every model it ran.
 function toolsHTML(list){
   if(!list || !list.length) return '';
-  return `<div class="pv-tools">${list.map(t => TOOL_ICONS[t]
-    ? `<svg class="pv-tool" viewBox="0 0 24 24"><title>${t}</title><path d="${TOOL_ICONS[t]}"/></svg>`
-    : `<span class="pv-tool-txt">${t}</span>`).join('')}</div>`;
+  return `<div class="pv-tools">${list.map(t => {
+    const cut  = t.indexOf(':');
+    const name = (cut < 0 ? t : t.slice(0, cut)).trim();
+    const d    = toolIcon(name);
+    return `<span class="pv-tool" tabindex="0" role="img" aria-label="${t}" data-tip="${t}">${d
+      ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`
+      : `<span class="pv-tool-txt">${name}</span>`}</span>`;
+  }).join('')}</div>`;
 }
 
 const AD_WORK = {
@@ -2062,33 +2485,33 @@ const AD_WORK = {
     client : 'URBAN V S.P.A',
     sections: [
       { name:'Branding', slides:[
-        { label:'Rebrand Video', src:'work/urbanv/s1-1.mp4', letterbox:true, loop:true,
+        { label:'Rebrand Video', src:'work/urbanv/s1-1.mp4', tools:['Higgsfield: Seedance 2.0, Kling O1, Cinema Studio 2.5 &amp; 3.0, ChatGPT Imagen 2, Google Nano Banana Pro','Premiere Pro','After Effects','Photoshop'], letterbox:true, loop:true,
           text:'Urban V came to us for a refresh of their logo system. Over the course of the collaboration the brief grew into a full evolution of the brand.' },
-        { label:'Brand Book', src:'work/urbanv/s1-2.jpg',
+        { label:'Brand Book', src:'work/urbanv/s1-2.jpg', tools:['Figma','Photoshop'],
           text:'A thorough brandbook organising and directing the new system, from every touchpoint to every use case, digital or physical.' },
-        { label:'Brand Pack', src:'work/urbanv/s1-3.mp4',
+        { label:'Brand Pack', src:'work/urbanv/s1-3.mp4', tools:['Figma','Illustrator'],
           text:'A refreshed logo, an enhanced colour palette, a subtle new pattern and gradient language, paired with strong type and the supporting assets that make a brand feel alive.' },
       ]},
       { name:'Advertising &amp; Merchandising', slides:[
-        { label:'Business Cards', src:'work/urbanv/s2-1.jpg',
+        { label:'Business Cards', src:'work/urbanv/s2-1.jpg', tools:['Figma','Illustrator'],
           text:'Business cards carrying the gradient across both faces. The first physical thing anyone in the network actually holds.' },
-        { label:'Brochure', src:'work/urbanv/s2-2.jpg',
+        { label:'Brochure', src:'work/urbanv/s2-2.jpg', tools:['Figma','Illustrator'],
           text:'Triple-fold brochures built to carry the offer, the partners and the destinations in one foldable story.' },
-        { label:'Billboards', src:'work/urbanv/s2-3.jpg',
+        { label:'Billboards', src:'work/urbanv/s2-3.jpg', tools:['Figma','Illustrator'],
           text:'Large-format billboards and building wraps that take the identity off the page and onto the skyline.' },
-        { label:'Stendardo', src:'work/urbanv/s2-4.mp4',
+        { label:'Stendardo', src:'work/urbanv/s2-4.mp4', tools:['Figma','Illustrator'],
           text:'A run of vertical banners for airports and events, co-branded across the partners the network flies with.' },
-        { label:'Totem', src:'work/urbanv/s2-5.mp4',
+        { label:'Totem', src:'work/urbanv/s2-5.mp4', tools:['Figma','Illustrator'],
           text:'Free-standing totems and exhibition panels for trade shows and sandbox sites, each one a self-contained explainer.' },
       ]},
       { name:'Socials', slides:[
-        { label:'LinkedIn', src:'work/urbanv/s3-1.jpg',
+        { label:'LinkedIn', src:'work/urbanv/s3-1.jpg', tools:['Figma'],
           text:'The LinkedIn presence rebuilt on the new system: cover, avatar and a post grid that finally reads as one company.' },
-        { label:'Informative Pills', src:'work/urbanv/s3-2.mp4',
+        { label:'Informative Pills', src:'work/urbanv/s3-2.mp4', tools:['Figma'],
           text:'Informative pills, a rolling series answering the questions the category keeps getting asked: eVTOL, BVLOS, eSTOL, regulatory sandbox.' },
-        { label:'Presentation Template', src:'work/urbanv/s3-3.jpg',
+        { label:'Presentation Template', src:'work/urbanv/s3-3.jpg', tools:['PowerPoint','Figma'],
           text:'A master deck template, so anyone in the company can build a presentation that stays on brand without a designer in the room.' },
-        { label:'Environment', src:'work/urbanv/s3-4.jpg',
+        { label:'Environment', src:'work/urbanv/s3-4.jpg', tools:['Higgsfield: ChatGPT Imagen 2, Google Nano Banana Pro','Figma'],
           text:'Signage and desk collateral, bringing the identity into the office itself.' },
       ]},
     ]
@@ -2099,17 +2522,17 @@ const AD_WORK = {
     client : 'LUCA MENTI',
     sections: [
       { name:'Brand System', slides:[
-        { label:'Brand Identity', src:'work/lucamenti/s1-1.mp4',
+        { label:'Brand Identity', src:'work/lucamenti/s1-1.mp4', tools:['Figma','Illustrator','Photoshop'],
           text:'It began with a handful of reel covers. It grew into a full brand design system: the website, the merchandise, the books, the social assets, and most of what now carries his name.' },
-        { label:'AI Asset Generation', src:'work/lucamenti/s1-2.mp4',
+        { label:'AI Asset Generation', src:'work/lucamenti/s1-2.mp4', tools:['Leonardo AI','Nano Banana'],
           text:'A speaker booked solid rarely has a free afternoon for a photoshoot, so we built him a library instead. Generating his visual assets with AI kept the supply constant and the quality where the brand needed it.' },
-        { label:'Workshops &amp; Campaigns', src:'work/lucamenti/s1-3.mp4',
+        { label:'Workshops &amp; Campaigns', src:'work/lucamenti/s1-3.mp4', tools:['Figma'],
           text:'Webpages, emails, posts, adverts, workbooks, totems, backdrops. Every pixel curated with attention and a bit of flair, so Luca could do what he does best and leave the rest in safe hands. Twelve workshops and campaigns and counting.' },
       ]},
       { name:'Advertising &amp; Social', slides:[
-        { label:'Ads', src:'work/lucamenti/s2-1.mp4',
+        { label:'Ads', src:'work/lucamenti/s2-1.mp4', tools:['Figma'],
           text:'Campaign creative written, adapted and tested for an Italian audience, in every format the placement asked for.' },
-        { label:'Social Media', src:'work/lucamenti/s2-2.mp4',
+        { label:'Social Media', src:'work/lucamenti/s2-2.mp4', tools:['Figma','Premiere Pro'],
           text:'Every asset drawn from the same design system, so the visual language stays instantly his: easy to recall, easy to recognise, wherever his audience meets it.' },
       ]},
       { name:'Digital Ecosystem', slides:[
@@ -2134,17 +2557,17 @@ const AD_WORK = {
     client : 'SPORTING55',
     sections: [
       { name:'Identity &amp; Art Direction', slides:[
-        { label:'Brand Identity', src:'work/sporting55/s1-1.mp4',
+        { label:'Brand Identity', src:'work/sporting55/s1-1.mp4', tools:['Figma'],
           text:'A simple logo refresh, or so the brief said. It grew into the whole identity: typography, the payoff, a palette that stretches to every sport on the campus, and a pattern system quietly keeping Life in Motion in motion.' },
-        { label:'Social Media', src:'work/sporting55/s1-2.mp4',
+        { label:'Social Media', src:'work/sporting55/s1-2.mp4', tools:['Figma','Higgsfield: Nano Banana'],
           text:'A full overhaul of the feed, built on a visual language that lets Sporting55 walk onto the field as the sports-chic one and look the part.' },
-        { label:'Sports Identity', src:'work/sporting55/s1-3.mp4',
+        { label:'Sports Identity', src:'work/sporting55/s1-3.mp4', tools:['Figma'],
           text:'Every sport on the campus was given its own art direction. Calcio, padel and tennis each read differently on the page, and every one of them reads as Sporting55.' },
       ]},
       { name:'Merchandise &amp; Print', slides:[
-        { label:'Merch', src:'work/sporting55/s2-1.mp4',
+        { label:'Merch', src:'work/sporting55/s2-1.mp4', tools:['Photoshop','Illustrator','Figma'],
           text:'From letterheads to wristbands and everything in between. The pattern works as hard on fabric as it does on paper.' },
-        { label:'Prints', src:'work/sporting55/s2-2.mp4',
+        { label:'Prints', src:'work/sporting55/s2-2.mp4', tools:['Figma','Illustrator'],
           text:'Large-format prints, sized to be read from across the pitch and detailed enough to hold up close.' },
       ]},
     ]
@@ -2155,25 +2578,25 @@ const AD_WORK = {
     client : 'LUNAR S.R.L.S',
     sections: [
       { name:'Foundations', slides:[
-        { label:'Launch Video', src:'work/lunar/s1-1.mp4',
+        { label:'Launch Video', src:'work/lunar/s1-1.mp4', tools:['Higgsfield: Seedance 2.0, ChatGPT Imagen','Premiere Pro'],
           text:'The film that lays out the core idea and the visual identity of Lunar, a brand identity company that has already made it to the moon. Your turn next.' },
-        { label:'Brand Book', src:'work/lunar/s1-2.mp4',
+        { label:'Brand Book', src:'work/lunar/s1-2.mp4', tools:['Figma'],
           text:'From colour to typography. From phone to billboard. From social media to conversion funnels. From decks to trailers. Every rule, every boundary, and every horizon put there to be crossed.' },
-        { label:'AI Asset Library', src:'work/lunar/s1-3.mp4',
+        { label:'AI Asset Library', src:'work/lunar/s1-3.mp4', tools:['Higgsfield: Nano Banana 2, ChatGPT Imagen 2'],
           text:'An enormous library of generated visuals, deep enough that it starts to feel like there really is a branding station up on the moon.' },
       ]},
       { name:'Design Toolkit', slides:[
-        { label:'Patterns &amp; Textures', src:'work/lunar/s2-1.mp4',
+        { label:'Patterns &amp; Textures', src:'work/lunar/s2-1.mp4', tools:['Illustrator','Higgsfield: Nano Banana 2'],
           text:'The details nobody consciously notices. Your eye registers them anyway, and it has made up its mind long before you catch up.' },
-        { label:'Visual Elements', src:'work/lunar/s2-2.mp4',
+        { label:'Visual Elements', src:'work/lunar/s2-2.mp4', tools:['Figma','Magnific AI'],
           text:'Elements are the accessories of a brand identity. Small parts, quietly doing more work than they get credit for.' },
-        { label:'Mockup Templates', src:'work/lunar/s2-3.mp4',
+        { label:'Mockup Templates', src:'work/lunar/s2-3.mp4', tools:['Higgsfield: ChatGPT Imagen 2'],
           text:'How things are seen, and how they are shown, up on the moon.' },
       ]},
       { name:'Social &amp; Environment', slides:[
-        { label:'Social Media', src:'work/lunar/s3-1.mp4',
+        { label:'Social Media', src:'work/lunar/s3-1.mp4', tools:['Figma','Claude MCP'],
           text:'The output of a meticulously built design system, made so the brand is felt, seen and heard whichever touchpoint you happen to land on.' },
-        { label:'Backdrops', src:'work/lunar/s3-2.mp4',
+        { label:'Backdrops', src:'work/lunar/s3-2.mp4', tools:['Figma','Nano Banana 2'],
           text:'The silent E is for elegance. Backdrops for every occasion.' },
       ]},
     ]
@@ -2184,9 +2607,9 @@ const AD_WORK = {
     client : 'ILLY CAFFÈ - BLEND',
     sections: [
       { name:'Development &amp; Pitch', slides:[
-        { label:'Pitch Deck', src:'work/blend/s1-1.mp4',
+        { label:'Pitch Deck', src:'work/blend/s1-1.mp4', tools:['Figma'],
           text:'Imagine Central Perk with an Italian accent. The brief was an investor deck, but getting there meant building the series first: script to characters, characters to imagery, imagery to a visual identity the whole pitch could stand on.' },
-        { label:'Asset Generation', src:'work/blend/s1-2.mp4',
+        { label:'Asset Generation', src:'work/blend/s1-2.mp4', tools:['Leonardo AI'],
           text:'A visual library built to cover all of it. Sets, locations, characters, the emotions on their faces, the stories they carry, and everything in between.' },
       ]},
     ]
@@ -2197,9 +2620,9 @@ const AD_WORK = {
     client : 'THE TIMELESS RIDE',
     sections: [
       { name:'Identity &amp; Platform', slides:[
-        { label:'Brand &amp; Pitch', src:'work/timelessride/s1-1.mp4',
+        { label:'Brand &amp; Pitch', src:'work/timelessride/s1-1.mp4', tools:['Figma','Nano Banana'],
           text:'Thirteen years on the road, read, felt and distilled into a colour palette, a type pairing and a way of telling the story. All of it folded into a deck built to convince investors.' },
-        { label:'Website', src:'work/timelessride/s1-2.mp4',
+        { label:'Website', src:'work/timelessride/s1-2.mp4', tools:['Figma','Photoshop'],
           text:'Where the documentary actually lives. The trailer, the route, the riders and the reasons they left, laid out so a visitor can fall into the story and an investor can find the deck.' },
       ]},
     ]
