@@ -1951,19 +1951,14 @@ function ensureShopSync(){
 }
 
 // ── Newsletter ───────────────────────────────────────────────────────────────
-// Signups go straight into Shopify's customer list, marked as accepting email
-// marketing, so they appear in Shopify Email with nothing else to run. It uses
-// the same public Storefront token as the shop. Shopify only offers this through
-// customerCreate, which insists on a password, so each signup gets a long random
-// one that is never shown, stored or sent anywhere else. The store runs Shopify's
-// passwordless customer accounts, so nobody ever signs in with it.
-const NEWSLETTER_SIGNUP = `mutation Subscribe($input: CustomerCreateInput!) {
-  customerCreate(input: $input) { customer { id } customerUserErrors { code field message } }
-}`;
-function throwawayPassword(){
-  return Array.from(crypto.getRandomValues(new Uint8Array(24)),
-                    b => b.toString(16).padStart(2, '0')).join('');
-}
+// Signups go into Shopify's customer list as a plain customer with email
+// marketing switched on: no account, no password, nothing to sign in to. Only
+// Shopify's Admin API can do that, and its credentials must never reach a
+// browser, so the form posts to a tiny relay (a Cloudflare Worker, source in
+// tools/newsletter-worker.js) that holds them and makes the call.
+// While this is empty the form does NOT pretend to subscribe anyone: it hands off
+// to email instead, so nobody is told they joined a list they are not on.
+const NEWSLETTER_API = '';
 
 // Your VAT number (P.IVA). Italian law requires it on the website of anyone who
 // has one (DPR 633/1972, art. 35), so once you are registered put it here and it
@@ -2030,25 +2025,31 @@ function wireNewsletter(form){
     // addresses out of the list and away from Shopify Email's sender reputation.
     if(form.querySelector('.nl-hp').value){ done(); return; }
 
+    if(!NEWSLETTER_API){
+      say('Opening your email app, send it and I\'ll add you by hand.');
+      window.location.href = 'mailto:hey@yuvistark.com'
+        + '?subject=' + encodeURIComponent('Subscribe to studio updates')
+        + '&body='    + encodeURIComponent('Please add ' + email + ' to the mailing list.');
+      return;
+    }
+
     const btn = form.querySelector('button');
     btn.disabled = true; btn.textContent = 'SENDING…';
     const retry = msg => { btn.disabled = false; btn.textContent = 'SUBSCRIBE'; say(msg, true); };
     try {
-      const data = await shopifyQuery(NEWSLETTER_SIGNUP,
-        { input: { email, password: throwawayPassword(), acceptsMarketing: true } });
-      const err = ((data && data.customerCreate && data.customerCreate.customerUserErrors) || [])[0];
-      if(!err){ done(); return; }
-      // An address that already belongs to a customer, a past buyer say, cannot be
-      // switched on from here without them signing in, and "you're on the list"
-      // would not be true. So say what happened and how to fix it.
-      if(err.code === 'TAKEN')
-        retry('That email already has an account with the shop, so I can\'t add it from here. Write to hey@yuvistark.com and I\'ll switch updates on.');
-      else if((err.field || []).includes('email'))
-        retry('That email doesn\'t look right, please check it.');
-      else
-        retry('Something went wrong, email hey@yuvistark.com and I\'ll add you.');
+      const res  = await fetch(NEWSLETTER_API, {
+        method : 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body   : JSON.stringify({ email, consent: true })
+      });
+      const json = await res.json().catch(() => ({}));
+      // An address that already belongs to a customer, a past buyer say, is simply
+      // switched on, so "on the list" is true in both cases.
+      if(res.ok && json.ok){ done(); return; }
+      if(json.error === 'invalid_email') retry('That email doesn\'t look right, please check it.');
+      else retry('Something went wrong, email hey@yuvistark.com and I\'ll add you.');
     } catch(e){
-      // Shopify unreachable, or throttling a burst of signups
+      // relay unreachable, or Shopify throttling a burst of signups
       retry('Something went wrong, email hey@yuvistark.com and I\'ll add you.');
     }
   });
