@@ -536,6 +536,7 @@
       padding:13px 18px; border:1px solid #e3e3e3; border-radius:100px; outline:none; color:#0a0a0a; }
     .nl-form input:focus { border-color:#0a0a0a; }
     .nl-ok { font-family:'Montserrat',sans-serif; font-size:13px; opacity:0.6; }
+    .nl-hp { position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
 
     /* newsletter consent + states */
     .nl-consent { display:flex; gap:9px; align-items:flex-start; max-width:430px;
@@ -1194,9 +1195,8 @@
       <section class="legal-sec" id="legal-privacy">
       <div class="l10n" lang="en">
         <h1>Privacy Policy</h1>
-        <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
-        <div class="todo"><b>Before selling:</b> replace the [SQUARE BRACKETS]. When you connect a
-          newsletter provider, add its name in section 5.</div>
+        <div class="upd">LAST UPDATED 12 SEPTEMBER 2026</div>
+        <div class="todo"><b>Before selling:</b> replace the [SQUARE BRACKETS].</div>
 
         <h2>1. WHO IS RESPONSIBLE</h2>
         <p>The data controller is [LEGAL NAME], [REGISTERED ADDRESS], Italy, VAT number [P.IVA],
@@ -1223,9 +1223,9 @@
             details go directly to Shopify&rsquo;s payment partners and are never seen or stored by
             us. Basis: performing our contract with you (art. 6(1)(b)), and our legal obligations
             under Italian tax and accounting law (art. 6(1)(c)).</li>
-          <li><b>Joining the mailing list.</b> Your email address, and the date and means of your
-            consent. Basis: your consent (art. 6(1)(a)), which you can withdraw at any time using the
-            unsubscribe link in every email.</li>
+          <li><b>Joining the mailing list.</b> Your email address, kept in our Shopify customer list
+            with the date and means of your consent. Basis: your consent (art. 6(1)(a)), which you
+            can withdraw at any time using the unsubscribe link in every email, or by writing to us.</li>
           <li><b>Writing to us.</b> Whatever you choose to include. Basis: our legitimate interest in
             answering you, or steps you ask us to take before a contract (art. 6(1)(b) and (f)).</li>
         </ul>
@@ -1236,14 +1236,13 @@
           an email address.</p>
 
         <h2>5. WHO ELSE RECEIVES IT</h2>
-        <p>We share data only with the providers we need. GitHub, Shopify and our mailing list
-          provider process it on our behalf, under a data processing agreement. The courier and our
+        <p>We share data only with the providers we need. GitHub and Shopify, which also runs our
+          mailing list, process it on our behalf, under a data processing agreement. The courier and our
           accountant receive only what they need to deliver your order and keep our accounts.</p>
         <ul>
           <li>GitHub, Inc. (website hosting), United States.</li>
-          <li>Shopify International Limited (shop, checkout and orders), Ireland, with processing in
-            Canada and elsewhere.</li>
-          <li>[EMAIL PROVIDER] (mailing list), once connected.</li>
+          <li>Shopify International Limited (shop, checkout, orders and mailing list), Ireland, with
+            processing in Canada and elsewhere.</li>
           <li>The courier delivering your order, which receives your name, address and phone number.</li>
           <li>Our accountant, for tax and bookkeeping.</li>
         </ul>
@@ -1292,9 +1291,8 @@
 
       <div class="l10n" lang="it">
         <h1>Informativa sulla Privacy</h1>
-        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
-        <div class="todo"><b>Prima di vendere:</b> sostituire le [PARENTESI QUADRE]. Una volta scelto il
-          fornitore della newsletter, indicarne il nome nella sezione 5.</div>
+        <div class="upd">ULTIMO AGGIORNAMENTO 12 SETTEMBRE 2026</div>
+        <div class="todo"><b>Prima di vendere:</b> sostituire le [PARENTESI QUADRE].</div>
 
         <h2>1. TITOLARE DEL TRATTAMENTO</h2>
         <p>Il titolare del trattamento è [LEGAL NAME], [REGISTERED ADDRESS], Italia, Partita IVA
@@ -1324,9 +1322,10 @@
             Shopify e non vengono mai visti né conservati da noi. Base giuridica: l’esecuzione del
             contratto (art. 6, par. 1, lett. b) e l’adempimento degli obblighi di legge in materia
             fiscale e contabile (art. 6, par. 1, lett. c).</li>
-          <li><b>Iscrizione alla newsletter.</b> Il Suo indirizzo email e la data e le modalità del
-            consenso. Base giuridica: il Suo consenso (art. 6, par. 1, lett. a), revocabile in
-            qualsiasi momento tramite il link di disiscrizione presente in ogni email.</li>
+          <li><b>Iscrizione alla newsletter.</b> Il Suo indirizzo email, conservato nell’elenco clienti
+            di Shopify insieme alla data e alle modalità del consenso. Base giuridica: il Suo consenso
+            (art. 6, par. 1, lett. a), revocabile in qualsiasi momento tramite il link di disiscrizione
+            presente in ogni email o scrivendoci.</li>
           <li><b>Contatti via email.</b> Quanto sceglie di includere. Base giuridica: il nostro
             legittimo interesse a risponderLe, o misure precontrattuali adottate su Sua richiesta
             (art. 6, par. 1, lett. b e f).</li>
@@ -1338,15 +1337,14 @@
           newsletter è sufficiente l’indirizzo email.</p>
 
         <h2>5. DESTINATARI DEI DATI</h2>
-        <p>Condividiamo i dati solo con i fornitori necessari. GitHub, Shopify e il fornitore della
-          newsletter li trattano per nostro conto, in qualità di responsabili del trattamento, sulla
+        <p>Condividiamo i dati solo con i fornitori necessari. GitHub e Shopify, che gestisce anche la
+          newsletter, li trattano per nostro conto, in qualità di responsabili del trattamento, sulla
           base di un accordo sul trattamento dei dati. Il corriere e il nostro commercialista ricevono
           solo quanto necessario a consegnare l’ordine e a tenere la contabilità.</p>
         <ul>
           <li>GitHub, Inc. (hosting del sito), Stati Uniti.</li>
-          <li>Shopify International Limited (shop, checkout e ordini), Irlanda, con trattamenti in
-            Canada e altrove.</li>
-          <li>[EMAIL PROVIDER] (newsletter), una volta attivato.</li>
+          <li>Shopify International Limited (shop, checkout, ordini e newsletter), Irlanda, con
+            trattamenti in Canada e altrove.</li>
           <li>Il corriere che consegna l’ordine, che riceve nome, indirizzo e numero di telefono.</li>
           <li>Il nostro commercialista, per gli adempimenti fiscali e contabili.</li>
         </ul>
@@ -1953,16 +1951,19 @@ function ensureShopSync(){
 }
 
 // ── Newsletter ───────────────────────────────────────────────────────────────
-// ▼▼ PASTE YOUR PROVIDER'S FORM ENDPOINT HERE TO MAKE SIGNUPS REAL ▼▼
-//  Mailchimp : Audience → Signup forms → Embedded form → copy the <form action="...">
-//              e.g. https://yuvistark.us21.list-manage.com/subscribe/post?u=abc&id=def
-//              …and leave NEWSLETTER_FIELD as 'EMAIL'
-//  Buttondown: https://buttondown.email/api/emails/embed-subscribe/<your-username>
-//              …and set NEWSLETTER_FIELD to 'email'
-// While this is empty the form does NOT pretend to subscribe anyone — it hands off
-// to email instead, so nobody is told they joined a list that doesn't exist.
-const NEWSLETTER_ENDPOINT = '';
-const NEWSLETTER_FIELD    = 'EMAIL';
+// Signups go straight into Shopify's customer list, marked as accepting email
+// marketing, so they appear in Shopify Email with nothing else to run. It uses
+// the same public Storefront token as the shop. Shopify only offers this through
+// customerCreate, which insists on a password, so each signup gets a long random
+// one that is never shown, stored or sent anywhere else. The store runs Shopify's
+// passwordless customer accounts, so nobody ever signs in with it.
+const NEWSLETTER_SIGNUP = `mutation Subscribe($input: CustomerCreateInput!) {
+  customerCreate(input: $input) { customer { id } customerUserErrors { code field message } }
+}`;
+function throwawayPassword(){
+  return Array.from(crypto.getRandomValues(new Uint8Array(24)),
+                    b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Your VAT number (P.IVA). Italian law requires it on the website of anyone who
 // has one (DPR 633/1972, art. 35), so once you are registered put it here and it
@@ -1975,6 +1976,7 @@ function newsletterHTML(id){
     <p>New originals, studio releases and first access to drops, occasionally, never spam.</p>
     <form class="nl-form" id="${id}" novalidate>
       <input type="email" required placeholder="your@email.com" aria-label="Email address" />
+      <input type="text" class="nl-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       <button type="submit" class="btn-primary">SUBSCRIBE</button>
     </form>
     <label class="nl-consent">
@@ -2008,35 +2010,46 @@ function wireNewsletter(form){
     m.textContent = msg;
   };
 
+  const done = () => {
+    wrap.querySelector('.nl-consent')?.remove();
+    const ok = document.createElement('div');
+    ok.className = 'nl-ok';
+    ok.textContent = `Thanks, ${input.value.trim()} is on the list.`;
+    form.replaceWith(ok);
+    showToast('Subscribed');
+  };
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if(!form.checkValidity()){ form.reportValidity(); return; }
     if(consent && !consent.checked){ say('Please tick the consent box first.', true); return; }
     const email = input.value.trim();
 
-    if(!NEWSLETTER_ENDPOINT){          // not wired up yet — be honest, don't fake it
-      say('Opening your email app, send it and I\'ll add you by hand.');
-      window.location.href = 'mailto:hey@yuvistark.com'
-        + '?subject=' + encodeURIComponent('Subscribe to studio updates')
-        + '&body='    + encodeURIComponent('Please add ' + email + ' to the mailing list.');
-      return;
-    }
+    // A hidden field people never see. Bots fill in every box, so a value here
+    // means a script: it is thanked and nothing is sent, which keeps fake
+    // addresses out of the list and away from Shopify Email's sender reputation.
+    if(form.querySelector('.nl-hp').value){ done(); return; }
 
     const btn = form.querySelector('button');
     btn.disabled = true; btn.textContent = 'SENDING…';
+    const retry = msg => { btn.disabled = false; btn.textContent = 'SUBSCRIBE'; say(msg, true); };
     try {
-      const body = new URLSearchParams();
-      body.set(NEWSLETTER_FIELD, email);
-      // no-cors: the provider's endpoint doesn't send CORS headers, so the browser
-      // hides the response. The request DOES go through — we just can't read the
-      // result, so a rejected address surfaces in the provider's dashboard, not here.
-      await fetch(NEWSLETTER_ENDPOINT, { method:'POST', mode:'no-cors', body });
-      wrap.querySelector('.nl-consent')?.remove();
-      form.outerHTML = `<div class="nl-ok">Thanks, ${email} is on the list.</div>`;
-      showToast('Subscribed');
-    } catch(err){
-      btn.disabled = false; btn.textContent = 'SUBSCRIBE';
-      say('Something went wrong, email hey@yuvistark.com and I\'ll add you.', true);
+      const data = await shopifyQuery(NEWSLETTER_SIGNUP,
+        { input: { email, password: throwawayPassword(), acceptsMarketing: true } });
+      const err = ((data && data.customerCreate && data.customerCreate.customerUserErrors) || [])[0];
+      if(!err){ done(); return; }
+      // An address that already belongs to a customer, a past buyer say, cannot be
+      // switched on from here without them signing in, and "you're on the list"
+      // would not be true. So say what happened and how to fix it.
+      if(err.code === 'TAKEN')
+        retry('That email already has an account with the shop, so I can\'t add it from here. Write to hey@yuvistark.com and I\'ll switch updates on.');
+      else if((err.field || []).includes('email'))
+        retry('That email doesn\'t look right, please check it.');
+      else
+        retry('Something went wrong, email hey@yuvistark.com and I\'ll add you.');
+    } catch(e){
+      // Shopify unreachable, or throttling a burst of signups
+      retry('Something went wrong, email hey@yuvistark.com and I\'ll add you.');
     }
   });
 }
