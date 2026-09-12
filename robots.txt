@@ -58,4 +58,4 @@ Disallow: /
 # Claude-SearchBot, Claude-User, PerplexityBot and similar) fall under the
 # default rule above and stay allowed, so assistants can find and cite the work.
 
-Sitemap: https://yuvistark7.github.io/Yuvi-Stark-s-Website/sitemap.xml
+Sitemap: https://yuvistark.com/sitemap.xml

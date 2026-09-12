@@ -6,12 +6,12 @@ The website is a single page with three horizontal sections: Art Direction on th
 
 ## Paintings
 
-- [Artworks shop](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): original paintings on paper, each one unique and signed, supplied framed, shipped worldwide from Italy. Prices are in euro.
-- [About](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): the artist statement. "I paint what remains when people stop performing: the face beneath the face, the feeling beneath the gesture."
+- [Artworks shop](https://yuvistark.com/): original paintings on paper, each one unique and signed, supplied framed, shipped worldwide from Italy. Prices are in euro.
+- [About](https://yuvistark.com/): the artist statement. "I paint what remains when people stop performing: the face beneath the face, the feeling beneath the gesture."
 
 ## Art direction
 
-- [Art Direction case studies](https://yuvistark7.github.io/Yuvi-Stark-s-Website/): six projects.
+- [Art Direction case studies](https://yuvistark.com/): six projects.
   - UrbanV S.p.A. (2026): brand identity evolution for an advanced air mobility company, with brand book, advertising, merchandising and social content.
   - Luca Menti (2024): full brand system for a motivational speaker, including an AI-generated visual library, website, emails, workshops, books and workbooks.
   - Lunar S.r.l.s. (2026): brand identity for a branding company, with a launch film, brand book, AI asset library and design toolkit.
