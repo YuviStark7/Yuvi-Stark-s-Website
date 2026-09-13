@@ -1195,7 +1195,7 @@
       <section class="legal-sec" id="legal-privacy">
       <div class="l10n" lang="en">
         <h1>Privacy Policy</h1>
-        <div class="upd">LAST UPDATED 12 SEPTEMBER 2026</div>
+        <div class="upd">LAST UPDATED 13 SEPTEMBER 2026</div>
         <div class="todo"><b>Before selling:</b> replace the [SQUARE BRACKETS].</div>
 
         <h2>1. WHO IS RESPONSIBLE</h2>
@@ -1236,13 +1236,15 @@
           an email address.</p>
 
         <h2>5. WHO ELSE RECEIVES IT</h2>
-        <p>We share data only with the providers we need. GitHub and Shopify, which also runs our
-          mailing list, process it on our behalf, under a data processing agreement. The courier and our
+        <p>We share data only with the providers we need. GitHub, Shopify, which also runs our mailing
+          list, and Cloudflare process it on our behalf, under a data processing agreement. The courier and our
           accountant receive only what they need to deliver your order and keep our accounts.</p>
         <ul>
           <li>GitHub, Inc. (website hosting), United States.</li>
           <li>Shopify International Limited (shop, checkout, orders and mailing list), Ireland, with
             processing in Canada and elsewhere.</li>
+          <li>Cloudflare, Inc. (passes mailing list sign-ups on to Shopify and does not store them),
+            United States.</li>
           <li>The courier delivering your order, which receives your name, address and phone number.</li>
           <li>Our accountant, for tax and bookkeeping.</li>
         </ul>
@@ -1291,7 +1293,7 @@
 
       <div class="l10n" lang="it">
         <h1>Informativa sulla Privacy</h1>
-        <div class="upd">ULTIMO AGGIORNAMENTO 12 SETTEMBRE 2026</div>
+        <div class="upd">ULTIMO AGGIORNAMENTO 13 SETTEMBRE 2026</div>
         <div class="todo"><b>Prima di vendere:</b> sostituire le [PARENTESI QUADRE].</div>
 
         <h2>1. TITOLARE DEL TRATTAMENTO</h2>
@@ -1337,14 +1339,16 @@
           newsletter è sufficiente l’indirizzo email.</p>
 
         <h2>5. DESTINATARI DEI DATI</h2>
-        <p>Condividiamo i dati solo con i fornitori necessari. GitHub e Shopify, che gestisce anche la
-          newsletter, li trattano per nostro conto, in qualità di responsabili del trattamento, sulla
+        <p>Condividiamo i dati solo con i fornitori necessari. GitHub, Shopify, che gestisce anche la
+          newsletter, e Cloudflare li trattano per nostro conto, in qualità di responsabili del trattamento, sulla
           base di un accordo sul trattamento dei dati. Il corriere e il nostro commercialista ricevono
           solo quanto necessario a consegnare l’ordine e a tenere la contabilità.</p>
         <ul>
           <li>GitHub, Inc. (hosting del sito), Stati Uniti.</li>
           <li>Shopify International Limited (shop, checkout, ordini e newsletter), Irlanda, con
             trattamenti in Canada e altrove.</li>
+          <li>Cloudflare, Inc. (inoltra a Shopify le iscrizioni alla newsletter e non le conserva),
+            Stati Uniti.</li>
           <li>Il corriere che consegna l’ordine, che riceve nome, indirizzo e numero di telefono.</li>
           <li>Il nostro commercialista, per gli adempimenti fiscali e contabili.</li>
         </ul>
@@ -1958,7 +1962,7 @@ function ensureShopSync(){
 // tools/newsletter-worker.js) that holds them and makes the call.
 // While this is empty the form does NOT pretend to subscribe anyone: it hands off
 // to email instead, so nobody is told they joined a list they are not on.
-const NEWSLETTER_API = '';
+const NEWSLETTER_API = 'https://yuvistark-newsletter.yuvraj11argal.workers.dev/';
 
 // Your VAT number (P.IVA). Italian law requires it on the website of anyone who
 // has one (DPR 633/1972, art. 35), so once you are registered put it here and it
