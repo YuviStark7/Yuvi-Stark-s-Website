@@ -30,17 +30,28 @@ let cached = { token: null, expires: 0 };
 
 async function getToken(env){
   if(cached.token && Date.now() < cached.expires - 60000) return cached.token;
+  // Pasting into the dashboard easily picks up a stray space or line break, which
+  // Shopify then reports as an app it cannot find, so trim before sending.
+  const id     = String(env.SHOPIFY_CLIENT_ID || '').trim();
+  const secret = String(env.SHOPIFY_CLIENT_SECRET || '').trim();
+  if(!id || !secret)
+    throw new Error('token request skipped: SHOPIFY_CLIENT_ID or SHOPIFY_CLIENT_SECRET is not set on this Worker');
   const res = await fetch(`https://${SHOP}/admin/oauth/access_token`, {
     method : 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body   : new URLSearchParams({
-      grant_type   : 'client_credentials',
-      client_id    : env.SHOPIFY_CLIENT_ID,
-      client_secret: env.SHOPIFY_CLIENT_SECRET
-    })
+    body   : new URLSearchParams({ grant_type: 'client_credentials', client_id: id, client_secret: secret })
   });
-  if(!res.ok) throw new Error(`token request failed: ${res.status}`);
+  if(!res.ok){
+    // Shopify answers every failure here with a 400 HTML page whose title names the
+    // cause: "Oauth error application_cannot_be_found" when the Client ID or secret
+    // matches no app, "Oauth error shop_not_permitted" when the app and the store
+    // are not in the same organization. Log that name only, never the page.
+    const text = await res.text().catch(() => '');
+    const why  = (text.match(/Oauth error ([a-z_]+)/i) || text.match(/"error"\s*:\s*"([^"]+)"/) || [])[1] || 'no detail';
+    throw new Error(`token request failed: ${res.status} ${why}`);
+  }
   const json = await res.json();
+  if(!json.access_token) throw new Error('token request failed: no access_token in the reply');
   cached = { token: json.access_token, expires: Date.now() + (json.expires_in || 86399) * 1000 };
   return cached.token;
 }
