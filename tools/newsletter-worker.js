@@ -34,8 +34,15 @@ async function getToken(env){
   // Shopify then reports as an app it cannot find, so trim before sending.
   const id     = String(env.SHOPIFY_CLIENT_ID || '').trim();
   const secret = String(env.SHOPIFY_CLIENT_SECRET || '').trim();
-  if(!id || !secret)
-    throw new Error('token request skipped: SHOPIFY_CLIENT_ID or SHOPIFY_CLIENT_SECRET is not set on this Worker');
+  if(!id || !secret){
+    // Say which one is missing and list the variable NAMES this Worker can see,
+    // never their values, each in quotes so a stray space shows. A misspelt name,
+    // or a secret saved as a build variable (which the running Worker never
+    // receives), is then obvious straight from the log.
+    const missing = [!id && 'SHOPIFY_CLIENT_ID', !secret && 'SHOPIFY_CLIENT_SECRET'].filter(Boolean).join(' and ');
+    const seen    = Object.keys(env || {}).sort().map(k => JSON.stringify(k)).join(', ') || 'none';
+    throw new Error(`token request skipped: ${missing} not set on this Worker (variables it can see: ${seen})`);
+  }
   const res = await fetch(`https://${SHOP}/admin/oauth/access_token`, {
     method : 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
