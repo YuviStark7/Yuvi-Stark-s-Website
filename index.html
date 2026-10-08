@@ -130,6 +130,42 @@
                 font-weight:500; cursor:pointer; transition:color 0.15s ease; }
     .nav-item:hover { color:#fff; }
 
+    /* Cookie banner. Nothing from Meta loads until someone accepts, refusing is
+       the same single click as accepting, and the choice can be changed later on
+       the Cookies page (Garante cookie guidelines, 10 June 2021). It sits below
+       the overlays so reading the policy is never obstructed. */
+    #consent { position:fixed; left:24px; bottom:24px; z-index:440;
+      width:min(360px, calc(100vw - 32px)); background:#0a0a0a; color:rgba(255,255,255,0.75);
+      border-radius:18px; padding:20px 22px 18px; box-shadow:0 10px 40px rgba(0,0,0,0.3);
+      font-family:'Montserrat',sans-serif; font-size:11.5px; line-height:1.75;
+      opacity:0; transform:translateY(12px);
+      transition:opacity 0.5s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    #consent.show { opacity:1; transform:translateY(0); }
+    #consent p { margin-bottom:14px; }
+    #consent .consent-row { display:flex; gap:10px; }
+    /* equal size and weight: refusing must not be the harder button */
+    #consent button { flex:1; font-family:'Montserrat',sans-serif; font-size:9.5px;
+      letter-spacing:0.14em; font-weight:600; padding:11px 10px; border-radius:100px;
+      cursor:pointer; outline:none; transition:background 0.2s ease, border-color 0.2s ease; }
+    #consent .yes { background:#fff; color:#0a0a0a; border:1px solid #fff; }
+    #consent .yes:hover { background:rgba(255,255,255,0.85); }
+    #consent .no { background:none; color:#fff; border:1px solid rgba(255,255,255,0.45); }
+    #consent .no:hover { border-color:#fff; }
+    #consent a { color:#fff; opacity:0.55; text-decoration:underline; text-underline-offset:3px;
+      cursor:pointer; display:inline-block; margin-top:12px; font-size:10px; letter-spacing:0.08em; }
+    #consent a:hover { opacity:0.9; }
+    @media (max-width:640px){
+      /* clear of the location tabs at the bottom of the screen */
+      #consent { left:12px; right:12px; bottom:62px; width:auto; padding:17px 18px 15px; }
+    }
+
+    /* the same choice, reachable for ever after from the Cookies page */
+    .consent-change { display:inline-block; margin-bottom:26px; background:none; color:#0a0a0a;
+      border:1px solid rgba(0,0,0,0.25); border-radius:100px; padding:9px 18px; cursor:pointer;
+      font-family:'Montserrat',sans-serif; font-size:9.5px; letter-spacing:0.14em; font-weight:600;
+      transition:border-color 0.2s ease, background 0.2s ease; }
+    .consent-change:hover { border-color:#0a0a0a; background:rgba(0,0,0,0.04); }
+
     #toast-wrap { position:fixed; bottom:48px; left:50%; transform:translateX(-50%);
                   z-index:600; display:flex; flex-direction:column; gap:8px; align-items:center; }
     .toast { background:#0a0a0a; color:#fff; padding:10px 18px; border-radius:100px;
@@ -800,6 +836,7 @@
   </div>
 </div>
 
+<div id="consent" role="region" aria-label="Cookies" hidden></div>
 <div id="toast-wrap"></div>
 
 <div id="progress-wrap">
@@ -1195,7 +1232,7 @@
       <section class="legal-sec" id="legal-privacy">
       <div class="l10n" lang="en">
         <h1>Privacy Policy</h1>
-        <div class="upd">LAST UPDATED 13 SEPTEMBER 2026</div>
+        <div class="upd">LAST UPDATED 8 OCTOBER 2026</div>
         <div class="todo"><b>Before selling:</b> replace the [SQUARE BRACKETS].</div>
 
         <h2>1. WHO IS RESPONSIBLE</h2>
@@ -1204,9 +1241,10 @@
           for an activity of this size (GDPR, art. 37).</p>
 
         <h2>2. THE SHORT VERSION</h2>
-        <p>This website uses no analytics, no advertising and no tracking of any kind, and it sets no
-          cookies. We collect personal data only when you choose to give it: to buy a work, to join
-          the mailing list, or to write to us. We never sell it.</p>
+        <p>This website uses no analytics, and the only tracking on it is Meta&rsquo;s advertising
+          pixel, which loads only if you accept it in the banner. Decline and nothing is loaded and
+          nothing is set. Apart from that we collect personal data only when you choose to give it: to
+          buy a work, to join the mailing list, or to write to us. We never sell it.</p>
 
         <h2>3. WHAT WE COLLECT, WHY, AND ON WHAT LEGAL BASIS</h2>
         <ul>
@@ -1226,6 +1264,10 @@
           <li><b>Joining the mailing list.</b> Your email address, kept in our Shopify customer list
             with the date and means of your consent. Basis: your consent (art. 6(1)(a)), which you
             can withdraw at any time using the unsubscribe link in every email, or by writing to us.</li>
+          <li><b>Accepting the advertising cookies.</b> If you accept the banner, Meta&rsquo;s pixel
+            sends Meta your IP address, your browser and device details, and the pages you open here.
+            We use it to measure our advertising. Basis: your consent (art. 6(1)(a)), which you can
+            withdraw at any time on the Cookies page.</li>
           <li><b>Writing to us.</b> Whatever you choose to include. Basis: our legitimate interest in
             answering you, or steps you ask us to take before a contract (art. 6(1)(b) and (f)).</li>
         </ul>
@@ -1245,9 +1287,14 @@
             processing in Canada and elsewhere.</li>
           <li>Cloudflare, Inc. (passes mailing list sign-ups on to Shopify and does not store them),
             United States.</li>
+          <li>Meta Platforms Ireland Limited (advertising pixel, only if you accept it), Ireland, with
+            processing in the United States.</li>
           <li>The courier delivering your order, which receives your name, address and phone number.</li>
           <li>Our accountant, for tax and bookkeeping.</li>
         </ul>
+        <p>Meta is not one of our processors. For what its pixel collects and sends we are joint
+          controllers with Meta Platforms Ireland Limited under article 26 GDPR, and it receives
+          nothing at all unless you accept the advertising cookies.</p>
         <p>We never sell, rent or trade your personal data.</p>
 
         <h2>6. TRANSFERS OUTSIDE THE EU</h2>
@@ -1293,7 +1340,7 @@
 
       <div class="l10n" lang="it">
         <h1>Informativa sulla Privacy</h1>
-        <div class="upd">ULTIMO AGGIORNAMENTO 13 SETTEMBRE 2026</div>
+        <div class="upd">ULTIMO AGGIORNAMENTO 8 OTTOBRE 2026</div>
         <div class="todo"><b>Prima di vendere:</b> sostituire le [PARENTESI QUADRE].</div>
 
         <h2>1. TITOLARE DEL TRATTAMENTO</h2>
@@ -1302,9 +1349,11 @@
           dati (DPO), in quanto non richiesto per un’attività di queste dimensioni (GDPR, art. 37).</p>
 
         <h2>2. IN BREVE</h2>
-        <p>Questo sito non utilizza strumenti di analisi, pubblicità né alcuna forma di tracciamento, e
-          non installa cookie. Raccogliamo dati personali solo quando è Lei a fornirceli: per
-          acquistare un’opera, iscriversi alla newsletter o scriverci. Non li vendiamo mai.</p>
+        <p>Questo sito non utilizza strumenti di analisi e l’unico strumento di tracciamento presente è
+          il pixel pubblicitario di Meta, che viene caricato solo se Lei lo accetta nel banner. Se
+          rifiuta, non viene caricato né installato nulla. Per il resto raccogliamo dati personali solo
+          quando è Lei a fornirceli: per acquistare un’opera, iscriversi alla newsletter o scriverci.
+          Non li vendiamo mai.</p>
 
         <h2>3. QUALI DATI, PERCHÉ E SU QUALE BASE GIURIDICA</h2>
         <ul>
@@ -1328,6 +1377,11 @@
             di Shopify insieme alla data e alle modalità del consenso. Base giuridica: il Suo consenso
             (art. 6, par. 1, lett. a), revocabile in qualsiasi momento tramite il link di disiscrizione
             presente in ogni email o scrivendoci.</li>
+          <li><b>Accettazione dei cookie pubblicitari.</b> Se accetta il banner, il pixel di Meta
+            comunica a Meta il Suo indirizzo IP, i dati del browser e del dispositivo e le pagine che
+            apre su questo sito. Li utilizziamo per misurare la nostra pubblicità. Base giuridica: il
+            Suo consenso (art. 6, par. 1, lett. a), revocabile in qualsiasi momento dalla pagina
+            Cookie.</li>
           <li><b>Contatti via email.</b> Quanto sceglie di includere. Base giuridica: il nostro
             legittimo interesse a risponderLe, o misure precontrattuali adottate su Sua richiesta
             (art. 6, par. 1, lett. b e f).</li>
@@ -1349,9 +1403,14 @@
             trattamenti in Canada e altrove.</li>
           <li>Cloudflare, Inc. (inoltra a Shopify le iscrizioni alla newsletter e non le conserva),
             Stati Uniti.</li>
+          <li>Meta Platforms Ireland Limited (pixel pubblicitario, solo se lo accetta), Irlanda, con
+            trattamenti negli Stati Uniti.</li>
           <li>Il corriere che consegna l’ordine, che riceve nome, indirizzo e numero di telefono.</li>
           <li>Il nostro commercialista, per gli adempimenti fiscali e contabili.</li>
         </ul>
+        <p>Meta non è un responsabile del trattamento. Per i dati raccolti e trasmessi dal suo pixel
+          siamo contitolari del trattamento con Meta Platforms Ireland Limited ai sensi dell’art. 26
+          GDPR, e Meta non riceve alcunché se Lei non accetta i cookie pubblicitari.</p>
         <p>Non vendiamo, noleggiamo né cediamo in alcun modo i Suoi dati personali.</p>
 
         <h2>6. TRASFERIMENTI AL DI FUORI DELL’UE</h2>
@@ -1403,71 +1462,124 @@
       <section class="legal-sec" id="legal-cookies">
       <div class="l10n" lang="en">
         <h1>Cookie Policy</h1>
-        <div class="upd">LAST UPDATED 11 SEPTEMBER 2026</div>
+        <div class="upd">LAST UPDATED 8 OCTOBER 2026</div>
+        <button type="button" class="consent-change">CHANGE YOUR COOKIE CHOICE</button>
 
         <h2>THE SHORT VERSION</h2>
-        <p><b>This website sets no cookies and stores nothing on your device.</b> There is no
-          analytics, no advertising, no social media tracking and no third-party content that could
-          follow you around. That is why you have not been shown a cookie banner: under article 122
-          of the Italian Privacy Code and the Italian Data Protection Authority&rsquo;s guidelines on
-          cookies of 10 June 2021, consent is needed only for cookies and similar technologies that
-          are not strictly necessary, and this website uses none at all.</p>
+        <p><b>Nothing is set on your device until you choose it.</b> This website has no analytics, no
+          social media buttons and no third-party content that could follow you around. One thing asks
+          for your consent: Meta&rsquo;s advertising pixel, which tells us which of our adverts brought
+          someone here. It loads only if you accept it in the banner, and refusing takes the same
+          single click as accepting. Under article 122 of the Italian Privacy Code and the Italian Data
+          Protection Authority&rsquo;s guidelines on cookies of 10 June 2021, consent must be given
+          before anything that is not strictly necessary is set.</p>
 
-        <h2>WHAT HAPPENS INSTEAD</h2>
+        <h2>IF YOU ACCEPT</h2>
+        <p>Meta&rsquo;s pixel loads and sets two cookies in this browser:</p>
         <ul>
+          <li><b>_fbp</b>, set by this website for up to 90 days, which gives your browser an
+            identifier Meta can recognise.</li>
+          <li><b>_fbc</b>, for up to 90 days, and only if you arrived from a Meta advert, which
+            records which advert it was.</li>
+        </ul>
+        <p>Meta also receives your IP address, your browser and device details, the pages you open
+          here, and the moments you open an artwork or add one to your bag. We use this to measure our
+          advertising. For that collection and transmission we and Meta Platforms Ireland Limited are
+          joint controllers; what Meta does with the data afterwards is governed by its own privacy
+          policy (facebook.com/privacy/policy). Legal basis: your consent.</p>
+
+        <h2>IF YOU DECLINE, OR DO NOTHING</h2>
+        <p>The pixel is never loaded and no advertising cookie is set. The website works exactly the
+          same, and Meta is told nothing.</p>
+
+        <h2>WHAT HAPPENS EITHER WAY</h2>
+        <ul>
+          <li><b>Your choice</b> is kept in this browser&rsquo;s local storage under the name
+            <b>ys-consent</b> for six months, so that you are not asked again on every visit. Keeping
+            a record of your answer is strictly necessary in order to respect it, so it needs no
+            consent of its own. Clearing your browser data clears it, and we ask again.</li>
           <li><b>Fonts</b> are served from this website itself, not from Google or any other third
             party.</li>
           <li><b>Your bag</b> is held in the page&rsquo;s memory while it is open, and is gone when
-            you close or reload it. Nothing is written to your device.</li>
+            you close or reload it.</li>
           <li><b>Your language choice</b> on these pages follows your browser, and is not saved.</li>
           <li><b>Images and videos</b> may be cached by your browser so they load faster. That is an
             ordinary browser function you control, not a tracking technology.</li>
         </ul>
 
+        <h2>CHANGING YOUR MIND</h2>
+        <p>Use the button at the top of this page, at any time. If you had accepted, declining deletes
+          Meta&rsquo;s cookies from this browser and reloads the page, so the pixel stops at once.</p>
+
         <h2>CHECKOUT</h2>
         <p>When you go to checkout you leave this website for a checkout page run by Shopify. Shopify
-          sets its own cookies there, which it needs to process your order and payment. Those are
+          sets its own cookies there, which it needs in order to process your order and payment, and it
+          may run its own advertising pixel subject to the choice offered on those pages. Those are
           governed by Shopify&rsquo;s own cookie policy (www.shopify.com/legal/cookies).</p>
-
-        <h2>IF THIS EVER CHANGES</h2>
-        <p>If we ever add analytics or anything else that needs your consent, we will ask for it
-          before anything is set, give you an equally easy way to refuse, and update this page.</p>
       </div>
 
       <div class="l10n" lang="it">
         <h1>Informativa sui Cookie</h1>
-        <div class="upd">ULTIMO AGGIORNAMENTO 11 SETTEMBRE 2026</div>
+        <div class="upd">ULTIMO AGGIORNAMENTO 8 OTTOBRE 2026</div>
+        <button type="button" class="consent-change">MODIFICA LA SUA SCELTA SUI COOKIE</button>
 
         <h2>IN BREVE</h2>
-        <p><b>Questo sito non installa cookie e non memorizza nulla sul Suo dispositivo.</b> Non sono
-          presenti strumenti di analisi, pubblicità, tracciamento dei social media né contenuti di terze
-          parti in grado di seguirLa. Per questo non Le è stato mostrato alcun banner sui cookie: ai
+        <p><b>Nulla viene installato sul Suo dispositivo senza una Sua scelta.</b> Questo sito non
+          utilizza strumenti di analisi, pulsanti dei social media né contenuti di terze parti in grado
+          di seguirLa. Un solo strumento richiede il Suo consenso: il pixel pubblicitario di Meta, che
+          ci indica quale delle nostre inserzioni ha portato una persona fin qui. Viene caricato solo
+          se lo accetta nel banner, e rifiutare richiede lo stesso identico clic che accettare. Ai
           sensi dell’articolo 122 del Codice in materia di protezione dei dati personali e delle Linee
           guida del Garante per la protezione dei dati personali sui cookie del 10 giugno 2021, il
-          consenso è richiesto solo per i cookie e le tecnologie analoghe non strettamente necessari, e
-          questo sito non ne utilizza alcuno.</p>
+          consenso deve essere prestato prima che venga installato qualsiasi strumento non strettamente
+          necessario.</p>
 
-        <h2>COSA SUCCEDE INVECE</h2>
+        <h2>SE ACCETTA</h2>
+        <p>Il pixel di Meta viene caricato e installa due cookie in questo browser:</p>
         <ul>
+          <li><b>_fbp</b>, installato da questo sito per un massimo di 90 giorni, che assegna al Suo
+            browser un identificativo riconoscibile da Meta.</li>
+          <li><b>_fbc</b>, per un massimo di 90 giorni e solo se è arrivato da un’inserzione Meta, che
+            registra di quale inserzione si trattava.</li>
+        </ul>
+        <p>Meta riceve inoltre il Suo indirizzo IP, i dati del browser e del dispositivo, le pagine che
+          apre su questo sito e i momenti in cui apre un’opera o la aggiunge al carrello. Li
+          utilizziamo per misurare la nostra pubblicità. Per questa raccolta e trasmissione siamo
+          contitolari del trattamento insieme a Meta Platforms Ireland Limited; quanto Meta fa
+          successivamente con i dati è disciplinato dalla sua informativa
+          (facebook.com/privacy/policy). Base giuridica: il Suo consenso.</p>
+
+        <h2>SE RIFIUTA, O NON SCEGLIE</h2>
+        <p>Il pixel non viene mai caricato e nessun cookie pubblicitario viene installato. Il sito
+          funziona esattamente allo stesso modo e a Meta non viene comunicato nulla.</p>
+
+        <h2>COSA ACCADE IN OGNI CASO</h2>
+        <ul>
+          <li><b>La Sua scelta</b> è conservata nella memoria locale di questo browser con il nome
+            <b>ys-consent</b> per sei mesi, così da non doverLe chiedere nulla a ogni visita.
+            Conservare traccia della Sua risposta è strettamente necessario per rispettarla e non
+            richiede quindi un consenso autonomo. Cancellando i dati del browser la scelta viene
+            eliminata e Le verrà chiesto di nuovo.</li>
           <li><b>I caratteri tipografici</b> sono forniti direttamente da questo sito, non da Google né
             da altre terze parti.</li>
           <li><b>Il Suo carrello</b> è conservato nella memoria della pagina finché resta aperta e
-            scompare quando la chiude o la ricarica. Nulla viene scritto sul Suo dispositivo.</li>
+            scompare quando la chiude o la ricarica.</li>
           <li><b>La lingua</b> di queste pagine segue quella del Suo browser e non viene salvata.</li>
           <li><b>Immagini e video</b> possono essere memorizzati nella cache del browser per caricarsi
             più velocemente. Si tratta di una normale funzione del browser, sotto il Suo controllo, e
             non di una tecnologia di tracciamento.</li>
         </ul>
 
+        <h2>MODIFICARE LA PROPRIA SCELTA</h2>
+        <p>Utilizzi il pulsante in cima a questa pagina, in qualsiasi momento. Se aveva accettato, il
+          rifiuto elimina i cookie di Meta da questo browser e ricarica la pagina, così il pixel si
+          ferma immediatamente.</p>
+
         <h2>CHECKOUT</h2>
         <p>Quando procede al checkout lascia questo sito per una pagina di pagamento gestita da Shopify.
-          Shopify vi installa i propri cookie, necessari per elaborare l’ordine e il pagamento, che sono
-          disciplinati dalla sua cookie policy (www.shopify.com/legal/cookies).</p>
-
-        <h2>SE QUALCOSA CAMBIASSE</h2>
-        <p>Qualora in futuro aggiungessimo strumenti di analisi o altre tecnologie che richiedono il
-          consenso, Le chiederemo il consenso prima di installare qualsiasi elemento, offrendoLe un modo
-          altrettanto semplice per rifiutare, e aggiorneremo questa pagina.</p>
+          Shopify vi installa i propri cookie, necessari per elaborare l’ordine e il pagamento, e può
+          utilizzare un proprio pixel pubblicitario in base alla scelta che Le viene offerta su quelle
+          pagine. Sono disciplinati dalla sua cookie policy (www.shopify.com/legal/cookies).</p>
       </div>
       </section>
 
@@ -1814,6 +1926,90 @@ function pulseIsland(){
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 const toastWrap = document.getElementById('toast-wrap');
+// ── Cookies, consent, and the Meta pixel it gates ─────────────────────────────
+// Nothing from Meta is loaded and no advertising cookie is set until someone
+// accepts. Article 122 of the Codice Privacy and the Garante's cookie guidelines
+// of 10 June 2021 want consent BEFORE anything not strictly necessary is set,
+// refusing to be as easy as accepting, and the choice to be changeable later.
+// The answer itself is kept in localStorage, which is strictly necessary in order
+// to honour it, and is the only thing this site ever writes to a device.
+const PIXEL_ID       = '1130133009967899';
+const CONSENT_KEY    = 'ys-consent';
+const CONSENT_MONTHS = 6;          // never ask again sooner than this
+
+const CONSENT_COPY = {
+  en: { text:'May I use Meta\'s pixel to see which adverts bring people here? It sets cookies and tells Meta about your visit. Nothing loads unless you accept.',
+        yes:'ACCEPT', no:'DECLINE', more:'Cookie policy' },
+  it: { text:'Posso utilizzare il pixel di Meta per sapere quali inserzioni portano le persone fin qui? Installa cookie e comunica a Meta la Sua visita. Se non accetta, non viene caricato nulla.',
+        yes:'ACCETTO', no:'RIFIUTO', more:'Informativa sui cookie' }
+};
+
+function readConsent(){
+  try {
+    const v = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+    if(!v || !v.at) return null;
+    if(Date.now() - v.at > CONSENT_MONTHS * 30 * 864e5) return null;   // stale, ask again
+    return v.state === 'granted' ? 'granted' : 'denied';
+  } catch(e){ return null; }        // storage blocked: ask rather than assume
+}
+let consentState = readConsent();
+
+let pixelLoaded = false;
+function loadPixel(){
+  if(pixelLoaded) return;
+  pixelLoaded = true;
+  // Meta's own snippet, moved inside this function so it cannot possibly run
+  // before consent. Their <noscript> tracking image is deliberately left out: it
+  // would fire for anyone without JavaScript, who has had no chance to choose.
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+}
+// every pixel event in the site goes through here, so one check covers them all
+function pixel(event, data){ if(consentState === 'granted' && window.fbq) fbq('track', event, data); }
+
+const consentBox = document.getElementById('consent');
+function showConsent(){
+  const c = CONSENT_COPY[/^it\b/i.test(navigator.language || '') ? 'it' : 'en'];
+  consentBox.innerHTML = `<p>${c.text}</p>
+    <div class="consent-row">
+      <button type="button" class="yes">${c.yes}</button>
+      <button type="button" class="no">${c.no}</button>
+    </div>
+    <a data-legal="cookies">${c.more}</a>`;
+  consentBox.hidden = false;
+  consentBox.querySelector('.yes').addEventListener('click', () => setConsent('granted'));
+  consentBox.querySelector('.no').addEventListener('click', () => setConsent('denied'));
+  setTimeout(() => consentBox.classList.add('show'), 60);   // not rAF: throttled in background tabs
+}
+function hideConsent(){
+  consentBox.classList.remove('show');
+  setTimeout(() => { consentBox.hidden = true; }, 500);
+}
+function setConsent(state){
+  const had = consentState === 'granted';
+  consentState = state;
+  try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ state, at: Date.now() })); } catch(e){}
+  hideConsent();
+  if(state === 'granted'){ loadPixel(); showToast('Thank you'); return; }
+  // Withdrawing: fbq is already in the page and cannot be unloaded, so clear
+  // Meta's cookies and reload, which is the only honest way to stop it.
+  ['_fbp','_fbc'].forEach(n => {
+    const base = n + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+    document.cookie = base;
+    document.cookie = base + '; domain=.' + location.hostname.replace(/^www\./, '');
+  });
+  if(had) location.reload(); else showToast('Nothing will be set');
+}
+document.querySelectorAll('.consent-change').forEach(b => b.addEventListener('click', showConsent));
+
+if(consentState === 'granted')  loadPixel();
+else if(consentState === null)  showConsent();
+
 function showToast(msg){
   const t=document.createElement('div'); t.className='toast';
   t.innerHTML=`<span style="opacity:.5">◎</span><span>${msg}</span>`;
@@ -1825,6 +2021,8 @@ function showToast(msg){
 function addToCart(artwork){
   if(cart.find(c=>c.id===artwork.id)) return;
   cart.push(artwork);
+  pixel('AddToCart', { content_ids:[`artwork-${artwork.id}`], content_type:'product',
+                       content_name:artwork.title, value:artwork.priceN, currency:'EUR' });
   updateIsland(); pulseIsland(); renderCart();
   showToast(`"${artwork.title}" added to bag`);
   const btn = document.getElementById('pdp-add');
@@ -2997,6 +3195,8 @@ function openArtwork(id){
   const a = ARTWORKS.find(x => x.id === id);
   if(!a) return;
   const inCart = cart.some(c => c.id === a.id);
+  pixel('ViewContent', { content_ids:[`artwork-${a.id}`], content_type:'product',
+                         content_name:a.title, value:a.priceN, currency:'EUR' });
 
   // "You might also like" — same medium first, then closest in price
   const also = ARTWORKS.filter(x => x.id !== a.id && !x.soldOut)
