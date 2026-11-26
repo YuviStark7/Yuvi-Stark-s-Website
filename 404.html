@@ -10,6 +10,11 @@
     // domain at /. Setting <base> here, before anything else loads, makes the
     // fonts and the link home resolve correctly in both cases.
     (function(){
+      // yuvistark.com/Museo, however it is capitalised, goes to the Museo
+      if (/^\/museo\/?$/i.test(location.pathname)) {
+        location.replace('https://museo.yuvistark.com/' + location.search + location.hash);
+        return;
+      }
       var seg  = location.pathname.split('/')[1];
       var base = (/github\.io$/.test(location.hostname) && seg) ? '/' + seg + '/' : '/';
       document.write('<base href="' + base + '">');
